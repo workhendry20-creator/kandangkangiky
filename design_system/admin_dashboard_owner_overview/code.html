@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+
+<html lang="id"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"primary":"#006948","on-secondary-fixed":"#2f1500","secondary":"#904d00","inverse-on-surface":"#f3f0e9","surface-container-low":"#f6f3ec","on-primary-fixed-variant":"#005137","background":"#fcf9f2","on-error-container":"#93000a","primary-fixed-dim":"#68dba9","on-background":"#1c1c18","surface-container-high":"#ebe8e1","tertiary-fixed":"#d3e4fe","on-surface":"#1c1c18","on-primary":"#ffffff","error-container":"#ffdad6","on-tertiary":"#ffffff","surface-container-highest":"#e5e2db","surface-bright":"#fcf9f2","on-tertiary-fixed-variant":"#38485d","secondary-fixed-dim":"#ffb77d","primary-fixed":"#85f8c4","inverse-surface":"#31312c","on-primary-fixed":"#002114","on-secondary-container":"#663500","on-secondary-fixed-variant":"#6e3900","error":"#ba1a1a","surface":"#fcf9f2","on-primary-container":"#f5fff7","surface-tint":"#006c4a","tertiary":"#4d5d73","tertiary-container":"#66768d","on-surface-variant":"#3d4a42","outline":"#6d7a72","outline-variant":"#bccac0","inverse-primary":"#68dba9","surface-container":"#f0eee7","on-tertiary-fixed":"#0b1c30","secondary-container":"#fe932c","surface-container-lowest":"#ffffff","on-error":"#ffffff","on-secondary":"#ffffff","on-tertiary-container":"#fdfcff","tertiary-fixed-dim":"#b7c8e1","surface-dim":"#dcdad3","secondary-fixed":"#ffdcc3","surface-variant":"#e5e2db","primary-container":"#00855d"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"margin-mobile":"1rem","space-sm":"0.5rem","gutter":"1.5rem","space-md":"1rem","space-xs":"0.25rem","margin":"2rem","gutter-mobile":"1rem","space-xl":"2.5rem","space-lg":"1.5rem"},fontFamily:{"label-sm":["Plus Jakarta Sans"],"headline-lg-mobile":["Plus Jakarta Sans"],"body-md":["Plus Jakarta Sans"],"display":["Plus Jakarta Sans"],"headline-sm":["Plus Jakarta Sans"],"body-sm":["Plus Jakarta Sans"],"body-lg":["Plus Jakarta Sans"],"headline-md":["Plus Jakarta Sans"],"caption":["Plus Jakarta Sans"],"label-md":["Plus Jakarta Sans"],"headline-lg":["Plus Jakarta Sans"],"title-md":["Plus Jakarta Sans"]},fontSize:{"label-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"600"}],"headline-lg-mobile":["26px",{"lineHeight":"34px","letterSpacing":"-0.01em","fontWeight":"700"}],"body-md":["15px",{"lineHeight":"22px","fontWeight":"400"}],"display":["44px",{"lineHeight":"52px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-sm":["20px",{"lineHeight":"28px","fontWeight":"600"}],"body-sm":["13px",{"lineHeight":"18px","fontWeight":"400"}],"body-lg":["18px",{"lineHeight":"28px","fontWeight":"400"}],"headline-md":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"600"}],"caption":["11px",{"lineHeight":"14px","letterSpacing":"0.03em","fontWeight":"500"}],"label-md":["14px",{"lineHeight":"20px","letterSpacing":"0.01em","fontWeight":"600"}],"headline-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.015em","fontWeight":"700"}],"title-md":["16px",{"lineHeight":"24px","fontWeight":"600"}]}}}};</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-low z-50 flex flex-col pt-space-lg pb-space-lg shadow-[0_1px_8px_rgba(0,0,0,0.03)]"><div class="px-space-lg mb-space-lg flex items-center gap-space-sm"><img alt="Kandang Kang Iky Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCiu0NVXgXwf-11I2ZGciwiTTz67o7YCEZSIUSIc8j2BGZCnivmHgtWbEMJA7SRw5sBotvRp4hryM_5pNEsMUCMXsX2ELbIw37IrUJ8tMatGN-DhaJH9TAH7_zUZ5g7Bm3rIoTyMxofIExt-8xvL6BXlNMgGwMHv9m2pCItuCQwcBFcunoYCtvV9WvdM9wZ2GXud_J3NtW-ykgaTOjmf5WhAB2pMft4aup3WaYh1M4"/><div class="flex flex-col"><span class="font-title-md text-title-md text-primary font-bold leading-tight">Kang Iky</span><span class="font-caption text-caption text-on-surface-variant uppercase tracking-wider">Farm Admin Console</span></div></div><div class="px-space-lg mb-space-md"><div class="flex items-center gap-space-xs bg-surface-container-lowest px-space-md py-space-xs rounded-full shadow-[0_1px_4px_rgba(0,0,0,0.02)]"><span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span><span class="font-label-sm text-label-sm text-primary font-medium truncate">Sheets Live Sync Active</span></div></div><nav class="flex-1 px-space-md space-y-space-xs" data-active-classes="bg-primary-container text-on-primary-container font-label-md text-label-md rounded-xl"><a aria-current="page" class="flex items-center gap-space-sm px-space-md py-space-sm transition-all bg-primary-container text-on-primary-container font-label-md text-label-md rounded-xl" data-path="admin-dashboard" href="#"><span class="material-symbols-outlined text-[20px]">grid_view</span><span class="font-label-md text-label-md">Ringkasan Kandang</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="lacak-domba" href="#"><span class="material-symbols-outlined text-[20px]">pets</span><span class="font-label-md text-label-md">Lacak &amp; Silsilah Domba</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="input-log" href="#"><span class="material-symbols-outlined text-[20px]">edit_calendar</span><span class="font-label-md text-label-md">Input Log Pakan &amp; Bobot</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="panduan-titip-qurban" href="#"><span class="material-symbols-outlined text-[20px]">volunteer_activism</span><span class="font-label-md text-label-md">Panduan Titip Qurban</span></a></nav><div class="px-space-md mt-auto pt-space-md"><div class="p-space-md bg-surface-container-lowest rounded-xl flex items-center gap-space-sm"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-2 ring-primary-fixed" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbJQee_yFjybfWaeCdayqIp07BbCOjv16wR126ts5DUJjx1pkklgiMfwiW1g-sXPDhg4pIyNBANJWuPH--y6owDQDmrf2s5Pmv_9_Ot3LftlWxJo60aGRXenlb-8NhIwn3ICXAhHCwlN3ia7zAI1vItp5TQBg3VVURO4B053H9cb4XNRiFUr6ttlP4LlCktGD_TBnOxaVwdiwb0Nr9GC5iZNc6Ogw2C069Lhi64r0"/><div class="flex flex-col min-w-0"><span class="font-label-md text-label-md text-on-surface font-semibold truncate">Kang Iky</span><span class="font-caption text-caption text-primary truncate font-medium">Owner &amp; Pengelola</span></div></div></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-20 bg-surface/85 backdrop-blur-xl z-40 flex items-center justify-between px-margin shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex items-center gap-space-sm"><span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container px-space-sm py-space-xs rounded-full font-medium">Kandang Utama: Parung Bogor</span></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs bg-surface-container-low px-space-md py-space-xs rounded-full"><span class="w-2.5 h-2.5 rounded-full bg-primary"></span><span class="font-label-sm text-label-sm text-primary font-medium">Google Sheets Live Sync</span></div><div class="flex items-center gap-space-sm"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-2 ring-primary-fixed" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbJQee_yFjybfWaeCdayqIp07BbCOjv16wR126ts5DUJjx1pkklgiMfwiW1g-sXPDhg4pIyNBANJWuPH--y6owDQDmrf2s5Pmv_9_Ot3LftlWxJo60aGRXenlb-8NhIwn3ICXAhHCwlN3ia7zAI1vItp5TQBg3VVURO4B053H9cb4XNRiFUr6ttlP4LlCktGD_TBnOxaVwdiwb0Nr9GC5iZNc6Ogw2C069Lhi64r0"/></div></div></header><main class="relative pt-20 bg-background min-h-screen"><div class="flex flex-col w-full px-margin py-space-lg space-y-space-lg">
+<!-- Top Hero Greeting & Synchronization Status -->
+<div class="relative overflow-hidden rounded-xl bg-surface-container-lowest p-space-lg shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="relative z-10 flex flex-col space-y-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-fixed text-on-primary-fixed">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+</span>
+<span class="font-label-sm text-label-sm text-primary uppercase tracking-wider">Pusat Kendali Penggemukan &amp; Qurban</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Selamat Datang, Kang Iky!</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">
+        Owner &amp; Kepala Peternak • Ringkasan operasional harian, performa bobot pakan, dan validasi titip amanah qurban Parung Bogor.
+      </p>
+</div>
+<!-- Sync Indicator & Quick Actions -->
+<div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-space-sm">
+<div class="flex items-center gap-space-sm px-space-md py-space-sm rounded-xl bg-surface-container-low shadow-sm">
+<span class="relative flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+</span>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">Google Sheets Sync</span>
+<span class="font-caption text-caption text-primary bg-primary-fixed/40 px-1.5 py-0.5 rounded">Aktif</span>
+</div>
+<span class="font-caption text-caption text-on-surface-variant">Terakhir diperbarui: 2 menit lalu</span>
+</div>
+</div>
+<button class="flex items-center gap-space-xs px-space-md py-space-sm rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface transition-all shadow-sm active:scale-95" id="btnManualSync" onclick="triggerManualSync()">
+<span class="material-symbols-outlined text-[18px] text-primary" id="syncIcon">sync</span>
+<span class="font-label-sm text-label-sm font-semibold">Sinkron Manual</span>
+</button>
+</div>
+<!-- Soft Decorative Ambient Accent -->
+<div class="absolute -right-12 -top-12 w-64 h-64 bg-primary-fixed/20 rounded-full blur-3xl pointer-events-none"></div>
+</div>
+<!-- Stat KPI Cards (4 Column Fluid Grid) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
+<!-- KPI 1: Total Populasi -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between transition-all hover:shadow-md">
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Total Ternak Hidup</span>
+<div class="w-9 h-9 rounded-xl bg-primary-fixed/30 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">pets</span>
+</div>
+</div>
+<div>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-display text-display text-on-surface font-bold">128</span>
+<span class="font-body-md text-body-md text-on-surface-variant">ekor</span>
+</div>
+<div class="mt-space-xs flex items-center gap-space-xs text-primary font-semibold">
+<span class="material-symbols-outlined text-[16px]">trending_up</span>
+<span class="font-label-sm text-label-sm">+14 ekor bulan ini</span>
+</div>
+</div>
+<div class="mt-space-md pt-space-xs bg-surface-container-low px-space-sm py-space-xs rounded-lg flex justify-between items-center text-on-surface-variant">
+<span class="font-caption text-caption">92 Garut Super</span>
+<span class="font-caption text-caption text-outline">|</span>
+<span class="font-caption text-caption">36 Merino/Dormas</span>
+</div>
+</div>
+<!-- KPI 2: Total Mitra Qurban -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between transition-all hover:shadow-md">
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Mitra Pemilik / Qurban</span>
+<div class="w-9 h-9 rounded-xl bg-secondary-fixed/50 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[20px]">handshake</span>
+</div>
+</div>
+<div>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-display text-display text-on-surface font-bold">94</span>
+<span class="font-body-md text-body-md text-on-surface-variant">mitra</span>
+</div>
+<div class="mt-space-xs flex items-center gap-space-xs text-secondary font-semibold">
+<span class="material-symbols-outlined text-[16px]">account_balance_wallet</span>
+<span class="font-label-sm text-label-sm">82 Lunas / Booking DP</span>
+</div>
+</div>
+<div class="mt-space-md pt-space-xs bg-surface-container-low px-space-sm py-space-xs rounded-lg flex justify-between items-center text-on-surface-variant">
+<span class="font-caption text-caption">12 Cicilan Tabungan</span>
+<span class="font-caption text-caption text-primary font-medium">98.2% Kolektibilitas</span>
+</div>
+</div>
+<!-- KPI 3: Pending Logs / Update -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between transition-all hover:shadow-md">
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Perlu Update Bobot</span>
+<div class="w-9 h-9 rounded-xl bg-secondary-container/20 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[20px]">scale</span>
+</div>
+</div>
+<div>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-display text-display text-on-surface font-bold">12</span>
+<span class="font-body-md text-body-md text-on-surface-variant">domba</span>
+</div>
+<div class="mt-space-xs inline-flex items-center gap-space-xs px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed">
+<span class="material-symbols-outlined text-[14px]">warning</span>
+<span class="font-caption text-caption font-bold">Butuh Log Baru (&gt;7 Hari)</span>
+</div>
+</div>
+<div class="mt-space-md pt-space-xs bg-surface-container-low px-space-sm py-space-xs rounded-lg flex justify-between items-center text-on-surface-variant">
+<span class="font-caption text-caption">Blok B: 8 ekor</span>
+<span class="font-caption text-caption text-outline">|</span>
+<span class="font-caption text-caption">Blok A: 4 ekor</span>
+</div>
+</div>
+<!-- KPI 4: Indeks Kesehatan Prima -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between transition-all hover:shadow-md">
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Indeks Kesehatan Kandang</span>
+<div class="w-9 h-9 rounded-xl bg-primary-fixed/40 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">ecg_heart</span>
+</div>
+</div>
+<div>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-display text-display text-primary font-bold">98.4%</span>
+<span class="font-body-md text-body-md text-on-surface-variant">sehat</span>
+</div>
+<div class="mt-space-xs flex items-center gap-space-xs text-on-surface-variant">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="font-label-sm text-label-sm">126 Kondisi Prima Sehat</span>
+</div>
+</div>
+<div class="mt-space-md pt-space-xs bg-surface-container-low px-space-sm py-space-xs rounded-lg flex justify-between items-center text-on-surface-variant">
+<span class="font-caption text-caption text-secondary font-medium">2 Dalam Observasi Ringan</span>
+<span class="font-caption text-caption">0 Karantina Berat</span>
+</div>
+</div>
+</div>
+<!-- Action Bar & Filter Toolbar -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-space-md">
+<!-- Search Field -->
+<div class="relative flex-1 min-w-[280px]">
+<span class="material-symbols-outlined absolute left-space-md top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
+<input class="w-full pl-10 pr-space-md py-2.5 bg-surface-container-low rounded-lg font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface-container transition-all" id="searchQueryInput" oninput="handleSearchTable(this.value)" placeholder="Cari ID Domba (#KKY-...), nama pemilik, atau no kandang..." type="text"/>
+</div>
+<!-- Filter Dropdowns & Export Buttons -->
+<div class="flex flex-wrap items-center gap-space-sm">
+<!-- Status Filter -->
+<div class="relative">
+<select class="appearance-none bg-surface-container-low text-on-surface font-label-sm text-label-sm px-space-md py-2.5 pr-8 rounded-lg cursor-pointer focus:outline-none hover:bg-surface-container transition-all" id="filterStatus" onchange="filterLivestockTable()">
+<option value="all">Status: Semua Status</option>
+<option value="titip">Masa Penitipan</option>
+<option value="siap">Siap Qurban</option>
+<option value="observasi">Observasi / Rawat</option>
+<option value="terjual">Sudah Terjual</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-outline text-[18px]">expand_more</span>
+</div>
+<!-- Pen Block Filter -->
+<div class="relative">
+<select class="appearance-none bg-surface-container-low text-on-surface font-label-sm text-label-sm px-space-md py-2.5 pr-8 rounded-lg cursor-pointer focus:outline-none hover:bg-surface-container transition-all" id="filterBlok" onchange="filterLivestockTable()">
+<option value="all">Kandang: Semua Blok</option>
+<option value="Blok A">Blok A (Garut Premium)</option>
+<option value="Blok B">Blok B (Merino Fattening)</option>
+<option value="Blok C">Blok C (Dormas &amp; Betina)</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-outline text-[18px]">expand_more</span>
+</div>
+<!-- Export to Google Sheets Button -->
+<button class="flex items-center gap-space-xs px-space-md py-2.5 bg-surface-container-low hover:bg-surface-container text-on-surface font-label-sm text-label-sm rounded-lg transition-all active:scale-95 shadow-sm" onclick="handleExportSheets()">
+<span class="material-symbols-outlined text-[18px] text-primary">table_view</span>
+<span>Export Sheets</span>
+</button>
+<!-- Primary Action: + Tambah Domba Baru -->
+<button class="flex items-center gap-space-xs px-space-lg py-2.5 bg-primary text-on-primary hover:bg-primary-container font-label-md text-label-md rounded-lg shadow-md transition-all active:scale-95" onclick="toggleModalDomba(true)">
+<span class="material-symbols-outlined text-[20px]">add_circle</span>
+<span>+ Tambah Domba Baru</span>
+</button>
+</div>
+</div>
+<!-- Main Content Layout: Data Table (8 cols) + Side Drawer Activity Log (4 cols) -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg items-start">
+<!-- Primary Livestock Ledger Table (xl:col-span-9) -->
+<div class="xl:col-span-9 bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden flex flex-col">
+<!-- Table Header & Summary Row -->
+<div class="px-space-lg py-space-md bg-surface-container-low flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Data Inventaris Domba Aktif</h2>
+<span class="font-caption text-caption text-on-surface-variant">Menampilkan real-time log bobot, kondisi medis, dan verifikasi muqorrib.</span>
+</div>
+<div class="flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm">
+<span>Menampilkan</span>
+<span class="font-bold text-on-surface" id="visibleRowCount">5</span>
+<span>dari 128 domba</span>
+</div>
+</div>
+<!-- Table Container -->
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left" id="tableDomba">
+<thead>
+<tr class="bg-surface-container-high/40 text-on-surface-variant font-caption text-caption uppercase tracking-wider">
+<th class="py-3 px-space-md">ID &amp; Pen</th>
+<th class="py-3 px-space-md">Pemilik / Mitra</th>
+<th class="py-3 px-space-md">Ras &amp; Spesifikasi</th>
+<th class="py-3 px-space-md text-right">BB Awal</th>
+<th class="py-3 px-space-md text-right">BB Kini (+Gain)</th>
+<th class="py-3 px-space-md text-center">Target Qurban</th>
+<th class="py-3 px-space-md">Update Log</th>
+<th class="py-3 px-space-md text-center">Status</th>
+<th class="py-3 px-space-md text-right">Aksi</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-high/30 font-body-sm text-body-sm text-on-surface" id="livestockTbody">
+<!-- Row 1: Garut Super Jantan (Sehat Prima) -->
+<tr class="hover:bg-surface-container-low transition-colors duration-150" data-blok="Blok A" data-status="siap">
+<td class="py-3.5 px-space-md align-middle">
+<div class="flex flex-col">
+<span class="font-mono font-bold text-primary bg-primary-fixed/30 px-2 py-0.5 rounded text-xs w-max">#KKY-8F3A2</span>
+<span class="font-caption text-caption text-on-surface-variant mt-1">Blok A • Pen 04</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle">
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md font-semibold text-on-surface truncate">H. Ahmad Fauzi</span>
+<span class="font-caption text-caption text-on-surface-variant">0812-9843-1102 (Lunas)</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle">
+<div class="flex items-center gap-space-sm">
+<img class="w-10 h-10 rounded-lg object-cover bg-surface-container" data-alt="Close up photography of an impressive Priangan Garut ram with curved horns, healthy coat, bright pastoral sunlight at a clean modern wooden barn in Bogor" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJIRuu234XEoHteNuQWEETUFJlBJbeW5KF32BVzQW2BDt-aOTyyoStZkPibqfhpDHT9aP985sAtkVned4CaV2MuMkZgfdgiRVFChMWuKgwcuoaSj5MEVHJJ5N5hPHSan4IioshMtD_-5_hR3wQ4ZKn9zrXb0Bk80WzWDhbwX2DBhzbpj8bQ9KPld31X1hbT7S_Aj-oB_GXmdTtA5WNsaej0Fd4eRV8x_jlktc15ko"/>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-semibold">Garut Tanduk Mewah</span>
+<span class="font-caption text-caption text-on-surface-variant">Umur: 2.2 Th • Gigi Poel 1</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle text-right font-mono font-medium text-on-surface-variant">
+                38.5 kg
+              </td>
+<td class="py-3.5 px-space-md align-middle text-right">
+<div class="flex flex-col items-end">
+<span class="font-mono font-bold text-on-surface text-base">52.4 kg</span>
+<span class="font-caption text-caption text-primary font-bold">+13.9 kg (ADG 220g)</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle">
+<div class="flex flex-col w-28 mx-auto space-y-1">
+<div class="flex justify-between font-caption text-caption">
+<span class="text-on-surface-variant">Target 55 kg</span>
+<span class="text-primary font-bold">95%</span>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 95%;"></div>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-medium">Hari ini, 08:30</span>
+<span class="font-caption text-caption text-on-surface-variant">Oleh: Rahmat (ABK)</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle text-center">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary-fixed/40 text-primary font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                  Sehat Prima
+                </span>
+</td>
+<td class="py-3.5 px-space-md align-middle text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="px-2.5 py-1 bg-surface-container hover:bg-primary-fixed/50 text-primary rounded-lg font-label-sm text-label-sm font-semibold transition-all" onclick="openLogModal('#KKY-8F3A2', 'H. Ahmad Fauzi', 52.4)">
+                    + Log
+                  </button>
+<button class="p-1 rounded-lg text-outline hover:bg-surface-container text-on-surface-variant transition-all" title="Opsi lainnya">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2: Merino Super (Observasi Ringan) -->
+<tr class="hover:bg-surface-container-low transition-colors duration-150" data-blok="Blok B" data-status="observasi">
+<td class="py-3.5 px-space-md align-middle">
+<div class="flex flex-col">
+<span class="font-mono font-bold text-secondary bg-secondary-fixed/40 px-2 py-0.5 rounded text-xs w-max">#KKY-9B1C4</span>
+<span class="font-caption text-caption text-on-surface-variant mt-1">Blok B • Pen 02</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle">
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md font-semibold text-on-surface truncate">dr. Hendra Pratama</span>
+<span class="font-caption text-caption text-on-surface-variant">0857-1123-9981 (DP 50%)</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle">
+<div class="flex items-center gap-space-sm">
+<img class="w-10 h-10 rounded-lg object-cover bg-surface-container" data-alt="Fluffy white Merino sheep resting calmly in a ventilated wood and iron barn, clean hay bedding, soft natural golden morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuApVqEfFXjSFczP6-Vug-RoBU8ZoRM8WKAmWpsxz7M04kvaNVH8bJtrKV6A9cERtAc_0fFaEW4Y9v5Rde27Mr77oukpOqQRXR4MmVK-OKsN6CRflL0G9c-ArNqqXXsOcBurfWesGaTALpGvGOAy_1-zdYPDnp5YhJomDJiPMOqulv22yQ4G3xfYqsdlE2ahRZ9Sa1agMAeYvaveVCL_CSjg8oLaRpOcpT0WzXug0jk"/>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-semibold">Merino Cross Wool</span>
+<span class="font-caption text-caption text-on-surface-variant">Umur: 1.8 Th • Moncong Bersih</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle text-right font-mono font-medium text-on-surface-variant">
+                42.0 kg
+              </td>
+<td class="py-3.5 px-space-md align-middle text-right">
+<div class="flex flex-col items-end">
+<span class="font-mono font-bold text-on-surface text-base">49.8 kg</span>
+<span class="font-caption text-caption text-primary font-bold">+7.8 kg (ADG 160g)</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle">
+<div class="flex flex-col w-28 mx-auto space-y-1">
+<div class="flex justify-between font-caption text-caption">
+<span class="text-on-surface-variant">Target 60 kg</span>
+<span class="text-secondary font-bold">83%</span>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 83%;"></div>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-medium">Kemarin, 16:45</span>
+<span class="font-caption text-caption text-on-surface-variant">Oleh: Drh. Salman</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle text-center">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-secondary-fixed/50 text-secondary font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                  Observasi Nafsu
+                </span>
+</td>
+<td class="py-3.5 px-space-md align-middle text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="px-2.5 py-1 bg-surface-container hover:bg-primary-fixed/50 text-primary rounded-lg font-label-sm text-label-sm font-semibold transition-all" onclick="openLogModal('#KKY-9B1C4', 'dr. Hendra Pratama', 49.8)">
+                    + Log
+                  </button>
+<button class="p-1 rounded-lg text-outline hover:bg-surface-container text-on-surface-variant transition-all">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3: Dormas Betina / Breeding Qurban -->
+<tr class="hover:bg-surface-container-low transition-colors duration-150" data-blok="Blok C" data-status="titip">
+<td class="py-3.5 px-space-md align-middle">
+<div class="flex flex-col">
+<span class="font-mono font-bold text-primary bg-primary-fixed/30 px-2 py-0.5 rounded text-xs w-max">#KKY-4D2E8</span>
+<span class="font-caption text-caption text-on-surface-variant mt-1">Blok C • Pen 08</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle">
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md font-semibold text-on-surface truncate">Ibu Dewi Sartika</span>
+<span class="font-caption text-caption text-on-surface-variant">0813-8877-2231 (Cicilan 3/6)</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle">
+<div class="flex items-center gap-space-sm">
+<img class="w-10 h-10 rounded-lg object-cover bg-surface-container" data-alt="Dormas breed sheep standing healthy in a clean pasture barn setting, soft focus wooden railings, warm sunlight highlighting sleek fleece" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6Y0T1jqZSwzBCvxAGNZVNKUF_LkG_3e-owL4Ql6qKCOS1tI_Qgv7flfboGLauQ6nvFeT2OAdJ5U4bLvtDy8l8gq5XKmbhGRm-WQC-5Wq-9Z6lRDXELlZR9eKlCo6glDtWfSk18rDQIwqxMQjnq2-4zlifqGd28T1JcKPrUeEnDUCWDy3-U2LLQ6HcI2h3k7f2Nl67Wyb2V1ai1fU-PPmps9ve79B_FiKJv0Lhez0"/>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-semibold">Dormas Pedaging</span>
+<span class="font-caption text-caption text-on-surface-variant">Umur: 1.5 Th • Calon Qurban B</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle text-right font-mono font-medium text-on-surface-variant">
+                31.0 kg
+              </td>
+<td class="py-3.5 px-space-md align-middle text-right">
+<div class="flex flex-col items-end">
+<span class="font-mono font-bold text-on-surface text-base">44.2 kg</span>
+<span class="font-caption text-caption text-primary font-bold">+13.2 kg (ADG 240g)</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle">
+<div class="flex flex-col w-28 mx-auto space-y-1">
+<div class="flex justify-between font-caption text-caption">
+<span class="text-on-surface-variant">Target 45 kg</span>
+<span class="text-primary font-bold">98%</span>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 98%;"></div>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-medium">3 Hari lalu</span>
+<span class="font-caption text-caption text-on-surface-variant">Oleh: Rahmat (ABK)</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle text-center">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary-fixed/40 text-primary font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                  Sehat Prima
+                </span>
+</td>
+<td class="py-3.5 px-space-md align-middle text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="px-2.5 py-1 bg-surface-container hover:bg-primary-fixed/50 text-primary rounded-lg font-label-sm text-label-sm font-semibold transition-all" onclick="openLogModal('#KKY-4D2E8', 'Ibu Dewi Sartika', 44.2)">
+                    + Log
+                  </button>
+<button class="p-1 rounded-lg text-outline hover:bg-surface-container text-on-surface-variant transition-all">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4: Garut Super Blok A (Siap Qurban) -->
+<tr class="hover:bg-surface-container-low transition-colors duration-150" data-blok="Blok A" data-status="siap">
+<td class="py-3.5 px-space-md align-middle">
+<div class="flex flex-col">
+<span class="font-mono font-bold text-primary bg-primary-fixed/30 px-2 py-0.5 rounded text-xs w-max">#KKY-7C3F1</span>
+<span class="font-caption text-caption text-on-surface-variant mt-1">Blok A • Pen 01</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle">
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md font-semibold text-on-surface truncate">Bpk. Irwan Saputra</span>
+<span class="font-caption text-caption text-on-surface-variant">0818-4455-6677 (Lunas Penuh)</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle">
+<div class="flex items-center gap-space-sm">
+<img class="w-10 h-10 rounded-lg object-cover bg-surface-container" data-alt="Magnificent black and white Garut fighting ram with broad spiral horns, calm posture, clean professional modern farming pen" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcOguGr4j5wd0numDhCSk-76cl6qAHQNKKhfrjSfaipuorY_p_eHbNeeenWxVAjFmrnu8A6uJgmK6whufQlDuZ18andsrMeKgdvBLuqvwnfQ2JGuBJXbdPxQ4ZtciDQpcdz_mNthIGHEnKmQuKm8HxgEcl3ZCdS9mduh52hThjW0r9LIXEwKkubXs2KeZccgUz2WcLgASFSDnlT-h9SIX8cuiiVJGalqW_gFRMFUM"/>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-semibold">Garut Tanduk Gayor</span>
+<span class="font-caption text-caption text-on-surface-variant">Umur: 2.5 Th • Postur Jumbo</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle text-right font-mono font-medium text-on-surface-variant">
+                45.0 kg
+              </td>
+<td class="py-3.5 px-space-md align-middle text-right">
+<div class="flex flex-col items-end">
+<span class="font-mono font-bold text-on-surface text-base">63.5 kg</span>
+<span class="font-caption text-caption text-primary font-bold">+18.5 kg (ADG 260g)</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle">
+<div class="flex flex-col w-28 mx-auto space-y-1">
+<div class="flex justify-between font-caption text-caption">
+<span class="text-on-surface-variant">Target 60 kg</span>
+<span class="text-primary font-bold">106%</span>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 100%;"></div>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-medium">Hari ini, 09:15</span>
+<span class="font-caption text-caption text-on-surface-variant">Oleh: Kang Iky</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle text-center">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary-fixed/40 text-primary font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                  Siap Qurban
+                </span>
+</td>
+<td class="py-3.5 px-space-md align-middle text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="px-2.5 py-1 bg-surface-container hover:bg-primary-fixed/50 text-primary rounded-lg font-label-sm text-label-sm font-semibold transition-all" onclick="openLogModal('#KKY-7C3F1', 'Bpk. Irwan Saputra', 63.5)">
+                    + Log
+                  </button>
+<button class="p-1 rounded-lg text-outline hover:bg-surface-container text-on-surface-variant transition-all">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 5: Butuh Update Log (>7 Hari) -->
+<tr class="hover:bg-surface-container-low transition-colors duration-150" data-blok="Blok B" data-status="titip">
+<td class="py-3.5 px-space-md align-middle">
+<div class="flex flex-col">
+<span class="font-mono font-bold text-on-surface-variant bg-surface-container px-2 py-0.5 rounded text-xs w-max">#KKY-5A8D9</span>
+<span class="font-caption text-caption text-on-surface-variant mt-1">Blok B • Pen 06</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle">
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md font-semibold text-on-surface truncate">Kang Farhan Kamil</span>
+<span class="font-caption text-caption text-on-surface-variant">0878-9900-1122 (Titip Gemuk)</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle">
+<div class="flex items-center gap-space-sm">
+<img class="w-10 h-10 rounded-lg object-cover bg-surface-container" data-alt="Sturdy Merino Dorper cross ram eating fresh green grass fodder in a well-kept eco-farm pen in West Java" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDOWTsTKb4nXjy6yrw5Sa00icveaCmx-VB3VOOTbe7ie0KsBVGaSxi_0lwaTzTr6FnZHFoBCtWiUJt8yWPmSllrOVp_tF3tkXz4-opgQoZziTbTwHO21MCqj7S9FV8f0nGOlyRizHBsgOk30F2NhwMPJSSbTD7CDYmarjYMFws2AqJIMVr_KqgittnsNPw9IqD01yi01I2qWPQLDxnpQPs8wnCFWP_o884JOxW2mkA"/>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-semibold">Merino Dorper F1</span>
+<span class="font-caption text-caption text-on-surface-variant">Umur: 1.4 Th • Fase Penggemukan</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle text-right font-mono font-medium text-on-surface-variant">
+                33.5 kg
+              </td>
+<td class="py-3.5 px-space-md align-middle text-right">
+<div class="flex flex-col items-end">
+<span class="font-mono font-bold text-on-surface text-base">41.0 kg</span>
+<span class="font-caption text-caption text-secondary font-bold">+7.5 kg (Perlu Update)</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle">
+<div class="flex flex-col w-28 mx-auto space-y-1">
+<div class="flex justify-between font-caption text-caption">
+<span class="text-on-surface-variant">Target 50 kg</span>
+<span class="text-secondary font-bold">82%</span>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 82%;"></div>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-semibold text-secondary">8 Hari Lalu</span>
+<span class="font-caption text-caption text-on-surface-variant">Jadwal Timbang Telat</span>
+</div>
+</td>
+<td class="py-3.5 px-space-md align-middle text-center">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-outline"></span>
+                  Menunggu Timbang
+                </span>
+</td>
+<td class="py-3.5 px-space-md align-middle text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="px-2.5 py-1 bg-secondary text-on-secondary hover:bg-secondary-container rounded-lg font-label-sm text-label-sm font-semibold transition-all" onclick="openLogModal('#KKY-5A8D9', 'Kang Farhan Kamil', 41.0)">
+                    Timbang Sekarang
+                  </button>
+<button class="p-1 rounded-lg text-outline hover:bg-surface-container text-on-surface-variant transition-all">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination Footer -->
+<div class="px-space-lg py-space-md bg-surface-container-low flex flex-col sm:flex-row items-center justify-between gap-space-sm">
+<span class="font-caption text-caption text-on-surface-variant">
+          Sinkronisasi otomatis dengan Sheet: <code class="font-mono text-primary font-semibold">DB_Domba_KangIky_2025_v4</code>
+</span>
+<div class="flex items-center gap-space-xs">
+<button class="px-space-sm py-1 rounded bg-surface-container text-outline hover:text-on-surface transition-all disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-[16px]">chevron_left</span>
+</button>
+<span class="px-space-md py-1 rounded bg-primary text-on-primary font-label-sm text-label-sm font-semibold">1</span>
+<button class="px-space-md py-1 rounded bg-surface-container hover:bg-surface-container-high font-label-sm text-label-sm transition-all">2</button>
+<button class="px-space-md py-1 rounded bg-surface-container hover:bg-surface-container-high font-label-sm text-label-sm transition-all">3</button>
+<span class="font-caption text-caption text-outline">...</span>
+<button class="px-space-md py-1 rounded bg-surface-container hover:bg-surface-container-high font-label-sm text-label-sm transition-all">26</button>
+<button class="px-space-sm py-1 rounded bg-surface-container text-on-surface hover:bg-surface-container-high transition-all">
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Right Side Activity & Quick Sync Drawer (xl:col-span-3) -->
+<div class="xl:col-span-3 space-y-space-md">
+<!-- Telemetry Gauge Card: Target Kesiapan Qurban -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm">
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Kesiapan Idul Adha</span>
+<span class="font-caption text-caption text-primary bg-primary-fixed/40 px-2 py-0.5 rounded-full font-bold">H-92 Hari</span>
+</div>
+<!-- Inline SVG Semi-circular progress ring -->
+<div class="flex flex-col items-center justify-center my-space-sm">
+<div class="relative w-40 h-24 flex items-end justify-center overflow-hidden">
+<svg class="w-40 h-40 transform -rotate-180" viewbox="0 0 100 100">
+<path class="text-surface-container-high" d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="12"></path>
+<path class="text-primary" d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="currentColor" stroke-dasharray="125.6" stroke-dashoffset="31.4" stroke-linecap="round" stroke-width="12"></path>
+</svg>
+<div class="absolute bottom-1 flex flex-col items-center">
+<span class="font-headline-md text-headline-md font-bold text-on-surface">75%</span>
+<span class="font-caption text-caption text-on-surface-variant -mt-1">Bobot Mencapai Spek</span>
+</div>
+</div>
+<p class="font-caption text-caption text-center text-on-surface-variant mt-2 px-space-xs">
+            96 dari 128 domba telah melampaui bobot minimum qurban syar'i (≥40kg).
+          </p>
+</div>
+<div class="pt-space-sm border-t border-surface-container-low flex justify-between text-caption font-caption text-on-surface-variant">
+<span>Rata-rata ADG: <strong class="text-on-surface font-semibold">218 gr/hari</strong></span>
+<span>FCR Silase: <strong class="text-primary font-semibold">1.14</strong></span>
+</div>
+</div>
+<!-- Live Activity Log Feed -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col">
+<div class="flex items-center justify-between pb-space-xs mb-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">history</span>
+<span class="font-label-md text-label-md font-semibold text-on-surface">Log Penimbangan Hari Ini</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+</div>
+<div class="space-y-space-sm" id="activityFeed">
+<!-- Activity Item 1 -->
+<div class="p-space-sm rounded-lg bg-surface-container-low flex items-start gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-primary-fixed/40 text-primary flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[16px]">scale</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center justify-between gap-space-xs">
+<span class="font-label-sm text-label-sm font-bold text-on-surface">#KKY-7C3F1</span>
+<span class="font-caption text-caption text-on-surface-variant">09:15 WIB</span>
+</div>
+<span class="font-caption text-caption text-on-surface-variant truncate">Penimbangan rutin Blok A</span>
+<span class="font-label-sm text-label-sm text-primary font-semibold mt-0.5">+1.2 kg dalam 7 hari • 63.5 kg</span>
+</div>
+</div>
+<!-- Activity Item 2 -->
+<div class="p-space-sm rounded-lg bg-surface-container-low flex items-start gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-primary-fixed/40 text-primary flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[16px]">scale</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center justify-between gap-space-xs">
+<span class="font-label-sm text-label-sm font-bold text-on-surface">#KKY-8F3A2</span>
+<span class="font-caption text-caption text-on-surface-variant">08:30 WIB</span>
+</div>
+<span class="font-caption text-caption text-on-surface-variant truncate">Cek kesehatan + Timbang pakan</span>
+<span class="font-label-sm text-label-sm text-primary font-semibold mt-0.5">+0.9 kg • Capai 52.4 kg</span>
+</div>
+</div>
+<!-- Activity Item 3 -->
+<div class="p-space-sm rounded-lg bg-surface-container-low flex items-start gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-secondary-fixed/50 text-secondary flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[16px]">medication</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center justify-between gap-space-xs">
+<span class="font-label-sm text-label-sm font-bold text-on-surface">#KKY-9B1C4</span>
+<span class="font-caption text-caption text-on-surface-variant">Kemarin</span>
+</div>
+<span class="font-caption text-caption text-on-surface-variant truncate">Injeksi Vitamin B-Kompleks</span>
+<span class="font-label-sm text-label-sm text-secondary font-semibold mt-0.5">Nafsu makan membaik • Drh. Salman</span>
+</div>
+</div>
+<!-- Activity Item 4 -->
+<div class="p-space-sm rounded-lg bg-surface-container-low flex items-start gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-surface-container-high text-on-surface flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[16px]">sync_alt</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center justify-between gap-space-xs">
+<span class="font-label-sm text-label-sm font-bold text-on-surface">Sinkronisasi Cloud</span>
+<span class="font-caption text-caption text-on-surface-variant">07:00 WIB</span>
+</div>
+<span class="font-caption text-caption text-on-surface-variant">128 data domba terverifikasi ke Spreadsheet Kang Iky.</span>
+</div>
+</div>
+</div>
+<button class="w-full mt-space-sm py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold transition-all text-center" onclick="alert('Membuka seluruh rekam jejak audit log kandang...')">
+          Lihat Semua Audit Log
+        </button>
+</div>
+<!-- Quick Tips Banner for Operators -->
+<div class="p-space-md rounded-xl bg-gradient-to-br from-primary/10 via-surface-container-lowest to-surface-container-low border border-primary/20 flex flex-col space-y-space-xs">
+<div class="flex items-center gap-space-xs text-primary font-semibold">
+<span class="material-symbols-outlined text-[18px]">lightbulb</span>
+<span class="font-label-sm text-label-sm">Standard Operating Procedure</span>
+</div>
+<p class="font-caption text-caption text-on-surface-variant leading-relaxed">
+          Pemberian konsentrat fermentasi bungkil kedelai dilakukan pukul 07:30 &amp; 15:30. Pastikan air minum mineral ad-libitum tidak kosong di tiap pen.
+        </p>
+</div>
+</div>
+</div>
+<!-- MODAL: Tambah Domba Baru -->
+<div class="fixed inset-0 z-50 hidden bg-on-background/50 backdrop-blur-sm flex items-center justify-center p-space-md" id="modalTambahDomba">
+<div class="bg-surface-container-lowest w-full max-w-xl rounded-2xl shadow-xl overflow-hidden flex flex-col">
+<div class="p-space-md bg-surface-container flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="w-8 h-8 rounded-lg bg-primary text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</span>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Tambah Domba Baru</h3>
+<span class="font-caption text-caption text-on-surface-variant">ID Otomatis tersinkronisasi ke Google Sheets</span>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface p-1 rounded-lg" onclick="toggleModalDomba(false)">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<form class="p-space-lg space-y-space-md" onsubmit="handleFormTambahDomba(event)">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface font-semibold mb-1">ID Tag Domba</label>
+<input class="w-full bg-surface-container-low px-space-md py-2 rounded-lg font-mono text-body-sm text-primary font-bold focus:outline-none" readonly="" type="text" value="#KKY-3X9L2"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface font-semibold mb-1">Blok &amp; No. Pen</label>
+<select class="w-full bg-surface-container-low px-space-md py-2 rounded-lg font-body-sm text-body-sm text-on-surface focus:outline-none" required="">
+<option value="Blok A">Blok A (Garut Premium)</option>
+<option value="Blok B">Blok B (Merino Fattening)</option>
+<option value="Blok C">Blok C (Dormas Pedaging)</option>
+</select>
+</div>
+<div class="sm:col-span-2">
+<label class="block font-label-sm text-label-sm text-on-surface font-semibold mb-1">Nama Mitra / Pemilik</label>
+<input class="w-full bg-surface-container-low px-space-md py-2 rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none" placeholder="Contoh: H. Ahmad Subardjo" required="" type="text"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface font-semibold mb-1">Nomor WhatsApp Pemilik</label>
+<input class="w-full bg-surface-container-low px-space-md py-2 rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none" placeholder="08xxxxxxxxxx" required="" type="tel"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface font-semibold mb-1">Jenis / Ras Domba</label>
+<select class="w-full bg-surface-container-low px-space-md py-2 rounded-lg font-body-sm text-body-sm text-on-surface focus:outline-none" required="">
+<option>Garut Tanduk Mewah</option>
+<option>Merino Super Wool</option>
+<option>Dormas Pedaging Jumbo</option>
+<option>Teksel / Compass</option>
+</select>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface font-semibold mb-1">Bobot Awal Masuk (kg)</label>
+<input class="w-full bg-surface-container-low px-space-md py-2 rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none" placeholder="Contoh: 35.5" required="" step="0.1" type="number"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface font-semibold mb-1">Target Bobot Qurban (kg)</label>
+<input class="w-full bg-surface-container-low px-space-md py-2 rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none" placeholder="Contoh: 55.0" required="" step="0.5" type="number"/>
+</div>
+</div>
+<div class="flex items-center justify-end gap-space-sm pt-space-sm">
+<button class="px-space-md py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm font-semibold transition-all" onclick="toggleModalDomba(false)" type="button">
+            Batal
+          </button>
+<button class="px-space-lg py-2 rounded-lg bg-primary text-on-primary hover:bg-primary-container font-label-md text-label-md font-semibold shadow-sm transition-all" type="submit">
+            Simpan &amp; Sync ke Sheet
+          </button>
+</div>
+</form>
+</div>
+</div>
+<!-- MODAL: Input Log Bobot Cepat -->
+<div class="fixed inset-0 z-50 hidden bg-on-background/50 backdrop-blur-sm flex items-center justify-center p-space-md" id="modalInputLog">
+<div class="bg-surface-container-lowest w-full max-w-md rounded-2xl shadow-xl overflow-hidden flex flex-col">
+<div class="p-space-md bg-surface-container flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="w-8 h-8 rounded-lg bg-primary text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">scale</span>
+</span>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Input Log Bobot</h3>
+<span class="font-caption text-caption text-on-surface-variant" id="modalLogSubtitle">#KKY-XXXX - Pemilik</span>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface p-1 rounded-lg" onclick="closeLogModal()">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<form class="p-space-lg space-y-space-md" onsubmit="handleFormInputLog(event)">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface font-semibold mb-1">Bobot Sebelumnya</label>
+<input class="w-full bg-surface-container-low px-space-md py-2 rounded-lg font-mono text-body-md text-on-surface-variant focus:outline-none" id="inputPreviousWeight" readonly="" type="text"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface font-semibold mb-1">Bobot Timbang Terkini (kg)</label>
+<input class="w-full bg-surface-container-low px-space-md py-2 rounded-lg font-mono text-headline-sm text-primary font-bold focus:outline-none" id="inputNewWeight" placeholder="00.0" required="" step="0.1" type="number"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface font-semibold mb-1">Kondisi Kesehatan</label>
+<select class="w-full bg-surface-container-low px-space-md py-2 rounded-lg font-body-sm text-body-sm text-on-surface focus:outline-none" id="inputCondition">
+<option value="Sehat Prima">Sehat Prima • Aktif &amp; Nafsu Makan Baik</option>
+<option value="Observasi Nafsu">Observasi Ringan • Pakan Lambat</option>
+<option value="Perlu Dokter">Perlu Kunjungan Dokter Hewan</option>
+</select>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface font-semibold mb-1">Catatan Pakan / Suplemen (Opsional)</label>
+<textarea class="w-full bg-surface-container-low px-space-md py-2 rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none" placeholder="Contoh: Diberi molase + rumput odot fermentasi..." rows="2"></textarea>
+</div>
+<div class="flex items-center justify-end gap-space-sm pt-space-xs">
+<button class="px-space-md py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm font-semibold transition-all" onclick="closeLogModal()" type="button">
+            Batal
+          </button>
+<button class="px-space-lg py-2 rounded-lg bg-primary text-on-primary hover:bg-primary-container font-label-md text-label-md font-semibold shadow-sm transition-all" type="submit">
+            Simpan Log Bobot
+          </button>
+</div>
+</form>
+</div>
+</div>
+</div>
+<!-- Client-side Micro-interactions -->
+<script>
+  // Manual Sheet Sync Trigger
+  function triggerManualSync() {
+    const syncIcon = document.getElementById('syncIcon');
+    const btn = document.getElementById('btnManualSync');
+    
+    syncIcon.classList.add('animate-spin');
+    btn.disabled = true;
+
+    setTimeout(() => {
+      syncIcon.classList.remove('animate-spin');
+      btn.disabled = false;
+      alert('Berhasil tersinkronisasi dengan Google Sheets live database!');
+    }, 1200);
+  }
+
+  // Quick Export Simulation
+  function handleExportSheets() {
+    const activeRows = document.querySelectorAll('#livestockTbody tr:not([style*="display: none"])').length;
+    alert(`Mengekspor ${activeRows} record ternak ke format Google Spreadsheet (.xlsx / live linked)... Selesai.`);
+  }
+
+  // Filter Table Logic
+  function filterLivestockTable() {
+    const statusVal = document.getElementById('filterStatus').value;
+    const blokVal = document.getElementById('filterBlok').value;
+    const rows = document.querySelectorAll('#livestockTbody tr');
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+      const rowStatus = row.getAttribute('data-status');
+      const rowBlok = row.getAttribute('data-blok');
+
+      const matchesStatus = (statusVal === 'all') || (rowStatus === statusVal);
+      const matchesBlok = (blokVal === 'all') || (rowBlok === blokVal);
+
+      if (matchesStatus && matchesBlok) {
+        row.style.display = '';
+        visibleCount++;
+      } else {
+        row.style.display = 'none';
+      }
+    });
+
+    document.getElementById('visibleRowCount').textContent = visibleCount;
+  }
+
+  // Search Table Logic
+  function handleSearchTable(query) {
+    const cleanQuery = query.toLowerCase().trim();
+    const rows = document.querySelectorAll('#livestockTbody tr');
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+      const text = row.innerText.toLowerCase();
+      if (text.includes(cleanQuery)) {
+        row.style.display = '';
+        visibleCount++;
+      } else {
+        row.style.display = 'none';
+      }
+    });
+
+    document.getElementById('visibleRowCount').textContent = visibleCount;
+  }
+
+  // Modal Domba Baru Control
+  function toggleModalDomba(show) {
+    const modal = document.getElementById('modalTambahDomba');
+    if (show) {
+      modal.classList.remove('hidden');
+    } else {
+      modal.classList.add('hidden');
+    }
+  }
+
+  function handleFormTambahDomba(e) {
+    e.preventDefault();
+    alert('Domba baru berhasil didaftarkan dan ID QR Code telah dibuat otomatis di database!');
+    toggleModalDomba(false);
+  }
+
+  // Modal Log Bobot Control
+  let activeLogId = '';
+  function openLogModal(id, owner, currentKg) {
+    activeLogId = id;
+    document.getElementById('modalLogSubtitle').textContent = `${id} • Mitra: ${owner}`;
+    document.getElementById('inputPreviousWeight').value = `${currentKg} kg`;
+    document.getElementById('inputNewWeight').value = (currentKg + 0.4).toFixed(1);
+    document.getElementById('modalInputLog').classList.remove('hidden');
+  }
+
+  function closeLogModal() {
+    document.getElementById('modalInputLog').classList.add('hidden');
+  }
+
+  function handleFormInputLog(e) {
+    e.preventDefault();
+    const newWeight = document.getElementById('inputNewWeight').value;
+    alert(`Log bobot untuk ${activeLogId} sebesar ${newWeight} kg berhasil disimpan & live-synced.`);
+    closeLogModal();
+  }
+</script></main></div></body></html>

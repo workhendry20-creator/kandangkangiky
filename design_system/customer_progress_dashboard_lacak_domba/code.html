@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+
+<html lang="id"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"primary":"#006948","on-secondary-fixed":"#2f1500","secondary":"#904d00","inverse-on-surface":"#f3f0e9","surface-container-low":"#f6f3ec","on-primary-fixed-variant":"#005137","background":"#fcf9f2","on-error-container":"#93000a","primary-fixed-dim":"#68dba9","on-background":"#1c1c18","surface-container-high":"#ebe8e1","tertiary-fixed":"#d3e4fe","on-surface":"#1c1c18","on-primary":"#ffffff","error-container":"#ffdad6","on-tertiary":"#ffffff","surface-container-highest":"#e5e2db","surface-bright":"#fcf9f2","on-tertiary-fixed-variant":"#38485d","secondary-fixed-dim":"#ffb77d","primary-fixed":"#85f8c4","inverse-surface":"#31312c","on-primary-fixed":"#002114","on-secondary-container":"#663500","on-secondary-fixed-variant":"#6e3900","error":"#ba1a1a","surface":"#fcf9f2","on-primary-container":"#f5fff7","surface-tint":"#006c4a","tertiary":"#4d5d73","tertiary-container":"#66768d","on-surface-variant":"#3d4a42","outline":"#6d7a72","outline-variant":"#bccac0","inverse-primary":"#68dba9","surface-container":"#f0eee7","on-tertiary-fixed":"#0b1c30","secondary-container":"#fe932c","surface-container-lowest":"#ffffff","on-error":"#ffffff","on-secondary":"#ffffff","on-tertiary-container":"#fdfcff","tertiary-fixed-dim":"#b7c8e1","surface-dim":"#dcdad3","secondary-fixed":"#ffdcc3","surface-variant":"#e5e2db","primary-container":"#00855d"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"margin-mobile":"1rem","space-sm":"0.5rem","gutter":"1.5rem","space-md":"1rem","space-xs":"0.25rem","margin":"2rem","gutter-mobile":"1rem","space-xl":"2.5rem","space-lg":"1.5rem"},fontFamily:{"label-sm":["Plus Jakarta Sans"],"headline-lg-mobile":["Plus Jakarta Sans"],"body-md":["Plus Jakarta Sans"],"display":["Plus Jakarta Sans"],"headline-sm":["Plus Jakarta Sans"],"body-sm":["Plus Jakarta Sans"],"body-lg":["Plus Jakarta Sans"],"headline-md":["Plus Jakarta Sans"],"caption":["Plus Jakarta Sans"],"label-md":["Plus Jakarta Sans"],"headline-lg":["Plus Jakarta Sans"],"title-md":["Plus Jakarta Sans"]},fontSize:{"label-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"600"}],"headline-lg-mobile":["26px",{"lineHeight":"34px","letterSpacing":"-0.01em","fontWeight":"700"}],"body-md":["15px",{"lineHeight":"22px","fontWeight":"400"}],"display":["44px",{"lineHeight":"52px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-sm":["20px",{"lineHeight":"28px","fontWeight":"600"}],"body-sm":["13px",{"lineHeight":"18px","fontWeight":"400"}],"body-lg":["18px",{"lineHeight":"28px","fontWeight":"400"}],"headline-md":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"600"}],"caption":["11px",{"lineHeight":"14px","letterSpacing":"0.03em","fontWeight":"500"}],"label-md":["14px",{"lineHeight":"20px","letterSpacing":"0.01em","fontWeight":"600"}],"headline-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.015em","fontWeight":"700"}],"title-md":["16px",{"lineHeight":"24px","fontWeight":"600"}]}}}};</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased"><header class="fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-20 w-full px-margin flex items-center justify-between gap-gutter"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-sm"><img alt="Kandang Kang Iky Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCiu0NVXgXwf-11I2ZGciwiTTz67o7YCEZSIUSIc8j2BGZCnivmHgtWbEMJA7SRw5sBotvRp4hryM_5pNEsMUCMXsX2ELbIw37IrUJ8tMatGN-DhaJH9TAH7_zUZ5g7Bm3rIoTyMxofIExt-8xvL6BXlNMgGwMHv9m2pCItuCQwcBFcunoYCtvV9WvdM9wZ2GXud_J3NtW-ykgaTOjmf5WhAB2pMft4aup3WaYh1M4"/><div class="flex flex-col"><span class="font-title-md text-title-md text-primary tracking-tight font-bold">Kandang Kang Iky</span><span class="font-caption text-caption text-on-surface-variant uppercase tracking-wider">Livestock Intelligence</span></div></div><nav class="hidden xl:flex items-center gap-space-md ml-space-md" data-active-classes="bg-primary text-on-primary font-label-md text-label-md rounded-lg px-space-md py-space-xs"><a aria-current="page" class="transition-colors bg-primary text-on-primary font-label-md text-label-md rounded-lg px-space-md py-space-xs" data-path="lacak-domba" href="#">Beranda / Lacak Domba</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors px-space-sm py-space-xs" data-path="admin-dashboard" href="#">Admin Dashboard</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors px-space-sm py-space-xs" data-path="input-log" href="#">Input Log</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors px-space-sm py-space-xs" data-path="panduan-titip-qurban" href="#">Panduan Titip Qurban</a></nav></div><div class="flex items-center gap-space-md"><div class="hidden md:flex items-center gap-space-xs bg-surface-container-low px-space-md py-space-xs rounded-full shadow-[0_1px_4px_rgba(0,0,0,0.02)]"><span class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></span><span class="font-label-sm text-label-sm text-primary font-medium">Google Sheets Live Sync</span></div><div class="flex items-center gap-space-sm pl-space-sm"><div class="flex flex-col text-right hidden sm:flex"><span class="font-label-md text-label-md text-on-surface font-semibold">Kang Iky</span><span class="font-caption text-caption text-on-surface-variant">Pemilik Peternakan</span></div><div class="relative"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-2 ring-primary-fixed" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbJQee_yFjybfWaeCdayqIp07BbCOjv16wR126ts5DUJjx1pkklgiMfwiW1g-sXPDhg4pIyNBANJWuPH--y6owDQDmrf2s5Pmv_9_Ot3LftlWxJo60aGRXenlb-8NhIwn3ICXAhHCwlN3ia7zAI1vItp5TQBg3VVURO4B053H9cb4XNRiFUr6ttlP4LlCktGD_TBnOxaVwdiwb0Nr9GC5iZNc6Ogw2C069Lhi64r0"/><span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-primary ring-2 ring-surface"></span></div></div></div></div></header><main class="w-full pt-20 bg-background"><div class="flex flex-col w-full">
+<div class="w-full max-w-7xl mx-auto px-margin-mobile md:px-margin py-space-md md:py-space-xl flex flex-col gap-space-lg">
+<!-- Top Action / Context Bar -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-md">
+<div class="flex flex-wrap items-center gap-space-sm">
+<a class="inline-flex items-center gap-space-xs text-on-surface-variant hover:text-primary transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+<span>Kembali ke Pencarian</span>
+</a>
+<span class="text-outline-variant select-none">/</span>
+<span class="font-mono font-label-sm text-label-sm px-space-sm py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-bold tracking-wider">
+          #KKY-8F3A2
+        </span>
+</div>
+<div class="flex items-center gap-space-sm self-start sm:self-auto">
+<div class="inline-flex items-center gap-space-xs px-space-md py-1.5 rounded-full bg-primary-fixed/40 text-on-primary-fixed shadow-sm">
+<span class="relative flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
+</span>
+<span class="font-label-sm text-label-sm font-semibold tracking-wide">Active Care • Masa Penitipan</span>
+</div>
+<button class="p-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface-variant transition-colors" id="quickCopyBtn" title="Salin Kode Referensi">
+<span class="material-symbols-outlined text-[20px]">content_copy</span>
+</button>
+</div>
+</div>
+<!-- Sheep Hero & Profile Card -->
+<div class="relative w-full rounded-2xl bg-surface-container-lowest shadow-md overflow-hidden">
+<div class="grid grid-cols-1 lg:grid-cols-12">
+<!-- Visual Media Box -->
+<div class="lg:col-span-5 relative group overflow-hidden bg-surface-container-high min-h-[320px] lg:min-h-full">
+<img class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out" data-alt="Magnificent prize Indonesian Priangan Garut ram with grand spiraling horns standing proudly in a sunlit wooden barn pen with clean straw bedding, natural morning daylight highlighting textured white fleece, high end livestock photography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWShWHOG1qrkmL_IXETLt3D0kpMX5EP3mt0RAyC-fP-HxOWsg3oobCYP2uE67W63qYMMfwe1WYpztmV9hetypNlrESyxCS965G8qfV7M9nzf3PBd2ffkeFuBNQxGkQwVHCWUhOVNkbxVui4tcFpvoMgUHoKkKveAnlPQwUSlpKsskTBT-GDPEFLhzwTbeJJHS2uz1Zoz7ULR0lL2rPGlR3JtrZtqrEYbos_2Y6PoY"/>
+<div class="absolute inset-0 bg-gradient-to-t from-inverse-surface/80 via-transparent to-transparent lg:hidden"></div>
+<div class="absolute top-space-md left-space-md flex flex-wrap gap-space-xs">
+<span class="bg-primary text-on-primary font-label-sm text-label-sm px-3 py-1 rounded-full shadow-sm flex items-center gap-1 font-bold">
+<span class="material-symbols-outlined text-[16px]">verified</span> Grade Super
+            </span>
+<span class="bg-surface-container-lowest/90 backdrop-blur-md text-on-surface font-label-sm text-label-sm px-3 py-1 rounded-full shadow-sm">
+              Tanduk Melingkar Simetris
+            </span>
+</div>
+<div class="absolute bottom-space-md left-space-md right-space-md text-inverse-on-surface lg:hidden">
+<p class="font-headline-sm text-headline-sm font-bold">Domba Garut Super</p>
+<p class="font-body-sm text-body-sm opacity-90">Pemilik: Bpk. Hendra • Blok B-04</p>
+</div>
+</div>
+<!-- Spec Detail Column -->
+<div class="lg:col-span-7 p-space-md md:p-space-lg lg:p-space-xl flex flex-col justify-between gap-space-lg">
+<div class="flex flex-col gap-space-xs">
+<div class="hidden lg:flex items-center justify-between">
+<span class="font-caption text-caption uppercase tracking-widest text-primary font-bold">Livestock Digital Ledger</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-primary">sync</span> Live Sync Terverifikasi
+              </span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface font-bold tracking-tight mt-1">
+              Domba Garut Super <span class="text-primary font-mono text-headline-md font-semibold">#KKY-8F3A2</span>
+</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">
+              Priangan Garut Ras Murni. Perawatan intensif pakan hijauan segar &amp; konsentrat fermentasi formula Kang Iky.
+            </p>
+<!-- Metadata Grid -->
+<div class="grid grid-cols-2 sm:grid-cols-3 gap-space-sm mt-space-md">
+<div class="p-space-sm rounded-xl bg-surface-container-low flex flex-col">
+<span class="font-caption text-caption text-on-surface-variant uppercase">Pemilik Sah</span>
+<span class="font-title-md text-title-md text-on-surface font-semibold mt-0.5 truncate">Bpk. Hendra</span>
+<span class="font-label-sm text-label-sm text-primary flex items-center gap-0.5 mt-1">
+<span class="material-symbols-outlined text-[14px]">format_image_left</span> Qurban 1447H
+                </span>
+</div>
+<div class="p-space-sm rounded-xl bg-surface-container-low flex flex-col">
+<span class="font-caption text-caption text-on-surface-variant uppercase">Mulai Masuk</span>
+<span class="font-title-md text-title-md text-on-surface font-semibold mt-0.5">12 Jan 2026</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1">Durasi: 262 Hari</span>
+</div>
+<div class="p-space-sm rounded-xl bg-surface-container-low flex flex-col col-span-2 sm:col-span-1">
+<span class="font-caption text-caption text-on-surface-variant uppercase">Lokasi Kandang</span>
+<span class="font-title-md text-title-md text-on-surface font-semibold mt-0.5">Kandang Blok B-04</span>
+<span class="font-label-sm text-label-sm text-secondary font-medium mt-1">Penitipan V.I.P.</span>
+</div>
+</div>
+</div>
+<!-- Quick Livestock Health Badges -->
+<div class="flex flex-wrap items-center gap-space-xs pt-space-xs">
+<span class="px-3 py-1.5 rounded-lg bg-surface-container text-on-surface font-label-sm text-label-sm flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-primary">thermostat</span> Suhu: 38.6°C
+            </span>
+<span class="px-3 py-1.5 rounded-lg bg-surface-container text-on-surface font-label-sm text-label-sm flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-primary">restaurant</span> Nafsu Pakan: Sangat Baik
+            </span>
+<span class="px-3 py-1.5 rounded-lg bg-surface-container text-on-surface font-label-sm text-label-sm flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-primary">health_and_safety</span> Status Obat Cacing: Bersih
+            </span>
+<span class="px-3 py-1.5 rounded-lg bg-primary-fixed/50 text-on-primary-fixed font-label-sm text-label-sm flex items-center gap-1.5 font-bold">
+<span class="material-symbols-outlined text-[16px]">task_alt</span> Memenuhi Syarat Syar'i
+            </span>
+</div>
+</div>
+</div>
+</div>
+<!-- Metrics Cards (3 Columns) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- Metric 1: Initial Weight -->
+<div class="p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant font-medium">Bobot Awal (Check-in)</span>
+<div class="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[22px]">history</span>
+</div>
+</div>
+<div class="my-space-md">
+<div class="flex items-baseline gap-1.5">
+<span class="font-display text-display font-bold text-on-surface tracking-tight">25.0</span>
+<span class="font-title-md text-title-md text-on-surface-variant font-semibold">kg</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[15px] text-outline">calendar_today</span> 12 Januari 2026
+          </span>
+</div>
+<div class="pt-space-xs border-t-0 bg-surface-container-low/60 -mx-space-lg -mb-space-lg px-space-lg py-2.5">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Kondisi Datang: Bakalan Muda Sehat</span>
+</div>
+</div>
+<!-- Metric 2: Current Weight -->
+<div class="p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-shadow">
+<div class="absolute top-0 left-0 right-0 h-1 bg-primary"></div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Bobot Saat Ini</span>
+<span class="px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-bold animate-pulse">
+              Live
+            </span>
+</div>
+<div class="w-10 h-10 rounded-xl bg-primary-fixed/40 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[22px]">scale</span>
+</div>
+</div>
+<div class="my-space-md">
+<div class="flex items-baseline gap-1.5">
+<span class="font-display text-display font-bold text-primary tracking-tight">34.5</span>
+<span class="font-title-md text-title-md text-primary font-semibold">kg</span>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<span class="inline-flex items-center gap-0.5 text-primary font-label-sm text-label-sm font-bold bg-primary-fixed/30 px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[16px]">trending_up</span> +9.5 kg (+38.0%)
+            </span>
+<span class="font-caption text-caption text-on-surface-variant">sejak masuk</span>
+</div>
+</div>
+<div class="pt-space-xs bg-primary-fixed/20 -mx-space-lg -mb-space-lg px-space-lg py-2.5 flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-primary-fixed font-bold">Penimbangan Terakhir: 1 Okt 2026</span>
+<span class="font-caption text-caption text-primary font-semibold">+1.2 kg / mgg</span>
+</div>
+</div>
+<!-- Metric 3: Target Weight -->
+<div class="p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant font-medium">Target Bobot Iduladha</span>
+<div class="w-10 h-10 rounded-xl bg-secondary-fixed/40 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[22px]">flag</span>
+</div>
+</div>
+<div class="my-space-md">
+<div class="flex items-baseline gap-1.5">
+<span class="font-display text-display font-bold text-on-surface tracking-tight">45.0</span>
+<span class="font-title-md text-title-md text-on-surface-variant font-semibold">kg</span>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<span class="font-label-sm text-label-sm text-secondary font-bold bg-secondary-fixed/30 px-2 py-0.5 rounded-full">
+              Sisa 10.5 kg lagi
+            </span>
+<span class="font-caption text-caption text-on-surface-variant">Estimasi Capai: 45 Hari</span>
+</div>
+</div>
+<div class="pt-space-xs bg-surface-container-low/60 -mx-space-lg -mb-space-lg px-space-lg py-2.5">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Status Target: On-Track Terkendali</span>
+</div>
+</div>
+</div>
+<!-- Countdown & Target Dual Progress Banner -->
+<div class="w-full p-space-lg rounded-2xl bg-gradient-to-r from-primary to-primary-container text-on-primary shadow-md relative overflow-hidden">
+<!-- Background subtle graphics -->
+<div class="absolute -right-12 -bottom-12 w-64 h-64 rounded-full bg-surface-container-lowest/10 blur-2xl pointer-events-none"></div>
+<div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-space-lg">
+<div class="flex flex-col gap-1 max-w-xl">
+<div class="inline-flex items-center gap-1.5 bg-surface-container-lowest/20 backdrop-blur-md px-3 py-1 rounded-full text-on-primary w-fit font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[16px]">celebration</span> Hitung Mundur Hari Raya Kurban
+          </div>
+<h2 class="font-headline-md text-headline-md font-bold tracking-tight mt-1">
+            85 Hari Menuju Iduladha 1447H
+          </h2>
+<p class="font-body-sm text-body-sm text-on-primary-container opacity-90">
+            Domba Anda dirawat dengan protokol pakan terukur untuk memastikan postur tegap, daging padat berisi, dan kesiapan kurban sempurna.
+          </p>
+</div>
+<!-- Visual Dual Progress Bars -->
+<div class="w-full lg:w-96 flex flex-col gap-space-sm bg-surface-container-lowest/15 backdrop-blur-md p-space-md rounded-xl">
+<!-- Weight Progress -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between font-label-sm text-label-sm text-on-primary font-semibold">
+<span>Capaian Bobot Target</span>
+<span class="font-mono">76.6% (34.5 / 45 kg)</span>
+</div>
+<div class="w-full h-3 bg-surface-container-lowest/25 rounded-full overflow-hidden p-0.5">
+<div class="h-full bg-primary-fixed rounded-full transition-all duration-1000 ease-out" style="width: 76.6%"></div>
+</div>
+</div>
+<!-- Time Elapsed Progress -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between font-label-sm text-label-sm text-on-primary-container font-medium">
+<span>Waktu Pemeliharaan Terlampaui</span>
+<span class="font-mono">68% Selesai</span>
+</div>
+<div class="w-full h-2 bg-surface-container-lowest/25 rounded-full overflow-hidden p-0.5">
+<div class="h-full bg-secondary-container rounded-full transition-all duration-1000 ease-out" style="width: 68%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Weight Growth Analytics Section -->
+<div class="p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm flex flex-col gap-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div class="flex flex-col">
+<span class="font-caption text-caption uppercase text-primary font-bold tracking-wider">Telemetry &amp; Trajectory</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight">Grafik Perkembangan Bobot Mingguan</h3>
+</div>
+<div class="flex flex-wrap items-center gap-space-md font-label-sm text-label-sm">
+<div class="flex items-center gap-2">
+<span class="w-4 h-1.5 rounded-full bg-primary"></span>
+<span class="text-on-surface font-semibold">Bobot Aktual</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-4 h-0.5 border-t border-dashed border-secondary"></span>
+<span class="text-on-surface-variant">Rencana Target</span>
+</div>
+</div>
+</div>
+<!-- Growth Line Chart (SVG) -->
+<div class="w-full relative mt-space-sm overflow-x-auto pb-space-xs">
+<div class="min-w-[620px] w-full h-72 relative">
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 760 260">
+<defs>
+<lineargradient id="actualGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#006948" stop-opacity="0.28"></stop>
+<stop offset="100%" stop-color="#006948" stop-opacity="0.0"></stop>
+</lineargradient>
+</defs>
+<!-- Horizontal Grid lines & Y Axis Labels -->
+<!-- 45 kg -->
+<line stroke="#E5E2DB" stroke-dasharray="3 3" stroke-width="1" x1="40" x2="740" y1="30" y2="30"></line>
+<text class="text-[11px] font-mono" fill="#6D7A72" text-anchor="end" x="32" y="34">45k</text>
+<!-- 35 kg -->
+<line stroke="#E5E2DB" stroke-dasharray="3 3" stroke-width="1" x1="40" x2="740" y1="95" y2="95"></line>
+<text class="text-[11px] font-mono" fill="#6D7A72" text-anchor="end" x="32" y="99">35k</text>
+<!-- 25 kg -->
+<line stroke="#E5E2DB" stroke-dasharray="3 3" stroke-width="1" x1="40" x2="740" y1="165" y2="165"></line>
+<text class="text-[11px] font-mono" fill="#6D7A72" text-anchor="end" x="32" y="169">25k</text>
+<!-- Baseline 15 kg -->
+<line stroke="#E5E2DB" stroke-width="1" x1="40" x2="740" y1="230" y2="230"></line>
+<text class="text-[11px] font-mono" fill="#6D7A72" text-anchor="end" x="32" y="234">15k</text>
+<!-- Target Growth Trajectory Line (Dashed Secondary) -->
+<!-- M1(50, 165) -> M8(720, 30) -->
+<path d="M 50 165 L 145 146 L 240 127 L 335 107 L 430 88 L 525 69 L 620 49 L 715 30" fill="none" opacity="0.8" stroke="#904d00" stroke-dasharray="5 5" stroke-width="2"></path>
+<!-- Actual Growth Area Fill (M1 to M8) -->
+<!-- Points: 
+                 M1: 50, 165 (25.0kg)
+                 M2: 145, 157 (26.2kg)
+                 M3: 240, 148 (27.5kg)
+                 M4: 335, 137 (29.0kg)
+                 M5: 430, 126 (30.5kg)
+                 M6: 525, 116 (32.0kg)
+                 M7: 620, 107 (33.3kg)
+                 M8: 715, 98  (34.5kg)
+            -->
+<path d="M 50 165 
+                     L 145 157 
+                     L 240 148 
+                     L 335 137 
+                     L 430 126 
+                     L 525 116 
+                     L 620 107 
+                     L 715 98 
+                     L 715 230 
+                     L 50 230 Z" fill="url(#actualGradient)"></path>
+<!-- Actual Growth Line -->
+<path d="M 50 165 
+                     L 145 157 
+                     L 240 148 
+                     L 335 137 
+                     L 430 126 
+                     L 525 116 
+                     L 620 107 
+                     L 715 98" fill="none" stroke="#006948" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.5"></path>
+<!-- Node Points -->
+<circle cx="50" cy="165" fill="#006948" r="4.5" stroke="#ffffff" stroke-width="2"></circle>
+<circle cx="145" cy="157" fill="#006948" r="4.5" stroke="#ffffff" stroke-width="2"></circle>
+<circle cx="240" cy="148" fill="#006948" r="4.5" stroke="#ffffff" stroke-width="2"></circle>
+<circle cx="335" cy="137" fill="#006948" r="4.5" stroke="#ffffff" stroke-width="2"></circle>
+<circle cx="430" cy="126" fill="#006948" r="4.5" stroke="#ffffff" stroke-width="2"></circle>
+<circle cx="525" cy="116" fill="#006948" r="4.5" stroke="#ffffff" stroke-width="2"></circle>
+<circle cx="620" cy="107" fill="#006948" r="4.5" stroke="#ffffff" stroke-width="2"></circle>
+<!-- Highlight node M8 (Latest) -->
+<circle cx="715" cy="98" fill="#85f8c4" fill-opacity="0.5" r="8"></circle>
+<circle cx="715" cy="98" fill="#006948" r="5" stroke="#ffffff" stroke-width="2.5"></circle>
+<!-- Target Callout Indicator at M8 -->
+<g transform="translate(640, 48)">
+<rect fill="#006948" height="28" rx="6" width="85" x="0" y="0"></rect>
+<text class="text-[12px] font-bold font-mono" fill="#ffffff" text-anchor="middle" x="42.5" y="18">34.5 kg</text>
+<polygon fill="#006948" points="42.5,28 37.5,33 47.5,33"></polygon>
+</g>
+<!-- X Axis Labels -->
+<text class="text-[12px] font-medium" fill="#6D7A72" text-anchor="middle" x="50" y="250">Mgg 1</text>
+<text class="text-[12px] font-medium" fill="#6D7A72" text-anchor="middle" x="145" y="250">Mgg 2</text>
+<text class="text-[12px] font-medium" fill="#6D7A72" text-anchor="middle" x="240" y="250">Mgg 3</text>
+<text class="text-[12px] font-medium" fill="#6D7A72" text-anchor="middle" x="335" y="250">Mgg 4</text>
+<text class="text-[12px] font-medium" fill="#6D7A72" text-anchor="middle" x="430" y="250">Mgg 5</text>
+<text class="text-[12px] font-medium" fill="#6D7A72" text-anchor="middle" x="525" y="250">Mgg 6</text>
+<text class="text-[12px] font-medium" fill="#6D7A72" text-anchor="middle" x="620" y="250">Mgg 7</text>
+<text class="text-[12px] font-bold" fill="#006948" text-anchor="middle" x="715" y="250">Mgg 8 (Kini)</text>
+</svg>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row items-center justify-between p-space-sm rounded-xl bg-surface-container-low text-on-surface-variant font-body-sm text-body-sm gap-space-xs">
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-primary">auto_graph</span>
+          Pertumbuhan rata-rata: <strong class="text-on-surface">~1.19 kg / minggu</strong> (Di atas standar bobot ras Garut).
+        </span>
+<span class="font-mono text-caption text-caption text-primary font-semibold">ADG (Average Daily Gain): +170 gram/hari</span>
+</div>
+</div>
+<!-- Progress Timeline & Veterinary Log Feed -->
+<div class="flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div>
+<span class="font-caption text-caption uppercase text-primary font-bold tracking-wider">Aktivitas Terkini</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight">Timeline Catatan Perawatan &amp; Kesehatan</h3>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container-high px-3 py-1 rounded-full">
+          Total 8 Log Tercatat
+        </span>
+</div>
+<!-- Feed Cards Container -->
+<div class="flex flex-col gap-space-md relative">
+<!-- Feed Item 1 (Terbaru) -->
+<div class="p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm flex flex-col md:flex-row gap-space-md transition-all hover:shadow-md">
+<div class="w-full md:w-44 flex-shrink-0 relative rounded-xl overflow-hidden bg-surface-container-high h-40 md:h-auto">
+<img class="w-full h-full object-cover" data-alt="Close up photograph of healthy Garut ram eating green Napier grass with shiny eyes and clean horns in wooden pen, bright sunlight, farm animal care" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDr4-XiSo_YkHOPaoesBn6ANIRXh1NSo6Ep2CMp80JNETiCSVdYDoZ18PC9OdU_c9xcl_APse4LiaSWuo7Tt6iyIhQ0fDRPtOeo1GtLWo37JeP3gM40PvrNwWspLcVBNT6amK15-dDzQ0SUBtg4yJhhg8L1hUc2rrVmlRGTw-B1rUS0IqaWk97JAc8DpyOgEtKT81lxcWujQxUACbFxapKI6zQlgfOjkxwlgKeqsE0"/>
+<button class="absolute bottom-2 right-2 p-1.5 rounded-lg bg-inverse-surface/80 text-inverse-on-surface hover:bg-inverse-surface transition-colors" title="Lihat Foto Dokumentasi">
+<span class="material-symbols-outlined text-[18px]">zoom_in</span>
+</button>
+</div>
+<div class="flex-grow flex flex-col justify-between gap-space-sm">
+<div>
+<div class="flex flex-wrap items-center justify-between gap-space-xs mb-1">
+<div class="flex items-center gap-space-xs">
+<span class="px-2.5 py-0.5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm font-bold">
+                    Update Terbaru
+                  </span>
+<span class="font-mono font-caption text-caption text-on-surface-variant">01 Okt 2026 • 08:30 WIB</span>
+</div>
+<div class="flex items-center gap-1 font-mono font-bold text-primary font-title-md text-title-md">
+<span>34.5 kg</span>
+<span class="text-caption font-label-sm text-label-sm bg-primary-fixed/40 text-on-primary-fixed px-2 py-0.5 rounded-full">+1.2 kg</span>
+</div>
+</div>
+<div class="flex flex-wrap items-center gap-2 mt-2">
+<span class="px-2.5 py-1 rounded-md bg-primary-fixed/40 text-on-primary-fixed font-label-sm text-label-sm font-bold inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">check_circle</span> Sehat &amp; Cacingan Clear
+                </span>
+<span class="px-2.5 py-1 rounded-md bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+                  Pemberian: Rumput Gajah + Ampas Tahu Super
+                </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface mt-space-sm">
+                "Pakan konsentrat ditingkatkan persentasenya menyongsong fase akhir penggemukan. Nafsu makan luar biasa agresif, gerak aktif, tanduk bersih dan kuku telah dirapikan. Feses normal tanpa tanda infeksi parasit."
+              </p>
+</div>
+<div class="pt-space-xs flex items-center justify-between text-caption font-caption text-on-surface-variant">
+<span>Pencatat: <strong>Mantri Agis, S.Pt</strong> (Kepala Kandang)</span>
+<span class="flex items-center gap-1 text-primary font-semibold">
+<span class="material-symbols-outlined text-[16px]">verified_user</span> Foto &amp; Bobot Tervalidasi
+              </span>
+</div>
+</div>
+</div>
+<!-- Feed Item 2 -->
+<div class="p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm flex flex-col md:flex-row gap-space-md transition-all hover:shadow-md">
+<div class="w-full md:w-44 flex-shrink-0 relative rounded-xl overflow-hidden bg-surface-container-high h-40 md:h-auto">
+<img class="w-full h-full object-cover" data-alt="Livestock veterinary administering vitamin injection to healthy white ram in clean modern Indonesian barn facility, professional veterinary care" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9aNcNesslQeCQJrLXhcH3O61GjNV-f7n48XA8YYgYZOrSN0E07CwNBJvEJ3D4svtSostxO8-TO0es7scSf_hQMROt8GNgEkJO7Og_Dx6dbCZQ2UbOACnxB4uHEPdRArcGp0OiTkuaxamwEXZoSoCFBydU76p-8aK83P-pG2n8vIvZ88FVbSCC9TLCmA7mQyzcBBBV2nD_xmjRL3feXXwaYwYcJoH5aPZ-mmR-ZI8"/>
+<button class="absolute bottom-2 right-2 p-1.5 rounded-lg bg-inverse-surface/80 text-inverse-on-surface hover:bg-inverse-surface transition-colors" title="Lihat Foto Dokumentasi">
+<span class="material-symbols-outlined text-[18px]">zoom_in</span>
+</button>
+</div>
+<div class="flex-grow flex flex-col justify-between gap-space-sm">
+<div>
+<div class="flex flex-wrap items-center justify-between gap-space-xs mb-1">
+<div class="flex items-center gap-space-xs">
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm font-semibold">
+                    Vaksinasi &amp; Vitamin
+                  </span>
+<span class="font-mono font-caption text-caption text-on-surface-variant">24 Sep 2026 • 10:15 WIB</span>
+</div>
+<div class="flex items-center gap-1 font-mono font-bold text-on-surface font-title-md text-title-md">
+<span>32.0 kg</span>
+<span class="text-caption font-label-sm text-label-sm bg-surface-container text-on-surface-variant px-2 py-0.5 rounded-full">+1.5 kg</span>
+</div>
+</div>
+<div class="flex flex-wrap items-center gap-2 mt-2">
+<span class="px-2.5 py-1 rounded-md bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-bold inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">vaccines</span> Vaksin B-Complex &amp; Vitamin ADEC
+                </span>
+<span class="px-2.5 py-1 rounded-md bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+                  Suhu Tubuh: 38.8°C (Normal)
+                </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface mt-space-sm">
+                "Injeksi multivitamin berkala untuk memperkuat imunitas di musim pancaroba. Kondisi respirasi stabil, mukosa mata merah muda segar, dan tidak ada lecet tanduk."
+              </p>
+</div>
+<div class="pt-space-xs flex items-center justify-between text-caption font-caption text-on-surface-variant">
+<span>Pencatat: <strong>drh. Maya Sartika</strong> (Dokter Hewan Pendamping)</span>
+<span class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">task</span> Formulir Medis No. #MED-0924
+              </span>
+</div>
+</div>
+</div>
+<!-- Feed Item 3 -->
+<div class="p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm flex flex-col md:flex-row gap-space-md transition-all hover:shadow-md">
+<div class="w-full md:w-44 flex-shrink-0 relative rounded-xl overflow-hidden bg-surface-container-high h-40 md:h-auto">
+<img class="w-full h-full object-cover" data-alt="Clean sheep pen sanitized with organic disinfectant, happy clean white ram standing on fresh golden straw, rural farm sanitation" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-CNUANPZk4-PiWo_WgcW1xuNmFe67XPodrL_O-DAmk-lIUB9Y_W2herYpmHNcLx8XrEvtSf1OrHNdecHFnXBeY5N3ERiE-biXXDjjx8MToNKpnyspuq6wXSjqYHZjkc4vl2m5qxS8HhMonAmxq_FsrUp1mc1mwGCy1I68IS50laT4bsz_pgltEmQ7OJQTsd22GcNe9DGrqOGa6Xcx0TrCmIJFynMU32LrLuFxWm8"/>
+<button class="absolute bottom-2 right-2 p-1.5 rounded-lg bg-inverse-surface/80 text-inverse-on-surface hover:bg-inverse-surface transition-colors" title="Lihat Foto Dokumentasi">
+<span class="material-symbols-outlined text-[18px]">zoom_in</span>
+</button>
+</div>
+<div class="flex-grow flex flex-col justify-between gap-space-sm">
+<div>
+<div class="flex flex-wrap items-center justify-between gap-space-xs mb-1">
+<div class="flex items-center gap-space-xs">
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm font-semibold">
+                    Cek Berkala &amp; Sanitasi
+                  </span>
+<span class="font-mono font-caption text-caption text-on-surface-variant">17 Sep 2026 • 14:00 WIB</span>
+</div>
+<div class="flex items-center gap-1 font-mono font-bold text-on-surface font-title-md text-title-md">
+<span>30.5 kg</span>
+<span class="text-caption font-label-sm text-label-sm bg-surface-container text-on-surface-variant px-2 py-0.5 rounded-full">+1.5 kg</span>
+</div>
+</div>
+<div class="flex flex-wrap items-center gap-2 mt-2">
+<span class="px-2.5 py-1 rounded-md bg-primary-fixed/40 text-on-primary-fixed font-label-sm text-label-sm font-bold inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">done_all</span> Sehat Prima &amp; Higienis
+                </span>
+<span class="px-2.5 py-1 rounded-md bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+                  Sanitasi Kuku &amp; Kandang Blok B-04
+                </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface mt-space-sm">
+                "Pembersihan kandang rutin dan penyemprotan probiotik pengurai bau. Pemotongan kuku preventif untuk mencegah foot rot di area panggung kayu."
+              </p>
+</div>
+<div class="pt-space-xs flex items-center justify-between text-caption font-caption text-on-surface-variant">
+<span>Pencatat: <strong>Kang Iky</strong> (Owner Peternakan)</span>
+<span class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">home_repair_service</span> Sanitasi Rutin 2 Mingguan
+              </span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Assurance & Security Notice Box -->
+<div class="p-space-lg rounded-2xl bg-surface-container-low flex flex-col md:flex-row items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-primary-fixed/50 flex-shrink-0 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[28px]">handshake</span>
+</div>
+<div class="flex flex-col">
+<h4 class="font-title-md text-title-md text-on-surface font-bold">Garansi Pemeliharaan Kurban Amanah</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+            Setiap domba dilindungi program proteksi penggantian setara jika terjadi hal darurat (sakit berat/kematian) tanpa biaya tambahan, menjamin ibadah kurban Anda tepat waktu.
+          </p>
+</div>
+</div>
+<div class="flex-shrink-0 w-full md:w-auto flex justify-end">
+<a class="px-space-md py-space-xs rounded-lg bg-surface-container-highest text-on-surface hover:bg-surface-dim font-label-md text-label-md font-semibold transition-colors flex items-center gap-1.5" href="#">
+<span class="material-symbols-outlined text-[18px]">menu_book</span> Baca Akad Penitipan
+        </a>
+</div>
+</div>
+</div>
+<!-- Sticky Bottom Interaction Bar -->
+<div class="sticky bottom-0 z-40 w-full bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_-4px_16px_rgba(0,0,0,0.06)] py-space-sm px-margin-mobile md:px-margin">
+<div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-space-sm">
+<div class="hidden md:flex items-center gap-space-sm">
+<span class="w-3 h-3 rounded-full bg-primary"></span>
+<span class="font-body-sm text-body-sm text-on-surface font-semibold">
+          Kandang Kang Iky • Layanan Pemantauan Ternak 24/7
+        </span>
+</div>
+<div class="flex items-center gap-space-sm w-full sm:w-auto justify-end">
+<!-- Share Progress Button -->
+<button class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-space-xs px-space-lg py-2.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md font-semibold transition-colors shadow-sm" id="shareLinkBtn">
+<span class="material-symbols-outlined text-[18px]">share</span>
+<span>Bagikan Link Progress</span>
+</button>
+<!-- Direct WhatsApp Chat CTA -->
+<a class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-space-xs px-space-lg py-2.5 rounded-xl bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md font-bold transition-transform active:scale-95 shadow-md" href="https://wa.me/6281234567890?text=Halo%20Kang%20Iky,%20saya%20ingin%20tanya%20kondisi%20domba%20saya%20dengan%20kode%20%23KKY-8F3A2" rel="noopener noreferrer" target="_blank">
+<span class="material-symbols-outlined text-[20px]">chat</span>
+<span>Chat Admin WhatsApp</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Simple micro-interaction for copy reference code
+  document.getElementById('quickCopyBtn')?.addEventListener('click', function() {
+    navigator.clipboard.writeText('#KKY-8F3A2').then(() => {
+      const icon = this.querySelector('span');
+      const original = icon.textContent;
+      icon.textContent = 'check';
+      setTimeout(() => {
+        icon.textContent = original;
+      }, 2000);
+    });
+  });
+
+  // Share link handler
+  document.getElementById('shareLinkBtn')?.addEventListener('click', function() {
+    if (navigator.share) {
+      navigator.share({
+        title: 'Progress Domba Garut #KKY-8F3A2 - Kandang Kang Iky',
+        text: 'Pantau perkembangan bobot terkini domba Garut Super saya menjelang Iduladha 1447H.',
+        url: window.location.href,
+      }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      const btnSpan = this.querySelector('span:last-child');
+      const prev = btnSpan.textContent;
+      btnSpan.textContent = 'Tautan Tersalin!';
+      setTimeout(() => {
+        btnSpan.textContent = prev;
+      }, 2000);
+    }
+  });
+</script></main><footer class="w-full bg-surface-container-low py-space-xl mt-space-xl"><div class="w-full px-margin flex flex-col md:flex-row justify-between items-center gap-space-md"><div class="flex items-center gap-space-sm"><img alt="Kandang Kang Iky Logo" class="h-6 w-auto object-contain opacity-80" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCiu0NVXgXwf-11I2ZGciwiTTz67o7YCEZSIUSIc8j2BGZCnivmHgtWbEMJA7SRw5sBotvRp4hryM_5pNEsMUCMXsX2ELbIw37IrUJ8tMatGN-DhaJH9TAH7_zUZ5g7Bm3rIoTyMxofIExt-8xvL6BXlNMgGwMHv9m2pCItuCQwcBFcunoYCtvV9WvdM9wZ2GXud_J3NtW-ykgaTOjmf5WhAB2pMft4aup3WaYh1M4"/><span class="font-label-md text-label-md text-on-surface-variant font-medium">© 2025 Kandang Kang Iky • Modern Indonesian Husbandry Platform</span></div><div class="flex items-center gap-space-lg"><span class="font-label-sm text-label-sm text-on-surface-variant">Sistem Manajemen Ternak &amp; Kurban Amanah</span></div></div></footer></body></html>
