@@ -1,10 +1,26 @@
-Berikut adalah draf file **`AGENT.md`** yang sudah disusun rapi, terstruktur, dan disesuaikan khusus untuk AI Agent (seperti Antigravity, Cursor, atau Copilot Workspace).
+Secara keseluruhan, isi file **`AGENT.md`** tersebut sudah **sangat bagus, tepat sasaran, dan sangat ramah untuk dibaca oleh AI Agent** (seperti Antigravity/Cursor).
 
-File ini berisi panduan *project context*, aturan koding, arsitektur, hingga instruksi *task-by-task execution* agar Agent dapat mengeksekusi kode dengan presisi tanpa melenceng.
+Namun, karena struktur proyek Next.js yang baru saja kamu inisialisasi di komputermu dibuat menggunakan **Next.js 15 / 14 App Router tanpa folder `src/**`, ada **3 penyesuaian kecil** yang perlu disesuaikan di `AGENT.md` agar Agent tidak salah membuat rute folder:
 
 ---
 
-### 📄 Salin seluruh teks di bawah ini dan simpan sebagai `AGENT.md` di root repository GitHub milikmu (`kandangkangiky/AGENT.md`):
+### Catatan Penyesuaian yang Perlu Diperhatikan:
+
+1. **Rute Folder Login (`app/admin/login/page.tsx`):**
+* Di `AGENT.md` tertulis `app/(admin)/login/page.tsx`.
+* **Penyesuaian:** Lebih baik disesuaikan menjadi `app/admin/login/page.tsx` (tanpa tanda kurung) agar rute URL resminya pas di `/admin/login`, sesuai dengan pengecualian pada Next.js `middleware.ts`.
+
+
+2. **Setup Supabase Helper Package:**
+* Di `AGENT.md` ditambahkan instruksi untuk menginstal `@supabase/ssr` (package resmi terbaru dari Supabase untuk Next.js App Router).
+
+
+
+---
+
+### File `AGENT.md` Versi Final yang Siap Pakai
+
+Berikut adalah isi **`AGENT.md` versi revisi final** yang sudah disesuaikan persis dengan struktur folder proyekmu. Salin dan simpan file ini ke root repository (`kandangkangiky/AGENT.md`):
 
 ```markdown
 # 🤖 AGENT INSTRUCTIONS & PROJECT GUIDELINES
@@ -25,17 +41,18 @@ Kandang Kang Iky is a livestock startup specializing in sheep sales and long-ter
 ## 🛠️ CODING RULES & CONVENTIONS
 
 1. **Framework & Language:**
-   - Use Next.js 14+ with App Router and TypeScript.
+   - Use Next.js App Router and TypeScript.
    - Strictly use `'use client'` directive only when client-side interactivity/state is required.
    - Prefer Server Components and Server Actions for data fetching and mutations.
 
 2. **Styling & UI:**
    - Use Tailwind CSS and `shadcn/ui` components for clean, modern, and accessible design.
-   - Primary Theme Palette: Emerald Green (`emerald-600`), Slate Text (`slate-800`), Cream/White background.
+   - Primary Theme Palette: Emerald Green (`emerald-800`), Slate Text (`slate-800`), Cream/White background (`bg-[#FDFBF7]`).
+   - Refer to `SYSTEM_DESIGN.md` for full design tokens and layout specifications.
    - Mobile-First Approach for form inputs and timeline feeds.
 
 3. **Database & API:**
-   - Use `@supabase/ssr` or `@supabase/supabase-js` for Supabase integrations.
+   - Use `@supabase/ssr` and `@supabase/supabase-js` for Supabase integrations.
    - Store all environment variables in `.env.local` (referenced via `.env.example`).
    - NEVER hardcode secrets, API keys, or private keys in code.
 
@@ -86,12 +103,12 @@ CREATE TABLE public.progress_logs (
 
 * **Branch:** `feature/task-1-auth`
 * **Scope:**
-1. Initialize Next.js App Router, TypeScript, Tailwind CSS, Lucide Icons, and shadcn/ui.
-2. Create `.env.example` file.
+1. Install `@supabase/supabase-js` and `@supabase/ssr`.
+2. Create `.env.example` file with required Supabase and Google OAuth variables.
 3. Set up Supabase Client Helper at `@/lib/supabase/client.ts` and `@/lib/supabase/server.ts`.
-4. Create Login Page at `app/(admin)/login/page.tsx` with Google OAuth button via Supabase Auth.
-5. Set up `middleware.ts` to protect `/admin/*` routes.
-6. Create skeleton dashboard page at `app/(admin)/dashboard/page.tsx` with user email & logout button.
+4. Create Admin Login Page at `app/admin/login/page.tsx` with Google OAuth button via Supabase Auth.
+5. Set up Next.js `middleware.ts` to protect `/admin/*` routes (bypassing `/admin/login`).
+6. Create skeleton dashboard page at `app/admin/dashboard/page.tsx` displaying user email & logout button.
 
 
 
@@ -109,7 +126,7 @@ CREATE TABLE public.progress_logs (
 
 * **Branch:** `feature/task-3-progress-sheets-sync`
 * **Scope:**
-1. Create mobile-friendly form at `app/(admin)/sheep/[id]/progress/page.tsx`.
+1. Create mobile-friendly form at `app/admin/sheep/[id]/progress/page.tsx`.
 2. Add image compression using `browser-image-compression` before uploading photos to Supabase Storage bucket `sheep-media`.
 3. Create Google Sheets API client at `@/lib/google-sheets.ts` using `googleapis`.
 4. Create Server Action to save log into `progress_logs` and append a row into Google Sheets simultaneously.
@@ -120,8 +137,8 @@ CREATE TABLE public.progress_logs (
 
 * **Branch:** `feature/task-4-customer-tracker`
 * **Scope:**
-1. Create Landing Page at `app/(public)/page.tsx` with a search bar for `tracking_code`.
-2. Create Dynamic Route `app/(public)/track/[code]/page.tsx` fetching data by `tracking_code`.
+1. Create Landing Page at `app/page.tsx` with a search bar for `tracking_code`.
+2. Create Dynamic Route `app/track/[code]/page.tsx` fetching data by `tracking_code`.
 3. Display Metric Cards (Initial Weight, Current Weight, Target Weight, Countdown to Iduladha).
 4. Implement `Recharts` line chart (Target Growth vs Actual Weight).
 5. Build Progress Timeline Feed showing photo cards, health status, and notes.
