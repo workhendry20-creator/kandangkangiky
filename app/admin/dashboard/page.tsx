@@ -42,7 +42,8 @@ async function DashboardContent() {
         *,
         progress_logs (
           current_weight,
-          record_date
+          record_date,
+          created_at
         )
       `)
       .order('created_at', { ascending: false })
@@ -64,9 +65,15 @@ async function DashboardContent() {
       sheepList = (data as unknown as Sheep[]).map((item) => {
         let latestWeight = item.current_weight ?? item.initial_weight
         if (item.progress_logs && Array.isArray(item.progress_logs) && item.progress_logs.length > 0) {
-          const sorted = [...item.progress_logs].sort(
-            (a, b) => new Date(b.record_date).getTime() - new Date(a.record_date).getTime()
-          )
+          // Sort strictly by record_date DESC then created_at DESC, regardless of update_type
+          const sorted = [...item.progress_logs].sort((a, b) => {
+            const dateDiff =
+              new Date(b.record_date).getTime() - new Date(a.record_date).getTime()
+            if (dateDiff !== 0) return dateDiff
+            const aCreated = a.created_at ? new Date(a.created_at).getTime() : 0
+            const bCreated = b.created_at ? new Date(b.created_at).getTime() : 0
+            return bCreated - aCreated
+          })
           if (sorted[0]?.current_weight !== undefined && sorted[0]?.current_weight !== null) {
             latestWeight = sorted[0].current_weight
           }

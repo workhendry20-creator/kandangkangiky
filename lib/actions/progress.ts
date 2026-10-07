@@ -121,10 +121,25 @@ export async function createProgressLog(
       }
     }
 
-    // 4b. Update latest current_weight on the sheep record in Supabase
+    // 4b. Fetch the most recent log regardless of update_type (record_date DESC, created_at DESC)
+    const { data: latestLog } = await supabase
+      .from('progress_logs')
+      .select('current_weight')
+      .eq('sheep_id', sheepId)
+      .order('record_date', { ascending: false })
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single()
+
+    const newCurrentWeight =
+      latestLog?.current_weight !== undefined && latestLog?.current_weight !== null
+        ? Number(latestLog.current_weight)
+        : currentWeight
+
+    // Update current_weight column on sheep table with the newest weight
     const { error: updateSheepError } = await supabase
       .from('sheep')
-      .update({ current_weight: currentWeight })
+      .update({ current_weight: newCurrentWeight })
       .eq('id', sheepId)
 
     if (updateSheepError) {

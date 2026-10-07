@@ -27,6 +27,7 @@ interface WeightChartProps {
   logs: Array<{
     record_date: string
     current_weight: number
+    created_at?: string
   }>
 }
 
@@ -75,10 +76,15 @@ export function WeightChart({
   entryDate,
   logs,
 }: WeightChartProps) {
-  // Build chart points from entry date + chronological logs
-  const sortedLogs = [...logs].sort(
-    (a, b) => new Date(a.record_date).getTime() - new Date(b.record_date).getTime()
-  )
+  // Build chart points from entry date + chronological logs (ASC: lama ke baru)
+  const sortedLogs = [...logs].sort((a, b) => {
+    const dateDiff =
+      new Date(a.record_date).getTime() - new Date(b.record_date).getTime()
+    if (dateDiff !== 0) return dateDiff
+    const aCreated = a.created_at ? new Date(a.created_at).getTime() : 0
+    const bCreated = b.created_at ? new Date(b.created_at).getTime() : 0
+    return aCreated - bCreated
+  })
 
   const data: ChartDataPoint[] = []
 

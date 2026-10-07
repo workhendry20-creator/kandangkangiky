@@ -29,10 +29,15 @@ export function ProgressFeed({
 }: ProgressFeedProps) {
   const [activeModalImage, setActiveModalImage] = useState<string | null>(null)
 
-  // Sort logs in reverse chronological order (newest first)
-  const sortedLogs = [...logs].sort(
-    (a, b) => new Date(b.record_date).getTime() - new Date(a.record_date).getTime()
-  )
+  // Sort logs in reverse chronological order (newest first: record_date DESC, created_at DESC)
+  const sortedLogs = [...logs].sort((a, b) => {
+    const dateDiff =
+      new Date(b.record_date).getTime() - new Date(a.record_date).getTime()
+    if (dateDiff !== 0) return dateDiff
+    const aCreated = a.created_at ? new Date(a.created_at).getTime() : 0
+    const bCreated = b.created_at ? new Date(b.created_at).getTime() : 0
+    return bCreated - aCreated
+  })
 
   if (sortedLogs.length === 0) {
     return (
@@ -58,6 +63,15 @@ export function ProgressFeed({
         {sortedLogs.map((log, index) => {
           const weightGain = Number(log.current_weight) - initialWeight
           const isLatest = index === 0
+
+          const updateBadgeLabel =
+            log.update_type === 'Harian'
+              ? 'Update Harian'
+              : log.update_type === 'Mingguan'
+              ? 'Timbangan Mingguan'
+              : log.update_type === 'Bulanan'
+              ? 'Laporan Bulanan'
+              : `Update ${log.update_type}`
 
           return (
             <div key={log.id} className="relative pb-8 last:pb-0 group">
@@ -85,8 +99,8 @@ export function ProgressFeed({
                       <Calendar className="w-3 h-3" />
                       <span>{formatDate(log.record_date)}</span>
                     </span>
-                    <span className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-stone-100 text-slate-600">
-                      Update {log.update_type}
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-stone-100 text-slate-700 border border-stone-200/60">
+                      {updateBadgeLabel}
                     </span>
                     {isLatest && (
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 uppercase tracking-wider">

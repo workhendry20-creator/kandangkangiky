@@ -104,12 +104,22 @@ async function TrackerContent({ params }: PageProps) {
   const sheep = data as Sheep
   const rawLogs = (data.progress_logs || []) as ProgressLog[]
 
-  // Sort logs by date descending for latest metrics
-  const sortedLogs = [...rawLogs].sort(
-    (a, b) => new Date(b.record_date).getTime() - new Date(a.record_date).getTime()
-  )
+  // Sort logs strictly by record_date DESC and created_at DESC regardless of update_type
+  const sortedLogs = [...rawLogs].sort((a, b) => {
+    const dateDiff =
+      new Date(b.record_date).getTime() - new Date(a.record_date).getTime()
+    if (dateDiff !== 0) return dateDiff
+    const aCreated = a.created_at ? new Date(a.created_at).getTime() : 0
+    const bCreated = b.created_at ? new Date(b.created_at).getTime() : 0
+    return bCreated - aCreated
+  })
 
-  const currentWeight = sortedLogs.length > 0 ? Number(sortedLogs[0].current_weight) : sheep.initial_weight
+  const currentWeight =
+    sortedLogs.length > 0
+      ? Number(sortedLogs[0].current_weight)
+      : sheep.current_weight !== undefined && sheep.current_weight !== null
+      ? Number(sheep.current_weight)
+      : sheep.initial_weight
   const weightGain = currentWeight - sheep.initial_weight
 
   // Calculate Progress towards Target Weight
