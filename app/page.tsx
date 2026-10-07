@@ -85,28 +85,23 @@ export default function HomePage() {
                 <input
                   type="text"
                   value={trackingCode}
-                  onChange={(e) => setTrackingCode(e.target.value)}
-                  placeholder="Masukkan Kode ID Domba (Contoh: KKY-8F3A2)"
-                  className="w-full pl-11 pr-4 py-3 rounded-xl bg-transparent text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none"
+                  onChange={(e) => setTrackingCode(e.target.value.toUpperCase())}
+                  placeholder="Masukkan Kode Tracking Domba (Contoh: KKY-8F3A2)"
+                  required
+                  className="w-full pl-11 pr-4 py-3 rounded-xl bg-transparent text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none uppercase font-mono"
                 />
               </div>
               <button
                 type="submit"
+                id="btnTrackSheep"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-sm font-semibold shadow-md shadow-emerald-800/20 transition-all cursor-pointer shrink-0"
               >
-                <span>Lacak Domba</span>
+                <span>Lacak Ternak</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </form>
-            <p className="text-xs text-slate-400 mt-2 text-center">
-              Atau coba contoh kode:{' '}
-              <button
-                type="button"
-                onClick={() => setTrackingCode('KKY-8F3A2')}
-                className="text-emerald-700 font-semibold hover:underline cursor-pointer"
-              >
-                KKY-8F3A2
-              </button>
+            <p className="text-xs text-slate-400 mt-2.5 text-center">
+              Masukkan kode tracking 8-9 karakter pada kwitansi penitipan Anda.
             </p>
           </div>
 

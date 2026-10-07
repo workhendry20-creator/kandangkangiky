@@ -82,6 +82,7 @@ export async function createSheep(
       breed: breed,
       gender: input.gender,
       initial_weight: initialWeight,
+      current_weight: initialWeight,
       target_weight: targetWeight,
       entry_date: entryDate,
       status: input.status || 'Penitipan',

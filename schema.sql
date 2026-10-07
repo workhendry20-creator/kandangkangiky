@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS public.sheep (
     breed VARCHAR(50) NOT NULL,
     gender VARCHAR(10) CHECK (gender IN ('Jantan', 'Betina')),
     initial_weight NUMERIC(5,2) NOT NULL,
+    current_weight NUMERIC(5,2),
     target_weight NUMERIC(5,2) NOT NULL,
     entry_date DATE NOT NULL DEFAULT CURRENT_DATE,
     status VARCHAR(20) DEFAULT 'Penitipan' CHECK (status IN ('Penitipan', 'Selesai/Terkirim', 'Terjual')),

@@ -1,7 +1,10 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { appendProgressRowToSheet } from '@/lib/google-sheets'
+import {
+  appendProgressRowToSheet,
+  syncProgressToAppsScriptWebhook,
+} from '@/lib/google-sheets'
 import { revalidatePath } from 'next/cache'
 import type { ProgressLog } from '@/types/sheep'
 
@@ -118,8 +121,20 @@ export async function createProgressLog(
       }
     }
 
-    // 5. Append row to Google Sheets simultaneously (non-blocking)
+    // 4b. Update latest current_weight on the sheep record in Supabase
+    const { error: updateSheepError } = await supabase
+      .from('sheep')
+      .update({ current_weight: currentWeight })
+      .eq('id', sheepId)
+
+    if (updateSheepError) {
+      console.warn('Gagal memperbarui current_weight pada tabel sheep:', updateSheepError.message)
+    }
+
+    // 5. Append row to Google Sheets and/or Apps Script Webhook simultaneously (non-blocking)
     let sheetsSynced = false
+
+    // A. Direct Google Sheets API v4
     try {
       const sheetRes = await appendProgressRowToSheet({
         trackingCode: sheep.tracking_code,
@@ -131,9 +146,25 @@ export async function createProgressLog(
         notes: notes,
         mediaUrl: mediaUrl,
       })
-      sheetsSynced = sheetRes.success
+      if (sheetRes.success) sheetsSynced = true
     } catch (sheetCatchErr) {
       console.warn('Gagal sinkronisasi Google Sheets:', sheetCatchErr)
+    }
+
+    // B. Google Apps Script Webhook
+    try {
+      const webhookRes = await syncProgressToAppsScriptWebhook({
+        tracking_code: sheep.tracking_code,
+        customer_name: sheep.customer_name,
+        record_date: recordDate,
+        current_weight: currentWeight,
+        health_status: healthStatus,
+        notes: notes,
+        media_url: mediaUrl,
+      })
+      if (webhookRes.success) sheetsSynced = true
+    } catch (webhookCatchErr) {
+      console.warn('Gagal sinkronisasi Apps Script Webhook:', webhookCatchErr)
     }
 
     // 6. Revalidate relevant paths
