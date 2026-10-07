@@ -5,6 +5,8 @@
 
 ---
 
+Ambil design system dari folder design_system
+
 ## 1. COLOR PALETTE & TYPOGRAPHY
 
 ### A. Primary Color Tokens
