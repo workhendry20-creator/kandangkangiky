@@ -61,26 +61,25 @@ async function DashboardContent() {
           current_weight: item.current_weight ?? item.initial_weight,
         }))
       }
-    } else if (data) {
       sheepList = (data as unknown as Sheep[]).map((item) => {
-        let latestWeight = item.current_weight ?? item.initial_weight
+        const initialWeight = Number(item.initial_weight) || 0
+        let calculatedWeight =
+          item.current_weight !== undefined && item.current_weight !== null
+            ? Number(item.current_weight)
+            : initialWeight
+
         if (item.progress_logs && Array.isArray(item.progress_logs) && item.progress_logs.length > 0) {
-          // Sort strictly by record_date DESC then created_at DESC, regardless of update_type
-          const sorted = [...item.progress_logs].sort((a, b) => {
-            const dateDiff =
-              new Date(b.record_date).getTime() - new Date(a.record_date).getTime()
-            if (dateDiff !== 0) return dateDiff
-            const aCreated = a.created_at ? new Date(a.created_at).getTime() : 0
-            const bCreated = b.created_at ? new Date(b.created_at).getTime() : 0
-            return bCreated - aCreated
-          })
-          if (sorted[0]?.current_weight !== undefined && sorted[0]?.current_weight !== null) {
-            latestWeight = sorted[0].current_weight
-          }
+          // Akumulasi: initial_weight + TOTAL(current_weight dari seluruh progress_logs domba tersebut)
+          const totalLogsGain = item.progress_logs.reduce(
+            (acc, log) => acc + (Number(log.current_weight) || 0),
+            0
+          )
+          calculatedWeight = Math.round((initialWeight + totalLogsGain) * 100) / 100
         }
+
         return {
           ...item,
-          current_weight: latestWeight,
+          current_weight: calculatedWeight,
         }
       })
     }

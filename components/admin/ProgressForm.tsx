@@ -163,8 +163,7 @@ export function ProgressForm({ sheep, lastWeight }: ProgressFormProps) {
     })
   }
 
-  const currentNum = parseFloat(currentWeight) || lastWeight
-  const weightGain = currentNum - sheep.initial_weight
+  const totalGain = Math.round((lastWeight - sheep.initial_weight) * 100) / 100
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] flex flex-col text-slate-800">
@@ -228,7 +227,7 @@ export function ProgressForm({ sheep, lastWeight }: ProgressFormProps) {
               </div>
               <div className="p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-100">
                 <span className="text-[10px] uppercase font-bold text-emerald-700 block">
-                  BB Terakhir
+                  BB Saat Ini
                 </span>
                 <span className="text-xs sm:text-sm font-bold text-emerald-800 font-mono">
                   {formatWeight(lastWeight)}
@@ -239,7 +238,7 @@ export function ProgressForm({ sheep, lastWeight }: ProgressFormProps) {
                   Total Naik
                 </span>
                 <span className="text-xs sm:text-sm font-bold text-blue-800 font-mono">
-                  {weightGain >= 0 ? `+${weightGain.toFixed(1)}` : weightGain.toFixed(1)} kg
+                  {totalGain >= 0 ? `+${totalGain.toFixed(1)}` : totalGain.toFixed(1)} kg
                 </span>
               </div>
             </div>

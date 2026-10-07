@@ -31,16 +31,26 @@ async function ProgressContent({ params }: PageProps) {
   }
 
   const sheep = sheepData as Sheep
-  let lastWeight = sheep.initial_weight
+  const initialWeight = Number(sheep.initial_weight) || 0
+  let currentAccumulatedWeight =
+    sheep.current_weight !== undefined && sheep.current_weight !== null
+      ? Number(sheep.current_weight)
+      : initialWeight
 
   if (sheep.progress_logs && sheep.progress_logs.length > 0) {
-    const sorted = [...sheep.progress_logs].sort(
-      (a, b) => new Date(b.record_date).getTime() - new Date(a.record_date).getTime()
+    const totalLogsGain = sheep.progress_logs.reduce(
+      (sum, l) => sum + (Number(l.current_weight) || 0),
+      0
     )
-    lastWeight = sorted[0].current_weight
+    currentAccumulatedWeight = Math.round((initialWeight + totalLogsGain) * 100) / 100
   }
 
-  return <ProgressForm sheep={sheep} lastWeight={lastWeight} />
+  return (
+    <ProgressForm
+      sheep={{ ...sheep, current_weight: currentAccumulatedWeight }}
+      lastWeight={currentAccumulatedWeight}
+    />
+  )
 }
 
 function ProgressFallback() {

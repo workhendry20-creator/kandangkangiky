@@ -39,6 +39,24 @@ export function ProgressFeed({
     return bCreated - aCreated
   })
 
+  // Precompute running accumulated weight and total gain up to each log chronologically
+  const chronologicalLogs = [...logs].sort((a, b) => {
+    const dateDiff =
+      new Date(a.record_date).getTime() - new Date(b.record_date).getTime()
+    if (dateDiff !== 0) return dateDiff
+    const aCreated = a.created_at ? new Date(a.created_at).getTime() : 0
+    const bCreated = b.created_at ? new Date(b.created_at).getTime() : 0
+    return aCreated - bCreated
+  })
+
+  const logAccumulatedMap = new Map<string, { accumulatedWeight: number; totalGain: number }>()
+  let running = initialWeight
+  chronologicalLogs.forEach((l) => {
+    running = Math.round((running + Number(l.current_weight)) * 100) / 100
+    const gain = Math.round((running - initialWeight) * 100) / 100
+    logAccumulatedMap.set(l.id, { accumulatedWeight: running, totalGain: gain })
+  })
+
   if (sortedLogs.length === 0) {
     return (
       <div className="rounded-3xl bg-white border border-stone-200/90 p-8 text-center space-y-3">
@@ -61,7 +79,12 @@ export function ProgressFeed({
     <div className="space-y-6">
       <div className="relative pl-6 sm:pl-8 before:absolute before:left-3 sm:before:left-4 before:top-3 before:bottom-3 before:w-0.5 before:bg-emerald-200">
         {sortedLogs.map((log, index) => {
-          const weightGain = Number(log.current_weight) - initialWeight
+          const accumInfo = logAccumulatedMap.get(log.id) || {
+            accumulatedWeight: initialWeight + Number(log.current_weight),
+            totalGain: Number(log.current_weight),
+          }
+          const accumulatedWeight = accumInfo.accumulatedWeight
+          const totalGain = accumInfo.totalGain
           const isLatest = index === 0
 
           const updateBadgeLabel =
@@ -134,22 +157,22 @@ export function ProgressFeed({
                     </div>
                     <div>
                       <span className="text-[11px] text-slate-500 font-medium block">
-                        Bobot Tercatat
+                        Akumulasi Bobot
                       </span>
                       <span className="text-base font-extrabold text-slate-900 font-mono">
-                        {formatWeight(log.current_weight)}
+                        {formatWeight(accumulatedWeight)}
                       </span>
                     </div>
                   </div>
 
                   <div className="text-right">
                     <span className="text-[10px] text-slate-400 font-medium block">
-                      Kenaikan Total
+                      Total Kenaikan
                     </span>
                     <span className="inline-flex items-center gap-0.5 text-xs font-bold text-emerald-700">
                       <TrendingUp className="w-3 h-3" />
                       <span>
-                        {weightGain >= 0 ? `+${weightGain.toFixed(1)}` : weightGain.toFixed(1)} kg
+                        {totalGain >= 0 ? `+${totalGain.toFixed(1)}` : totalGain.toFixed(1)} kg
                       </span>
                     </span>
                   </div>

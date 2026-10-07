@@ -284,6 +284,10 @@ export function SheepTable({ initialSheep }: SheepTableProps) {
                           <TrendingUp className="w-2.5 h-2.5" />
                           <span>+{weightGain.toFixed(1)} kg</span>
                         </span>
+                      ) : weightGain < 0 ? (
+                        <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-rose-600">
+                          <span>{weightGain.toFixed(1)} kg</span>
+                        </span>
                       ) : (
                         <span className="text-[10px] text-slate-400">stabil</span>
                       )}

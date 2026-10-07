@@ -57,10 +57,10 @@ export async function createProgressLog(
       return { success: false, error: 'Bobot saat ini harus berupa angka lebih dari 0 kg.' }
     }
 
-    // 2. Fetch sheep record to obtain tracking_code and customer_name
+    // 2. Fetch sheep record to obtain tracking_code, customer_name, and initial_weight
     const { data: sheep, error: sheepError } = await supabase
       .from('sheep')
-      .select('id, tracking_code, customer_name')
+      .select('id, tracking_code, customer_name, initial_weight')
       .eq('id', sheepId)
       .single()
 
@@ -121,25 +121,26 @@ export async function createProgressLog(
       }
     }
 
-    // 4b. Fetch the most recent log regardless of update_type (record_date DESC, created_at DESC)
-    const { data: latestLog } = await supabase
+    // 4b. Hitung akumulasi bobot: initial_weight + TOTAL(current_weight seluruh progress_logs)
+    const { data: allLogs, error: logsError } = await supabase
       .from('progress_logs')
       .select('current_weight')
       .eq('sheep_id', sheepId)
-      .order('record_date', { ascending: false })
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single()
 
-    const newCurrentWeight =
-      latestLog?.current_weight !== undefined && latestLog?.current_weight !== null
-        ? Number(latestLog.current_weight)
-        : currentWeight
+    const totalLogsGain = (allLogs || []).reduce(
+      (sum, log) => sum + (Number(log.current_weight) || 0),
+      0
+    )
+    const initialWeight = Number(sheep.initial_weight) || 0
+    const accumulatedCurrentWeight =
+      logsError && !allLogs
+        ? Math.round((initialWeight + currentWeight) * 100) / 100
+        : Math.round((initialWeight + totalLogsGain) * 100) / 100
 
-    // Update current_weight column on sheep table with the newest weight
+    // Update kolom current_weight pada tabel sheep dengan bobot akumulasi baru
     const { error: updateSheepError } = await supabase
       .from('sheep')
-      .update({ current_weight: newCurrentWeight })
+      .update({ current_weight: accumulatedCurrentWeight })
       .eq('id', sheepId)
 
     if (updateSheepError) {
