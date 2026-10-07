@@ -121,6 +121,16 @@ export async function createProgressLog(
       }
     }
 
+    // 4b. Update latest current_weight on the sheep record in Supabase
+    const { error: updateSheepError } = await supabase
+      .from('sheep')
+      .update({ current_weight: currentWeight })
+      .eq('id', sheepId)
+
+    if (updateSheepError) {
+      console.warn('Gagal memperbarui current_weight pada tabel sheep:', updateSheepError.message)
+    }
+
     // 5. Append row to Google Sheets and/or Apps Script Webhook simultaneously (non-blocking)
     let sheetsSynced = false
 

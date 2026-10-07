@@ -57,17 +57,19 @@ async function DashboardContent() {
       if (!fallback.error && fallback.data) {
         sheepList = (fallback.data as unknown as Sheep[]).map((item) => ({
           ...item,
-          current_weight: item.initial_weight,
+          current_weight: item.current_weight ?? item.initial_weight,
         }))
       }
     } else if (data) {
       sheepList = (data as unknown as Sheep[]).map((item) => {
-        let latestWeight = item.initial_weight
+        let latestWeight = item.current_weight ?? item.initial_weight
         if (item.progress_logs && Array.isArray(item.progress_logs) && item.progress_logs.length > 0) {
           const sorted = [...item.progress_logs].sort(
             (a, b) => new Date(b.record_date).getTime() - new Date(a.record_date).getTime()
           )
-          latestWeight = sorted[0].current_weight
+          if (sorted[0]?.current_weight !== undefined && sorted[0]?.current_weight !== null) {
+            latestWeight = sorted[0].current_weight
+          }
         }
         return {
           ...item,
