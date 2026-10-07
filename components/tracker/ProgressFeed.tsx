@@ -160,6 +160,8 @@ export function ProgressFeed({
                         src={log.media_url}
                         alt={`Foto progress ${formatDate(log.record_date)}`}
                         fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 768px, 900px"
+                        priority={isLatest}
                         className="object-cover group-hover/img:scale-105 transition-transform duration-300"
                         unoptimized
                       />
@@ -198,6 +200,8 @@ export function ProgressFeed({
                 src={activeModalImage}
                 alt="Foto Dokumentasi Ternak"
                 fill
+                sizes="(max-width: 768px) 100vw, 1200px"
+                priority
                 className="object-contain"
                 unoptimized
               />

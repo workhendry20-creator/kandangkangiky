@@ -11,8 +11,18 @@ export interface SheetRowData {
   mediaUrl?: string | null
 }
 
+export interface WebhookProgressPayload {
+  tracking_code: string
+  customer_name: string
+  record_date: string
+  current_weight: number
+  health_status: string
+  notes?: string | null
+  media_url?: string | null
+}
+
 /**
- * Append progress log row to Google Sheets
+ * Append progress log row to Google Sheets via direct Google Sheets API v4
  */
 export async function appendProgressRowToSheet(
   data: SheetRowData
@@ -24,9 +34,6 @@ export async function appendProgressRowToSheet(
 
     // Check if credentials exist
     if (!serviceAccountEmail || !privateKey || !spreadsheetId) {
-      console.warn(
-        '[Google Sheets] Kredensial belum lengkap di environment variable. Sinkronisasi dilewati.'
-      )
       return {
         success: false,
         error: 'Google Sheets credentials not configured',
@@ -74,10 +81,54 @@ export async function appendProgressRowToSheet(
   } catch (err: unknown) {
     const errorMsg =
       err instanceof Error ? err.message : 'Gagal sinkronisasi ke Google Sheets'
-    console.error('[Google Sheets Error]:', errorMsg)
+    console.warn('[Google Sheets Error]:', errorMsg)
     return {
       success: false,
       error: errorMsg,
     }
+  }
+}
+
+/**
+ * Send POST request to Google Apps Script Webhook URL
+ * (Non-blocking fallback when GOOGLE_APPS_SCRIPT_URL is provided)
+ */
+export async function syncProgressToAppsScriptWebhook(
+  payload: WebhookProgressPayload
+): Promise<{ success: boolean; message?: string; error?: string }> {
+  try {
+    const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL
+    if (!webhookUrl) {
+      return {
+        success: false,
+        error: 'GOOGLE_APPS_SCRIPT_URL not configured',
+      }
+    }
+
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    })
+
+    if (!response.ok) {
+      const statusText = response.statusText || `HTTP ${response.status}`
+      console.warn('[Google Apps Script Webhook Warning]:', statusText)
+      return { success: false, error: statusText }
+    }
+
+    return {
+      success: true,
+      message: 'Berhasil sinkronisasi ke Google Apps Script Webhook',
+    }
+  } catch (err: unknown) {
+    const errorMsg =
+      err instanceof Error
+        ? err.message
+        : 'Gagal mengirim data ke Google Apps Script'
+    console.warn('[Google Apps Script Webhook Error]:', errorMsg)
+    return { success: false, error: errorMsg }
   }
 }

@@ -76,59 +76,52 @@ CREATE TABLE public.progress_logs (
 
 ## 🚀 TASK-BY-TASK EXECUTION PLAN
 
-### [TASK 1] Infra, Auth & Protection
-
+### [TASK 1] Infra, Auth & Protection - ✅ COMPLETED
 * **Branch:** `feature/task-1-auth`
+* **Status:** Selesai (Completed & Merged)
 * **Scope:**
-1. Install `@supabase/supabase-js` and `@supabase/ssr`.
-2. Create `.env.example` file with required Supabase variables.
-3. Set up Supabase Client Helper at `@/lib/supabase/client.ts` and `@/lib/supabase/server.ts`.
-4. Create Admin Login Page at `app/admin/login/page.tsx` with Email & Password form using `supabase.auth.signInWithPassword`.
-5. Set up Next.js `middleware.ts` to protect `/admin/*` routes (bypassing `/admin/login`).
-6. Create skeleton dashboard page at `app/admin/dashboard/page.tsx` displaying user email & logout button.
+1. Install `@supabase/supabase-js` dan `@supabase/ssr`.
+2. Create `.env.example` file dengan variabel Supabase.
+3. Supabase Client Helper di `@/lib/supabase/client.ts` dan `@/lib/supabase/server.ts`.
+4. Admin Login Page di `app/admin/login/page.tsx` dengan Email & Password form.
+5. Next.js `proxy.ts` (middleware) untuk proteksi route `/admin/*`.
+6. Skeleton dashboard page di `app/admin/dashboard/page.tsx` dengan user info & logout.
 
-
-
-### [TASK 2] Admin Dashboard & Master Sheep Management
-
+### [TASK 2] Admin Dashboard & Master Sheep Management - ✅ COMPLETED
 * **Branch:** `feature/task-2-admin-master`
+* **Status:** Selesai (Completed)
 * **Scope:**
-1. Fix Next.js 15 prerender issue by adding `export const dynamic = 'force-dynamic'` in `app/admin/dashboard/page.tsx`.
-2. Build `/admin/dashboard` table view listing all sheep records fetched from Supabase `sheep` table.
-3. Build `/admin/sheep/new` page with a form to add a new sheep (Auto-generating unique `tracking_code` format `KKY-XXXXX`).
-4. Implement Server Action at `@/lib/actions/sheep.ts` to insert sheep data into Supabase `sheep` table.
+1. Fix Next.js prerender issue dengan `export const dynamic = 'force-dynamic'` di `app/admin/dashboard/page.tsx`.
+2. Dashboard table view listing seluruh domba dari Supabase `sheep` table dengan kartu KPI & live search filter.
+3. Halaman `app/admin/sheep/new/page.tsx` dengan form responsif (auto-generating unique `tracking_code` format `KKY-XXXXX`).
+4. Server Action di `@/lib/actions/sheep.ts` untuk insert data domba ke Supabase.
 
-
-
-### [TASK 3] Mobile Progress Form & Google Sheets Sync
-
+### [TASK 3] Mobile Progress Form & Google Sheets Sync - ✅ COMPLETED
 * **Branch:** `feature/task-3-progress-sheets-sync`
+* **Status:** Selesai (Completed)
 * **Scope:**
-1. Create mobile-friendly form at `app/admin/sheep/[id]/progress/page.tsx`.
-2. Add image compression using `browser-image-compression` before uploading photos to Supabase Storage bucket `sheep-media`.
-3. Create Google Sheets API client at `@/lib/google-sheets.ts` using `googleapis`.
-4. Create Server Action to save log into `progress_logs` and append a row into Google Sheets simultaneously.
+1. Form mobile-friendly di `app/admin/sheep/[id]/progress/page.tsx` & `components/admin/ProgressForm.tsx`.
+2. Kompresi gambar via `browser-image-compression` sebelum upload ke bucket `sheep-media`.
+3. Google Sheets API client di `@/lib/google-sheets.ts` menggunakan `googleapis` Service Account & Apps Script Webhook fallback.
+4. Server Action di `@/lib/actions/progress.ts` untuk simpan ke `progress_logs` dan sync data ke Google Sheets simultan.
 
-
-
-### [TASK 4] Public Customer Tracker & Recharts
-
+### [TASK 4] Public Customer Tracker & Recharts - ✅ COMPLETED
 * **Branch:** `feature/task-4-customer-tracker`
+* **Status:** Selesai (Completed)
 * **Scope:**
-1. Create Landing Page at `app/page.tsx` with a search bar for `tracking_code`.
-2. Create Dynamic Route `app/track/[code]/page.tsx` fetching data by `tracking_code`.
-3. Display Metric Cards (Initial Weight, Current Weight, Target Weight, Countdown to Iduladha).
-4. Implement `Recharts` line chart (Target Growth vs Actual Weight).
-5. Build Progress Timeline Feed showing photo cards, health status, and notes.
-6. Add CTA buttons: "Copy Share Link" & "Chat Admin WhatsApp".
+1. Landing Page publik di `app/page.tsx` dengan input search `tracking_code`.
+2. Dynamic Route `app/track/[code]/page.tsx` fetching data domba & progress logs dari Supabase.
+3. Metric Cards (Pemilik, Ras/Gender, BB Awal, BB Saat Ini, Target BB, Countdown Iduladha).
+4. Grafik pertumbuhan Recharts (`components/tracker/WeightChart.tsx`).
+5. Timeline Progress Feed (`components/tracker/ProgressFeed.tsx`) dengan preview foto modal & status kesehatan.
+6. CTA buttons: "Salin Link Bagikan" & "Chat Admin WhatsApp".
 
-
-
-### [TASK 5] Error Handling, Polish & Vercel Prep
-
+### [TASK 5] Error Handling, Polish & Vercel Prep - ✅ COMPLETED
 * **Branch:** `feature/task-5-polish-deploy`
+* **Status:** Selesai (Completed)
 * **Scope:**
-1. Handle 404 / Empty States for invalid tracking codes.
-2. Optimize image rendering with `next/image`.
-3. Verify production build (`npm run build`).
+1. Google Apps Script Webhook sync integration di `@/lib/google-sheets.ts` dan `@/lib/actions/progress.ts`.
+2. Penanganan 404 / Invalid Tracking Code di `app/track/[code]/page.tsx` dengan UI yang rapi.
+3. Optimalisasi rendering `next/image` dengan atribut `sizes`, `priority`, dan Supabase storage domain.
+4. Verifikasi production build (`npm run lint` & `npm run build` lolos 0 error).
 

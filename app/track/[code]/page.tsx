@@ -48,23 +48,55 @@ async function TrackerContent({ params }: PageProps) {
 
   if (error || !data) {
     return (
-      <div className="min-h-screen bg-[#FDFBF7] flex flex-col items-center justify-center p-6 text-center">
-        <div className="w-16 h-16 rounded-3xl bg-amber-50 text-amber-800 text-3xl flex items-center justify-center mx-auto mb-4 border border-amber-200">
-          🔍
-        </div>
-        <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 mb-2">
-          Domba Tidak Ditemukan
-        </h1>
-        <p className="text-sm text-slate-500 max-w-md mx-auto mb-6 leading-relaxed">
-          Kode tracking <span className="font-mono font-bold text-slate-800">&ldquo;{trackingCode}&rdquo;</span> tidak terdaftar dalam database kami. Silakan periksa kembali kode Anda.
-        </p>
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-sm font-semibold shadow-md shadow-emerald-800/20 transition-all"
-        >
-          <Search className="w-4 h-4" />
-          <span>Cari Kode Lain di Beranda</span>
-        </Link>
+      <div className="min-h-screen bg-[#FDFBF7] flex flex-col text-slate-800">
+        {/* Top Navbar */}
+        <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-stone-200/80 shadow-xs">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 h-18 flex items-center justify-between gap-4">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-600 hover:text-emerald-800 transition-colors p-2 -ml-2 rounded-xl hover:bg-stone-100"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Kembali ke Pencarian</span>
+            </Link>
+
+            <div className="flex items-center gap-2">
+              <span className="text-xl">🐑</span>
+              <span className="font-bold text-sm sm:text-base text-slate-900 tracking-tight">
+                Kandang Kang Iky
+              </span>
+            </div>
+          </div>
+        </header>
+
+        {/* 404 Content */}
+        <main className="flex-1 flex flex-col items-center justify-center p-6 text-center max-w-lg mx-auto space-y-5">
+          <div className="w-20 h-20 rounded-3xl bg-amber-50 text-amber-800 text-3xl flex items-center justify-center mx-auto border border-amber-200 shadow-sm animate-pulse">
+            🔍
+          </div>
+
+          <div className="space-y-2">
+            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 inline-block">
+              Data Tidak Ada
+            </span>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              Kode Tracking Tidak Ditemukan
+            </h1>
+            <p className="text-sm text-slate-500 leading-relaxed">
+              Kode tracking <span className="font-mono font-bold text-emerald-800 bg-stone-100 px-2 py-0.5 rounded-md border border-stone-200">&ldquo;{trackingCode}&rdquo;</span> tidak terdaftar di sistem Kandang Kang Iky. Pastikan Anda memasukkan kode yang sesuai dari kwitansi atau pesan tim kami.
+            </p>
+          </div>
+
+          <div className="pt-2 w-full flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link
+              href="/"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-sm font-semibold shadow-md shadow-emerald-800/20 transition-all cursor-pointer"
+            >
+              <Search className="w-4 h-4" />
+              <span>Kembali ke Halaman Pencarian</span>
+            </Link>
+          </div>
+        </main>
       </div>
     )
   }
