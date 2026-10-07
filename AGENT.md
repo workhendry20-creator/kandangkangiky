@@ -1,32 +1,8 @@
-Secara keseluruhan, isi file **`AGENT.md`** tersebut sudah **sangat bagus, tepat sasaran, dan sangat ramah untuk dibaca oleh AI Agent** (seperti Antigravity/Cursor).
 
-Namun, karena struktur proyek Next.js yang baru saja kamu inisialisasi di komputermu dibuat menggunakan **Next.js 15 / 14 App Router tanpa folder `src/**`, ada **3 penyesuaian kecil** yang perlu disesuaikan di `AGENT.md` agar Agent tidak salah membuat rute folder:
-
----
-
-### Catatan Penyesuaian yang Perlu Diperhatikan:
-
-1. **Rute Folder Login (`app/admin/login/page.tsx`):**
-* Di `AGENT.md` tertulis `app/(admin)/login/page.tsx`.
-* **Penyesuaian:** Lebih baik disesuaikan menjadi `app/admin/login/page.tsx` (tanpa tanda kurung) agar rute URL resminya pas di `/admin/login`, sesuai dengan pengecualian pada Next.js `middleware.ts`.
-
-
-2. **Setup Supabase Helper Package:**
-* Di `AGENT.md` ditambahkan instruksi untuk menginstal `@supabase/ssr` (package resmi terbaru dari Supabase untuk Next.js App Router).
-
-
-
----
-
-### File `AGENT.md` Versi Final yang Siap Pakai
-
-Berikut adalah isi **`AGENT.md` versi revisi final** yang sudah disesuaikan persis dengan struktur folder proyekmu. Salin dan simpan file ini ke root repository (`kandangkangiky/AGENT.md`):
-
-```markdown
 # 🤖 AGENT INSTRUCTIONS & PROJECT GUIDELINES
 **Project:** Kandang Kang Iky - Livestock Progress Tracker & Care Management System  
 **Repository:** https://github.com/workhendry20-creator/kandangkangiky  
-**Stack:** Next.js (App Router), TypeScript, Tailwind CSS, shadcn/ui, Supabase (PostgreSQL + Storage), Google OAuth, Google Sheets API v4, Recharts.
+**Stack:** Next.js (App Router), TypeScript, Tailwind CSS, shadcn/ui, Supabase (PostgreSQL + Storage), Google Sheets API v4, Recharts.
 
 ---
 
@@ -34,15 +10,16 @@ Berikut adalah isi **`AGENT.md` versi revisi final** yang sudah disesuaikan pers
 Kandang Kang Iky is a livestock startup specializing in sheep sales and long-term care management (until Iduladha). This application automates sheep progress reporting. 
 
 - **Public Access (No Auth):** Customers track sheep progress via unique ID (`/track/[trackingCode]`).
-- **Admin Access (Google OAuth):** Owner/Admin manages sheep master data, updates progress logs from mobile, and syncs data to Google Sheets (`/admin/*`).
+- **Admin Access (Supabase Email & Password Auth):** Owner/Admin manages sheep master data, updates progress logs from mobile, and syncs data to Google Sheets (`/admin/*`).
 
 ---
 
 ## 🛠️ CODING RULES & CONVENTIONS
 
 1. **Framework & Language:**
-   - Use Next.js App Router and TypeScript.
+   - Use Next.js 15 App Router and TypeScript.
    - Strictly use `'use client'` directive only when client-side interactivity/state is required.
+   - For dynamic admin pages fetching real-time data or using dates, declare `export const dynamic = 'force-dynamic'` at top level.
    - Prefer Server Components and Server Actions for data fetching and mutations.
 
 2. **Styling & UI:**
@@ -57,8 +34,8 @@ Kandang Kang Iky is a livestock startup specializing in sheep sales and long-ter
    - NEVER hardcode secrets, API keys, or private keys in code.
 
 4. **Git Workflow:**
-   - Always create a dedicated feature branch for each task (e.g., `feature/task-1-auth`).
-   - Write clear, imperative commit messages (e.g., `feat: setup supabase client and google oauth login`).
+   - Always create a dedicated feature branch for each task (e.g., `feature/task-2-admin-master`).
+   - Write clear, imperative commit messages (e.g., `feat: build admin dashboard table and new sheep form`).
 
 ---
 
@@ -104,9 +81,9 @@ CREATE TABLE public.progress_logs (
 * **Branch:** `feature/task-1-auth`
 * **Scope:**
 1. Install `@supabase/supabase-js` and `@supabase/ssr`.
-2. Create `.env.example` file with required Supabase and Google OAuth variables.
+2. Create `.env.example` file with required Supabase variables.
 3. Set up Supabase Client Helper at `@/lib/supabase/client.ts` and `@/lib/supabase/server.ts`.
-4. Create Admin Login Page at `app/admin/login/page.tsx` with Google OAuth button via Supabase Auth.
+4. Create Admin Login Page at `app/admin/login/page.tsx` with Email & Password form using `supabase.auth.signInWithPassword`.
 5. Set up Next.js `middleware.ts` to protect `/admin/*` routes (bypassing `/admin/login`).
 6. Create skeleton dashboard page at `app/admin/dashboard/page.tsx` displaying user email & logout button.
 
@@ -116,9 +93,10 @@ CREATE TABLE public.progress_logs (
 
 * **Branch:** `feature/task-2-admin-master`
 * **Scope:**
-1. Build `/admin/dashboard` table view listing all sheep records from Supabase.
-2. Build `/admin/sheep/new` page with a form to add a new sheep (Generating unique `tracking_code`).
-3. Implement Server Action to insert sheep data into Supabase `sheep` table.
+1. Fix Next.js 15 prerender issue by adding `export const dynamic = 'force-dynamic'` in `app/admin/dashboard/page.tsx`.
+2. Build `/admin/dashboard` table view listing all sheep records fetched from Supabase `sheep` table.
+3. Build `/admin/sheep/new` page with a form to add a new sheep (Auto-generating unique `tracking_code` format `KKY-XXXXX`).
+4. Implement Server Action at `@/lib/actions/sheep.ts` to insert sheep data into Supabase `sheep` table.
 
 
 
@@ -154,6 +132,3 @@ CREATE TABLE public.progress_logs (
 2. Optimize image rendering with `next/image`.
 3. Verify production build (`npm run build`).
 
-
-
-```

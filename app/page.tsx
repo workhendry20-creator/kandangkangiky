@@ -1,69 +1,171 @@
-import Image from "next/image";
+'use client'
 
-export default function Home() {
+import React, { useState } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import {
+  Search,
+  Activity,
+  ArrowRight,
+  TrendingUp,
+  HeartPulse,
+  Sparkles,
+  Lock,
+} from 'lucide-react'
+
+export default function HomePage() {
+  const [trackingCode, setTrackingCode] = useState('')
+  const router = useRouter()
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (trackingCode.trim()) {
+      router.push(`/track/${trackingCode.trim().toUpperCase()}`)
+    }
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="min-h-screen flex flex-col bg-[#FDFBF7] text-slate-800">
+      {/* Navigation Header */}
+      <header className="sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md border-b border-stone-200/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-800 text-white font-bold shadow-md shadow-emerald-800/20">
+              <span className="text-xl">🐑</span>
+            </div>
+            <div>
+              <span className="font-extrabold text-lg text-slate-900 tracking-tight">
+                Kandang Kang Iky
+              </span>
+              <p className="text-xs text-slate-500 font-medium hidden sm:block">
+                Peternakan & Layanan Titip Domba Qurban
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Link
+              href="/admin/login"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs sm:text-sm font-semibold shadow-sm transition-all"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              <Lock className="w-3.5 h-3.5" />
+              <span>Login Admin</span>
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </header>
+
+      {/* Main Hero Section */}
+      <main className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+        <div className="max-w-3xl w-full text-center space-y-6">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold border border-emerald-100 shadow-xs">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Transparan, Terukur & Terawat Hingga Iduladha</span>
+          </div>
+
+          <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+            Pantau Perkembangan Domba Titipan Anda Secara{' '}
+            <span className="text-emerald-800 underline decoration-emerald-300 decoration-wavy decoration-2">
+              Real-Time
+            </span>
+          </h1>
+
+          <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            Sistem pemantauan bobot, catatan pakan harian, dan rekam medis domba dengan akses langsung tanpa login untuk kenyamanan shohibul qurban.
+          </p>
+
+          {/* Central Search Card */}
+          <div className="pt-4 max-w-xl mx-auto">
+            <form
+              onSubmit={handleSearch}
+              className="p-2 sm:p-2.5 rounded-2xl bg-white border border-stone-200/90 shadow-xl shadow-stone-200/50 flex flex-col sm:flex-row items-center gap-2"
+            >
+              <div className="relative flex-1 w-full">
+                <Search className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={trackingCode}
+                  onChange={(e) => setTrackingCode(e.target.value)}
+                  placeholder="Masukkan Kode ID Domba (Contoh: KKY-8F3A2)"
+                  className="w-full pl-11 pr-4 py-3 rounded-xl bg-transparent text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-sm font-semibold shadow-md shadow-emerald-800/20 transition-all cursor-pointer shrink-0"
+              >
+                <span>Lacak Domba</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </form>
+            <p className="text-xs text-slate-400 mt-2 text-center">
+              Atau coba contoh kode:{' '}
+              <button
+                type="button"
+                onClick={() => setTrackingCode('KKY-8F3A2')}
+                className="text-emerald-700 font-semibold hover:underline cursor-pointer"
+              >
+                KKY-8F3A2
+              </button>
+            </p>
+          </div>
+
+          {/* 3 Value Highlights */}
+          <div className="pt-12 grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
+            <div className="p-5 rounded-2xl bg-white border border-stone-200/80 shadow-xs space-y-2">
+              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center">
+                <TrendingUp className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-sm text-slate-900">
+                Grafik Bobot Akurat
+              </h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Timbangan digital berkala untuk memantau target kenaikan bobot hingga Iduladha.
+              </p>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-white border border-stone-200/80 shadow-xs space-y-2">
+              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center">
+                <HeartPulse className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-sm text-slate-900">
+                Rekam Medis & Pakan
+              </h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Vaksinasi berkala, pakan bernutrisi tinggi, dan observasi kesehatan harian.
+              </p>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-white border border-stone-200/80 shadow-xs space-y-2">
+              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center">
+                <Activity className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-sm text-slate-900">
+                Dokumentasi Visual
+              </h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Galeri foto dan video perkembangan domba langsung dari kandang Parung Bogor.
+              </p>
+            </div>
+          </div>
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="border-t border-stone-200 bg-white py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+          <div>
+            © 2026 Kandang Kang Iky. Hak cipta dilindungi.
+          </div>
+          <div className="flex items-center gap-4 text-slate-500">
+            <Link href="/admin/login" className="hover:text-emerald-800">
+              Admin Console
+            </Link>
+            <span>•</span>
+            <span>Parung, Bogor, Jawa Barat</span>
+          </div>
+        </div>
+      </footer>
     </div>
-  );
+  )
 }
