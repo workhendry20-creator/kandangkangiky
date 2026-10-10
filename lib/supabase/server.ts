@@ -1,4 +1,5 @@
 import { createServerClient } from '@supabase/ssr'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 
 export async function createClient() {
@@ -26,3 +27,29 @@ export async function createClient() {
     },
   })
 }
+
+/**
+ * Creates a server-side Supabase client for data operations that should not be
+ * blocked by expired/invalid user auth cookies. Uses SUPABASE_SERVICE_ROLE_KEY if available,
+ * otherwise falls back to NEXT_PUBLIC_SUPABASE_ANON_KEY with no cookie session.
+ */
+export function createAdminClient() {
+  const supabaseUrl =
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder-project.supabase.co'
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const supabaseAnonKey =
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key'
+
+  const apiKey =
+    serviceRoleKey && serviceRoleKey.trim() !== ''
+      ? serviceRoleKey
+      : supabaseAnonKey
+
+  return createSupabaseClient(supabaseUrl, apiKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  })
+}
+

@@ -1,8 +1,9 @@
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 import React, { Suspense } from 'react'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { LogoutButton } from '@/components/admin/LogoutButton'
 import { SheepTable } from '@/components/admin/SheepTable'
 import type { Sheep } from '@/types/sheep'
@@ -24,19 +25,24 @@ async function DashboardContent() {
   // Get current authenticated user
   let user = null
   try {
-    const { data } = await supabase.auth.getUser()
+    const { data, error: userError } = await supabase.auth.getUser()
+    if (userError) {
+      console.warn('[Dashboard] Auth session warning:', userError.message)
+    }
     user = data?.user
-  } catch {
+  } catch (err) {
+    console.warn('[Dashboard] Could not fetch authenticated user:', err)
     user = null
   }
 
   const userEmail = user?.email || 'admin@kandangkangiky.com'
   const userInitials = userEmail.slice(0, 2).toUpperCase()
 
-  // Fetch sheep and related progress logs
+  // Fetch sheep and related progress logs using admin client to prevent cookie expiry issues
   let sheepList: Sheep[] = []
   try {
-    const { data, error } = await supabase
+    const db = createAdminClient()
+    const { data, error } = await db
       .from('sheep')
       .select(`
         *,
@@ -47,20 +53,27 @@ async function DashboardContent() {
         )
       `)
       .order('created_at', { ascending: false })
+      .order('record_date', { referencedTable: 'progress_logs', ascending: false })
+      .order('created_at', { referencedTable: 'progress_logs', ascending: false })
 
     if (error) {
-      // Fallback if relation query encounters an issue
-      const fallback = await supabase
+      console.error('[Dashboard] Error fetching sheep and progress_logs from Supabase:', error)
+
+      // Fallback query if relation query encounters an issue
+      const fallback = await db
         .from('sheep')
         .select('*')
         .order('created_at', { ascending: false })
 
-      if (!fallback.error && fallback.data) {
+      if (fallback.error) {
+        console.error('[Dashboard] Error fetching fallback sheep data:', fallback.error)
+      } else if (fallback.data) {
         sheepList = (fallback.data as unknown as Sheep[]).map((item) => ({
           ...item,
           current_weight: item.current_weight ?? item.initial_weight,
         }))
       }
+    } else if (data) {
       sheepList = (data as unknown as Sheep[]).map((item) => {
         const initialWeight = Number(item.initial_weight) || 0
         let calculatedWeight =
@@ -69,8 +82,17 @@ async function DashboardContent() {
             : initialWeight
 
         if (item.progress_logs && Array.isArray(item.progress_logs) && item.progress_logs.length > 0) {
+          // Sort progress_logs: record_date DESC, created_at DESC
+          const sortedLogs = [...item.progress_logs].sort((a, b) => {
+            const dateDiff = new Date(b.record_date).getTime() - new Date(a.record_date).getTime()
+            if (dateDiff !== 0) return dateDiff
+            const aCreated = a.created_at ? new Date(a.created_at).getTime() : 0
+            const bCreated = b.created_at ? new Date(b.created_at).getTime() : 0
+            return bCreated - aCreated
+          })
+
           // Akumulasi: initial_weight + TOTAL(current_weight dari seluruh progress_logs domba tersebut)
-          const totalLogsGain = item.progress_logs.reduce(
+          const totalLogsGain = sortedLogs.reduce(
             (acc, log) => acc + (Number(log.current_weight) || 0),
             0
           )
@@ -84,7 +106,7 @@ async function DashboardContent() {
       })
     }
   } catch (err) {
-    console.error('Gagal mengambil master data domba:', err)
+    console.error('[Dashboard] Unexpected error fetching master data domba:', err)
   }
 
   // Calculate Dashboard Metrics

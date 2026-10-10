@@ -1,6 +1,9 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import React, { Suspense } from 'react'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { WeightChart } from '@/components/tracker/WeightChart'
 import { ProgressFeed } from '@/components/tracker/ProgressFeed'
 import { TrackerActions } from '@/components/tracker/TrackerActions'
@@ -25,7 +28,7 @@ async function TrackerContent({ params }: PageProps) {
   const { code } = await params
   const trackingCode = decodeURIComponent(code).trim().toUpperCase()
 
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data, error } = await supabase
     .from('sheep')
@@ -44,7 +47,13 @@ async function TrackerContent({ params }: PageProps) {
       )
     `)
     .eq('tracking_code', trackingCode)
+    .order('record_date', { referencedTable: 'progress_logs', ascending: false })
+    .order('created_at', { referencedTable: 'progress_logs', ascending: false })
     .single()
+
+  if (error) {
+    console.error(`[Tracking] Error fetching sheep for code "${trackingCode}":`, error)
+  }
 
   if (error || !data) {
     return (
@@ -102,10 +111,16 @@ async function TrackerContent({ params }: PageProps) {
   }
 
   const sheep = data as Sheep
-  const rawLogs = (data.progress_logs || []) as ProgressLog[]
+  const rawLogs = ((data.progress_logs || []) as ProgressLog[]).sort((a, b) => {
+    const dateDiff =
+      new Date(b.record_date).getTime() - new Date(a.record_date).getTime()
+    if (dateDiff !== 0) return dateDiff
+    const aCreated = a.created_at ? new Date(a.created_at).getTime() : 0
+    const bCreated = b.created_at ? new Date(b.created_at).getTime() : 0
+    return bCreated - aCreated
+  })
 
   // Hitung akumulasi BB Saat Ini: initial_weight + TOTAL(current_weight dari seluruh progress_logs)
-
   const initialWeight = Number(sheep.initial_weight) || 0
   const totalLogsGain = rawLogs.reduce(
     (sum, log) => sum + (Number(log.current_weight) || 0),
