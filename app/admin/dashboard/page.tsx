@@ -3,7 +3,6 @@ export const revalidate = 0;
 
 import React, { Suspense } from 'react'
 import Image from 'next/image'
-import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase/server'
 import { SheepTable } from '@/components/admin/SheepTable'
 import type { Sheep } from '@/types/sheep'
@@ -11,8 +10,6 @@ import {
   TrendingUp,
   Activity,
   Users,
-  Plus,
-  ExternalLink,
   Sparkles,
   Scale,
   CheckCircle2,
@@ -127,24 +124,6 @@ async function DashboardContent() {
               <p className="text-sm text-slate-500 max-w-2xl leading-relaxed">
                 Kelola master data domba titipan, pantau target bobot Iduladha, dan update perkembangan berkala dari mobile.
               </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              <Link
-                href="/"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-stone-300 bg-white hover:bg-stone-50 text-slate-700 text-xs sm:text-sm font-semibold shadow-xs transition-all"
-              >
-                <ExternalLink className="w-4 h-4" />
-                <span>Lihat Portal Publik</span>
-              </Link>
-              <Link
-                href="/admin/sheep/new"
-                id="btnAddNewSheepHero"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs sm:text-sm font-semibold shadow-md shadow-emerald-800/20 transition-all cursor-pointer"
-              >
-                <Plus className="w-4 h-4" />
-                <span>+ Tambah Domba Baru</span>
-              </Link>
             </div>
           </div>
         </div>
