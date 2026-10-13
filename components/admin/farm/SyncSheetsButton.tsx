@@ -70,7 +70,7 @@ export function SyncSheetsButton({ className = '', size = 'md' }: SyncSheetsButt
       {/* Floating feedback toast */}
       {feedback && (
         <div
-          className={`absolute left-0 top-full mt-2 z-50 whitespace-nowrap rounded-xl px-3.5 py-2 text-xs font-semibold shadow-lg border flex items-center gap-2 animate-in fade-in slide-in-from-top-1 ${
+          className={`absolute left-0 sm:left-auto right-auto sm:right-0 top-full mt-2 z-50 whitespace-normal sm:whitespace-nowrap max-w-[280px] sm:max-w-none rounded-xl px-3.5 py-2 text-xs font-semibold shadow-lg border flex items-center gap-2 animate-in fade-in slide-in-from-top-1 ${
             feedback.type === 'success'
               ? 'bg-emerald-900 text-white border-emerald-700'
               : 'bg-rose-900 text-white border-rose-700'

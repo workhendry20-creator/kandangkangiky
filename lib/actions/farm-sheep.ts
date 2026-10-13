@@ -549,14 +549,42 @@ export async function deleteFarmSheep(id: string): Promise<FarmActionResult> {
       return { success: false, error: 'Sesi admin telah berakhir.' }
     }
 
+    // 1. Get tag_id of sheep before deletion
+    const { data: sheep } = await supabase
+      .from('farm_sheep')
+      .select('tag_id, tag_code')
+      .eq('id', id)
+      .single()
+
+    const tagId = sheep ? String(sheep.tag_id || sheep.tag_code || id) : id
+
+    // 2. Delete from Supabase
     const { error } = await supabase.from('farm_sheep').delete().eq('id', id)
 
     if (error) {
       return { success: false, error: `Gagal menghapus domba: ${error.message}` }
     }
 
+    // 3. Non-blocking delete sync to Google Sheets Webhook
+    try {
+      const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL?.replace(/^hhttps:\/\//, 'https://').trim()
+      if (webhookUrl && tagId) {
+        await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'delete',
+            sheet_name: 'Master_Kandang',
+            tag_id: tagId,
+          }),
+        })
+      }
+    } catch (sheetErr) {
+      console.warn('[FarmSheep] Apps Script delete sync error:', sheetErr)
+    }
+
     revalidatePath('/admin/farm-sheep')
-    return { success: true, message: 'Domba kandang berhasil dihapus.' }
+    return { success: true, message: `Domba kandang "${tagId}" berhasil dihapus.` }
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : 'Gagal menghapus domba.'
     return { success: false, error: errorMsg }
@@ -836,10 +864,54 @@ export async function deleteFarmEvent(id: string): Promise<FarmActionResult> {
       return { success: false, error: 'Sesi admin telah berakhir.' }
     }
 
+    // 1. Get tag_id from associated sheep before deletion
+    let tagId = ''
+    const { data: eventData } = await supabase
+      .from('farm_events')
+      .select('*, farm_sheep(tag_id, tag_code)')
+      .eq('id', id)
+      .single()
+
+    if (eventData) {
+      if (eventData.farm_sheep) {
+        const s = eventData.farm_sheep as Record<string, unknown>
+        tagId = String(s.tag_id || s.tag_code || '')
+      } else if (eventData.farm_sheep_id || eventData.sheep_id) {
+        const sheepId = eventData.farm_sheep_id || eventData.sheep_id
+        const { data: s } = await supabase
+          .from('farm_sheep')
+          .select('tag_id, tag_code')
+          .eq('id', sheepId)
+          .single()
+        if (s) {
+          tagId = String(s.tag_id || s.tag_code || '')
+        }
+      }
+    }
+
+    // 2. Delete from Supabase
     const { error } = await supabase.from('farm_events').delete().eq('id', id)
 
     if (error) {
       return { success: false, error: `Gagal menghapus catatan: ${error.message}` }
+    }
+
+    // 3. Non-blocking delete sync to Google Sheets Webhook
+    try {
+      const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL?.replace(/^hhttps:\/\//, 'https://').trim()
+      if (webhookUrl && tagId) {
+        await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'delete',
+            sheet_name: 'Kelahiran_Tindakan',
+            tag_id: tagId,
+          }),
+        })
+      }
+    } catch (sheetErr) {
+      console.warn('[FarmEvent] Apps Script delete sync error:', sheetErr)
     }
 
     revalidatePath('/admin/farm-sheep')

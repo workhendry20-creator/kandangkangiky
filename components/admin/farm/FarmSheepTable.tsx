@@ -10,6 +10,9 @@ import {
   Edit2,
   Trash2,
   Loader2,
+  CheckCircle2,
+  AlertCircle,
+  X,
 } from 'lucide-react'
 import { SyncSheetsButton } from './SyncSheetsButton'
 
@@ -32,6 +35,7 @@ export function FarmSheepTable({
   const [filterType, setFilterType] = useState<string>('all')
   const [filterStatus, setFilterStatus] = useState<string>('all')
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null)
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
   const [, startTransition] = useTransition()
 
   // Filter logic
@@ -56,13 +60,23 @@ export function FarmSheepTable({
   const handleDelete = (id: string, name: string) => {
     if (confirm(`Yakin ingin menghapus domba kandang "${name}"? Seluruh rekam medis dan kelahirannya juga akan terhapus.`)) {
       setIsDeletingId(id)
+      setToast(null)
       startTransition(async () => {
         const res = await deleteFarmSheep(id)
         setIsDeletingId(null)
         if (res.success) {
+          setToast({
+            type: 'success',
+            message: res.message || `Domba "${name}" berhasil dihapus dan disinkronkan ke Google Sheets!`,
+          })
           onRefresh()
+          setTimeout(() => setToast(null), 5000)
         } else {
-          alert(res.error || 'Gagal menghapus domba.')
+          setToast({
+            type: 'error',
+            message: res.error || 'Gagal menghapus domba.',
+          })
+          setTimeout(() => setToast(null), 5000)
         }
       })
     }
@@ -158,10 +172,37 @@ export function FarmSheepTable({
         </div>
       </div>
 
+      {/* Toast Alert Feedback */}
+      {toast && (
+        <div
+          className={`p-3.5 rounded-2xl border flex items-center justify-between gap-3 text-xs sm:text-sm font-semibold transition-all shadow-xs ${
+            toast.type === 'success'
+              ? 'bg-emerald-50 text-emerald-900 border-emerald-200'
+              : 'bg-rose-50 text-rose-900 border-rose-200'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            {toast.type === 'success' ? (
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            ) : (
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            )}
+            <span>{toast.message}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setToast(null)}
+            className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* Main Table Card */}
       <div className="bg-white rounded-3xl border border-stone-200/90 shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto w-full">
+          <table className="w-full text-left border-collapse min-w-[760px]">
             <thead>
               <tr className="border-b border-stone-200 bg-stone-50/70 text-[11px] font-bold uppercase tracking-wider text-slate-500">
                 <th className="py-3.5 px-4 sm:px-6">ID & Nama</th>
@@ -306,21 +347,22 @@ export function FarmSheepTable({
                       <div className="inline-flex items-center gap-1">
                         <button
                           type="button"
+                          disabled={isDeletingId !== null}
                           onClick={() => onOpenEditModal(sheep)}
-                          className="p-1.5 rounded-lg text-slate-500 hover:text-emerald-800 hover:bg-stone-100 transition-colors"
+                          className="p-1.5 rounded-lg text-slate-500 hover:text-emerald-800 hover:bg-stone-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                           title="Edit domba"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
                           type="button"
-                          disabled={isDeletingId === sheep.id}
+                          disabled={isDeletingId !== null}
                           onClick={() => handleDelete(sheep.id, sheep.name)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-700 hover:bg-rose-50 transition-colors disabled:opacity-50"
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-700 hover:bg-rose-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                           title="Hapus domba"
                         >
                           {isDeletingId === sheep.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <Loader2 className="w-4 h-4 animate-spin text-rose-600" />
                           ) : (
                             <Trash2 className="w-4 h-4" />
                           )}
