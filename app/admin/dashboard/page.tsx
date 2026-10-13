@@ -3,12 +3,10 @@ export const revalidate = 0;
 
 import React, { Suspense } from 'react'
 import Link from 'next/link'
-import { createClient, createAdminClient } from '@/lib/supabase/server'
-import { LogoutButton } from '@/components/admin/LogoutButton'
+import { createAdminClient } from '@/lib/supabase/server'
 import { SheepTable } from '@/components/admin/SheepTable'
 import type { Sheep } from '@/types/sheep'
 import {
-  ShieldCheck,
   TrendingUp,
   Activity,
   Users,
@@ -20,24 +18,6 @@ import {
 } from 'lucide-react'
 
 async function DashboardContent() {
-  const supabase = await createClient()
-
-  // Get current authenticated user
-  let user = null
-  try {
-    const { data, error: userError } = await supabase.auth.getUser()
-    if (userError) {
-      console.warn('[Dashboard] Auth session warning:', userError.message)
-    }
-    user = data?.user
-  } catch (err) {
-    console.warn('[Dashboard] Could not fetch authenticated user:', err)
-    user = null
-  }
-
-  const userEmail = user?.email || 'admin@kandangkangiky.com'
-  const userInitials = userEmail.slice(0, 2).toUpperCase()
-
   // Fetch sheep and related progress logs using admin client to prevent cookie expiry issues
   let sheepList: Sheep[] = []
   try {
@@ -128,66 +108,7 @@ async function DashboardContent() {
       : '0.0'
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] flex flex-col text-slate-800">
-      {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-stone-200/80 shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between gap-4">
-          {/* Brand & Location */}
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-800 text-white font-bold shadow-md shadow-emerald-800/20">
-              <span className="text-xl">🐑</span>
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-base sm:text-lg text-slate-900 tracking-tight">
-                  Kang Iky
-                </span>
-                <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800">
-                  Admin Console
-                </span>
-              </div>
-              <p className="text-xs text-slate-500 font-medium">
-                Kandang Utama: Parung, Bogor
-              </p>
-            </div>
-          </div>
-
-          {/* Sync Status & User Profile */}
-          <div className="flex items-center gap-3 sm:gap-4">
-            {/* Google Sheets Sync Indicator */}
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-stone-100 border border-stone-200/60 text-xs font-medium text-slate-700">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600" />
-              </span>
-              <span>Google Sheets Sync Ready</span>
-            </div>
-
-            {/* User Profile Badge */}
-            <div className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-3 border-l border-stone-200">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-emerald-800 text-white text-xs font-bold flex items-center justify-center ring-2 ring-emerald-100">
-                {userInitials}
-              </div>
-              <div className="hidden lg:flex flex-col text-left">
-                <span
-                  className="text-xs font-semibold text-slate-900 max-w-[150px] truncate"
-                  title={userEmail}
-                >
-                  {userEmail}
-                </span>
-                <span className="text-[11px] text-emerald-700 font-medium flex items-center gap-1">
-                  <ShieldCheck className="w-3 h-3" />
-                  Owner / Peternak
-                </span>
-              </div>
-
-              {/* Logout Button */}
-              <LogoutButton />
-            </div>
-          </div>
-        </div>
-      </header>
-
+    <div className="flex-1 flex flex-col">
       {/* Main Content Body */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Welcome Greeting Banner */}
