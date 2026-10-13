@@ -69,7 +69,7 @@ async function TrackerContent({ params }: PageProps) {
               className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-600 hover:text-emerald-800 transition-colors p-2 -ml-2 rounded-xl hover:bg-stone-100"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>Kembali ke Pencarian</span>
+              <span>Kembali ke Beranda</span>
             </Link>
 
             <div className="flex items-center gap-2.5">
@@ -171,7 +171,7 @@ async function TrackerContent({ params }: PageProps) {
             className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-600 hover:text-emerald-800 transition-colors p-2 -ml-2 rounded-xl hover:bg-stone-100"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Beranda Lacak</span>
+            <span>Kembali ke Beranda</span>
           </Link>
 
           <div className="flex items-center gap-2.5">
@@ -188,13 +188,6 @@ async function TrackerContent({ params }: PageProps) {
               Kandang Kang Iky
             </span>
           </div>
-
-          <Link
-            href="/admin/login"
-            className="text-xs font-semibold text-emerald-800 hover:underline px-2.5 py-1.5 rounded-lg hover:bg-emerald-50"
-          >
-            Masuk Admin
-          </Link>
         </div>
       </header>
 
@@ -214,13 +207,6 @@ async function TrackerContent({ params }: PageProps) {
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>Status: {sheep.status}</span>
                 </span>
-                <span className="px-3 py-1 rounded-full text-xs font-semibold bg-stone-100 text-slate-600">
-                  Kedatangan: {formatDate(sheep.entry_date)}
-                </span>
-                <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-100 flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-emerald-700" />
-                  <span>Umur: {realtimeAge.ageInMonthsText} ({realtimeAge.ageInDaysText})</span>
-                </span>
               </div>
 
               <div>
@@ -234,14 +220,6 @@ async function TrackerContent({ params }: PageProps) {
                   </span>
                 </p>
               </div>
-            </div>
-
-            {/* Quick Share and WhatsApp CTAs */}
-            <div className="md:w-80 w-full shrink-0">
-              <TrackerActions
-                trackingCode={sheep.tracking_code}
-                customerName={sheep.customer_name}
-              />
             </div>
           </div>
         </div>
@@ -323,20 +301,9 @@ async function TrackerContent({ params }: PageProps) {
           </div>
         </div>
 
-        {/* 6 Key Metric Cards Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4">
-          {/* Card 1: Pemilik */}
-          <div className="p-4 rounded-2xl bg-white border border-stone-200/80 shadow-xs space-y-1">
-            <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
-              Pemilik
-            </span>
-            <span className="text-sm font-bold text-slate-900 block truncate" title={sheep.customer_name}>
-              {sheep.customer_name}
-            </span>
-            <span className="text-[11px] text-slate-500">Mitra Terdaftar</span>
-          </div>
-
-          {/* Card 2: Ras & Gender */}
+        {/* 5 Key Metric Cards Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4">
+          {/* Card 1: Ras & Gender */}
           <div className="p-4 rounded-2xl bg-white border border-stone-200/80 shadow-xs space-y-1">
             <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
               Ras / Gender
@@ -489,10 +456,6 @@ async function TrackerContent({ params }: PageProps) {
           </div>
           <div className="flex items-center gap-4 text-slate-500">
             <span>Parung, Bogor</span>
-            <span>•</span>
-            <Link href="/" className="hover:text-emerald-800">
-              Lacak Ternak Lain
-            </Link>
           </div>
         </div>
       </footer>
