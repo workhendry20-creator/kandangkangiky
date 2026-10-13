@@ -11,6 +11,7 @@ import { EditFarmSheepModal } from './EditFarmSheepModal'
 import { ImportCsvModal } from './ImportCsvModal'
 import { NewBirthModal } from './NewBirthModal'
 import { NewTreatmentModal } from './NewTreatmentModal'
+import { SyncSheetsButton } from './SyncSheetsButton'
 import {
   Warehouse,
   Baby,
@@ -91,6 +92,7 @@ export function FarmSheepManagement({
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
+            <SyncSheetsButton />
             <button
               type="button"
               onClick={() => setIsImportModalOpen(true)}

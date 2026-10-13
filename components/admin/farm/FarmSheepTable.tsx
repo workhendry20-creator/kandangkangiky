@@ -11,6 +11,7 @@ import {
   Trash2,
   Loader2,
 } from 'lucide-react'
+import { SyncSheetsButton } from './SyncSheetsButton'
 
 interface FarmSheepTableProps {
   sheepList: FarmSheep[]
@@ -134,7 +135,8 @@ export function FarmSheepTable({
             <option value="Siap Kawin">Siap Kawin</option>
           </select>
 
-          {/* Import CSV Button */}
+          {/* Sync & Import Actions */}
+          <SyncSheetsButton size="sm" />
           <button
             type="button"
             onClick={onOpenImportModal}

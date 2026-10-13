@@ -319,7 +319,7 @@ export async function createFarmSheep(
     // Non-blocking Google Sheets / Apps Script Webhook sync
     let sheetsSynced = false
     try {
-      const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL
+      const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL?.replace(/^hhttps:\/\//, 'https://').trim()
       if (webhookUrl) {
         const payloadJson = {
           sheet_name: 'Master_Kandang',
@@ -762,7 +762,7 @@ export async function createFarmEvent(
     // 4. Non-blocking sync to Google Sheets & Apps Script
     let sheetsSynced = false
     try {
-      const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL
+      const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL?.replace(/^hhttps:\/\//, 'https://').trim()
       if (webhookUrl) {
         const payloadJson = {
           sheet_name: 'Kelahiran_Tindakan',
@@ -849,3 +849,155 @@ export async function deleteFarmEvent(id: string): Promise<FarmActionResult> {
     return { success: false, error: errorMsg }
   }
 }
+
+/**
+ * Sync all existing farm sheep and farm events from Supabase to Google Sheets Webhook
+ */
+export async function syncAllFarmDataToSheets(): Promise<{
+  success: boolean
+  message: string
+  syncedSheepCount?: number
+  syncedEventsCount?: number
+  error?: string
+}> {
+  try {
+    const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL?.replace(/^hhttps:\/\//, 'https://').trim()
+    if (!webhookUrl) {
+      return {
+        success: false,
+        message: 'URL Google Apps Script belum terkonfigurasi di server (GOOGLE_APPS_SCRIPT_URL).',
+        error: 'GOOGLE_APPS_SCRIPT_URL is not configured',
+      }
+    }
+
+    const supabase = await createClient()
+
+    // 1. Fetch all farm sheep
+    const { data: rawSheep, error: sheepErr } = await supabase
+      .from('farm_sheep')
+      .select('*')
+      .order('created_at', { ascending: true })
+
+    if (sheepErr) {
+      return {
+        success: false,
+        message: `Gagal mengambil data domba dari database: ${sheepErr.message}`,
+        error: sheepErr.message,
+      }
+    }
+
+    // 2. Fetch all farm events
+    const { data: rawEvents, error: eventsErr } = await supabase
+      .from('farm_events')
+      .select('*')
+      .order('event_date', { ascending: true })
+      .order('created_at', { ascending: true })
+
+    if (eventsErr) {
+      return {
+        success: false,
+        message: `Gagal mengambil data kegiatan dari database: ${eventsErr.message}`,
+        error: eventsErr.message,
+      }
+    }
+
+    const sheepList = rawSheep || []
+    const eventList = rawEvents || []
+
+    // Build map for resolving sheep tag_id
+    const sheepTagMap = new Map<string, string>()
+    sheepList.forEach((s) => {
+      const tag = String(s.tag_id || s.tag_code || s.code || s.id)
+      sheepTagMap.set(String(s.id), tag)
+    })
+
+    let syncedSheepCount = 0
+    let syncedEventsCount = 0
+
+    // Send each sheep to Master_Kandang
+    for (const s of sheepList) {
+      const tagId = String(s.tag_id || s.tag_code || s.code || s.id)
+      const initialWeight = Number(s.initial_weight) || 0
+      const payload = {
+        sheet_name: 'Master_Kandang',
+        type: 'farm_sheep',
+        tag_id: tagId,
+        name: String(s.name || ''),
+        gender: String(s.gender || 'Betina'),
+        breed: String(s.breed || 'Garut'),
+        origin: String(s.origin || 'Beli'),
+        arrival_date: String(s.arrival_date || s.entry_date || s.created_at || '').split('T')[0],
+        initial_weight: initialWeight,
+        status: String(s.status || 'Kosongan'),
+        farm_type: String(s.type || s.sheep_type || 'Indukan'),
+      }
+
+      try {
+        const res = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+        if (res.ok) {
+          syncedSheepCount++
+        }
+      } catch (err) {
+        console.warn(`[SyncAll] Error syncing sheep ${tagId}:`, err)
+      }
+    }
+
+    // Send each event to Kelahiran_Tindakan
+    for (const e of eventList) {
+      const sheepId = String(e.farm_sheep_id || e.sheep_id || '')
+      const tagId = sheepTagMap.get(sheepId) || sheepId || '-'
+      const lambCount =
+        e.child_count !== null && e.child_count !== undefined
+          ? Number(e.child_count)
+          : e.lamb_count !== null && e.lamb_count !== undefined
+          ? Number(e.lamb_count)
+          : null
+
+      const payload = {
+        sheet_name: 'Kelahiran_Tindakan',
+        type: 'farm_event',
+        tag_id: tagId,
+        event_type: String(e.event_type || 'Tindakan'),
+        event_date: String(e.event_date || e.created_at || '').split('T')[0],
+        child_count: lambCount,
+        action_name: e.action_name || null,
+        description: e.description || e.notes || null,
+      }
+
+      try {
+        const res = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+        if (res.ok) {
+          syncedEventsCount++
+        }
+      } catch (err) {
+        console.warn(`[SyncAll] Error syncing event ${e.id}:`, err)
+      }
+    }
+
+    revalidatePath('/admin/farm-sheep')
+
+    return {
+      success: true,
+      message: `Berhasil sinkronisasi ${syncedSheepCount} domba dan ${syncedEventsCount} kegiatan ke Google Sheets!`,
+      syncedSheepCount,
+      syncedEventsCount,
+    }
+  } catch (err: unknown) {
+    const errorMsg =
+      err instanceof Error ? err.message : 'Terjadi kendala saat sinkronisasi ke Google Sheets.'
+    return {
+      success: false,
+      message: errorMsg,
+      error: errorMsg,
+    }
+  }
+}
+
