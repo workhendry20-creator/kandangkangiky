@@ -174,10 +174,42 @@ export async function createProgressLog(
       console.warn('Gagal memperbarui current_weight pada tabel sheep:', updateSheepError.message)
     }
 
-    // 5. Append row to Google Sheets and/or Apps Script Webhook simultaneously (non-blocking)
+    // 5. POST ke Google Apps Script Webhook (Sheet: Log_Titipan) secara non-blocking
     let sheetsSynced = false
+    try {
+      const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL?.replace(/^hhttps:\/\//, 'https://').trim()
+      if (webhookUrl) {
+        const payloadJson = {
+          sheet_name: 'Log_Titipan',
+          type: 'titipan_log',
+          tracking_code: sheep.tracking_code,
+          customer_name: sheep.customer_name,
+          record_date: recordDate,
+          weight: weightToSave,
+          health_status: healthStatus,
+          notes: notes,
+          photo_url: mediaUrl || '',
+        }
 
-    // A. Direct Google Sheets API v4
+        const res = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payloadJson),
+        })
+
+        if (res.ok) {
+          sheetsSynced = true
+        } else {
+          console.warn('[Progress Webhook Warning]:', res.statusText || `HTTP ${res.status}`)
+        }
+      }
+    } catch (sheetErr) {
+      console.warn('[Progress] Apps Script sync non-blocking error:', sheetErr)
+    }
+
+    // Direct Google Sheets API v4 fallback (non-blocking)
     try {
       const sheetRes = await appendProgressRowToSheet({
         trackingCode: sheep.tracking_code,
@@ -191,23 +223,7 @@ export async function createProgressLog(
       })
       if (sheetRes.success) sheetsSynced = true
     } catch (sheetCatchErr) {
-      console.warn('Gagal sinkronisasi Google Sheets:', sheetCatchErr)
-    }
-
-    // B. Google Apps Script Webhook (mengirimkan weight_to_save)
-    try {
-      const webhookRes = await syncProgressToAppsScriptWebhook({
-        tracking_code: sheep.tracking_code,
-        customer_name: sheep.customer_name,
-        record_date: recordDate,
-        current_weight: weightToSave,
-        health_status: healthStatus,
-        notes: notes,
-        media_url: mediaUrl,
-      })
-      if (webhookRes.success) sheetsSynced = true
-    } catch (webhookCatchErr) {
-      console.warn('Gagal sinkronisasi Apps Script Webhook:', webhookCatchErr)
+      // Ignored if service account credentials not configured
     }
 
     // 6. Revalidate relevant paths
@@ -226,5 +242,106 @@ export async function createProgressLog(
     const errorMsg =
       err instanceof Error ? err.message : 'Terjadi kendala server saat menyimpan progress.'
     return { success: false, error: errorMsg }
+  }
+}
+
+/**
+ * Server Action to sync all titipan progress logs to Google Sheets (Log_Titipan)
+ */
+export async function syncAllProgressLogsToSheets(): Promise<{
+  success: boolean
+  message: string
+  syncedCount?: number
+  error?: string
+}> {
+  try {
+    const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL?.replace(/^hhttps:\/\//, 'https://').trim()
+    if (!webhookUrl) {
+      return {
+        success: false,
+        message: 'URL Google Apps Script belum terkonfigurasi di server (GOOGLE_APPS_SCRIPT_URL).',
+        error: 'GOOGLE_APPS_SCRIPT_URL not configured',
+      }
+    }
+
+    const adminSession = await requireAdminSession()
+    if (!adminSession) {
+      return {
+        success: false,
+        message: 'Sesi admin telah berakhir. Silakan login kembali.',
+        error: 'Unauthorized',
+      }
+    }
+
+    const supabase = createAdminClient()
+
+    // Ambil seluruh log progress beserta info dombanya
+    const { data: logs, error: logsErr } = await supabase
+      .from('progress_logs')
+      .select(`
+        id,
+        record_date,
+        current_weight,
+        health_status,
+        notes,
+        media_url,
+        sheep:sheep_id (
+          tracking_code,
+          customer_name,
+          initial_weight
+        )
+      `)
+      .order('record_date', { ascending: true })
+      .order('created_at', { ascending: true })
+
+    if (logsErr) {
+      return {
+        success: false,
+        message: `Gagal mengambil log progress: ${logsErr.message}`,
+        error: logsErr.message,
+      }
+    }
+
+    let syncedCount = 0
+    for (const log of logs || []) {
+      const sheepInfo = Array.isArray(log.sheep) ? log.sheep[0] : log.sheep
+      const trackingCode = (sheepInfo as { tracking_code?: string })?.tracking_code || '-'
+      const customerName = (sheepInfo as { customer_name?: string })?.customer_name || '-'
+      const weightVal = Number(log.current_weight) || 0
+
+      const payload = {
+        sheet_name: 'Log_Titipan',
+        type: 'titipan_log',
+        tracking_code: trackingCode,
+        customer_name: customerName,
+        record_date: log.record_date,
+        weight: weightVal,
+        health_status: log.health_status,
+        notes: log.notes || '',
+        photo_url: log.media_url || '',
+      }
+
+      try {
+        const res = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+        if (res.ok) {
+          syncedCount++
+        }
+      } catch (err) {
+        console.warn(`[SyncAllProgress] Gagal sync log ${log.id}:`, err)
+      }
+    }
+
+    return {
+      success: true,
+      message: `Berhasil menyinkronkan ${syncedCount} log progress titipan ke Google Sheets!`,
+      syncedCount,
+    }
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : 'Terjadi kesalahan sinkronisasi.'
+    return { success: false, message: errorMsg, error: errorMsg }
   }
 }

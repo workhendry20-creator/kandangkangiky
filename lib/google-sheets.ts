@@ -12,12 +12,16 @@ export interface SheetRowData {
 }
 
 export interface WebhookProgressPayload {
+  sheet_name?: string
+  type?: string
   tracking_code: string
   customer_name: string
   record_date: string
-  current_weight: number
+  weight?: number
+  current_weight?: number
   health_status: string
   notes?: string | null
+  photo_url?: string | null
   media_url?: string | null
 }
 
@@ -97,7 +101,7 @@ export async function syncProgressToAppsScriptWebhook(
   payload: WebhookProgressPayload
 ): Promise<{ success: boolean; message?: string; error?: string }> {
   try {
-    const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL
+    const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL?.replace(/^hhttps:\/\//, 'https://').trim()
     if (!webhookUrl) {
       return {
         success: false,
@@ -105,12 +109,24 @@ export async function syncProgressToAppsScriptWebhook(
       }
     }
 
+    const bodyPayload = {
+      sheet_name: payload.sheet_name || 'Log_Titipan',
+      type: payload.type || 'titipan_log',
+      tracking_code: payload.tracking_code,
+      customer_name: payload.customer_name,
+      record_date: payload.record_date,
+      weight: payload.weight ?? payload.current_weight ?? 0,
+      health_status: payload.health_status,
+      notes: payload.notes || '-',
+      photo_url: payload.photo_url || payload.media_url || '',
+    }
+
     const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(bodyPayload),
     })
 
     if (!response.ok) {

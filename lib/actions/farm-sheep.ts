@@ -6,6 +6,7 @@ import {
   appendFarmSheepRowToSheet,
   appendFarmEventRowToSheet,
 } from '@/lib/google-sheets'
+import { syncAllProgressLogsToSheets } from '@/lib/actions/progress'
 import { revalidatePath } from 'next/cache'
 import type {
   FarmSheep,
@@ -1064,11 +1065,22 @@ export async function syncAllFarmDataToSheets(): Promise<{
       }
     }
 
+    // Sync Log_Titipan (progress_logs)
+    let syncedLogsCount = 0
+    try {
+      const logsRes = await syncAllProgressLogsToSheets()
+      if (logsRes.success && logsRes.syncedCount) {
+        syncedLogsCount = logsRes.syncedCount
+      }
+    } catch (logErr) {
+      console.warn('[SyncAll] Error syncing progress logs:', logErr)
+    }
+
     revalidatePath('/admin/farm-sheep')
 
     return {
       success: true,
-      message: `Berhasil sinkronisasi ${syncedSheepCount} domba dan ${syncedEventsCount} kegiatan ke Google Sheets!`,
+      message: `Berhasil sinkronisasi ${syncedSheepCount} domba, ${syncedEventsCount} kegiatan, dan ${syncedLogsCount} log titipan ke Google Sheets!`,
       syncedSheepCount,
       syncedEventsCount,
     }
@@ -1252,11 +1264,22 @@ export async function fullSyncToSheets(): Promise<{
       }
     }
 
+    // 7. Sync Log_Titipan from progress_logs
+    let syncedLogsCount = 0
+    try {
+      const titipanRes = await syncAllProgressLogsToSheets()
+      if (titipanRes.success && titipanRes.syncedCount) {
+        syncedLogsCount = titipanRes.syncedCount
+      }
+    } catch (titipanErr) {
+      console.warn('[FullSync] Gagal sync log titipan:', titipanErr)
+    }
+
     revalidatePath('/admin/farm-sheep')
 
     return {
       success: true,
-      message: `Full Sync Berhasil: ${syncedSheepCount} domba & ${syncedEventsCount} kegiatan disinkronkan ke Google Sheets!`,
+      message: `Full Sync Berhasil: ${syncedSheepCount} domba, ${syncedEventsCount} kegiatan, & ${syncedLogsCount} log titipan disinkronkan ke Google Sheets!`,
       syncedSheepCount,
       syncedEventsCount,
     }
