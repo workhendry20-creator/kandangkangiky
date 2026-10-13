@@ -14,10 +14,12 @@ import {
   Eye,
   EyeOff,
   LogIn,
+  User,
 } from 'lucide-react'
+import { loginAdminAction } from '@/lib/actions/auth'
 
 function LoginContent() {
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -31,8 +33,8 @@ function LoginContent() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!email.trim() || !password) {
-      setErrorMessage('Harap masukkan email dan kata sandi.')
+    if (!username.trim() || !password) {
+      setErrorMessage('Harap masukkan username dan kata sandi.')
       return
     }
 
@@ -40,23 +42,10 @@ function LoginContent() {
       setLoading(true)
       setErrorMessage(null)
 
-      const supabase = createClient()
-      const { error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      })
+      const res = await loginAdminAction(username, password)
 
-      if (error) {
-        if (
-          error.message.toLowerCase().includes('invalid login credentials') ||
-          error.message.toLowerCase().includes('invalid credentials')
-        ) {
-          setErrorMessage('Email atau password salah. Silakan periksa kembali.')
-        } else if (error.message.toLowerCase().includes('email not confirmed')) {
-          setErrorMessage('Email akun Anda belum dikonfirmasi.')
-        } else {
-          setErrorMessage(error.message)
-        }
+      if (!res.success) {
+        setErrorMessage(res.error || 'Username atau kata sandi salah')
         setLoading(false)
         return
       }
@@ -129,26 +118,27 @@ function LoginContent() {
           </div>
         )}
 
-        {/* Form Login Email & Password */}
+        {/* Form Login Username & Password */}
         <form onSubmit={handleLogin} className="space-y-5">
-          {/* Email Field */}
+          {/* Username Field */}
           <div className="space-y-1.5 text-left">
             <label
-              htmlFor="emailInput"
+              htmlFor="usernameInput"
               className="block text-xs font-semibold text-slate-700 uppercase tracking-wider"
             >
-              Email Admin
+              Username
             </label>
             <div className="relative">
-              <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
-                id="emailInput"
-                type="email"
+                id="usernameInput"
+                name="username"
+                type="text"
                 required
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@kandangkangiky.com"
+                autoComplete="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Contoh: admin"
                 className="w-full pl-10 pr-4 py-3 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 transition-all shadow-xs"
               />
             </div>
@@ -166,6 +156,7 @@ function LoginContent() {
               <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 id="passwordInput"
+                name="password"
                 type={showPassword ? 'text' : 'password'}
                 required
                 autoComplete="current-password"

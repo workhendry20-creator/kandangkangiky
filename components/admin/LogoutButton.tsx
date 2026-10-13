@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { logoutAdminAction } from '@/lib/actions/auth'
 import { LogOut } from 'lucide-react'
 
 interface LogoutButtonProps {
@@ -17,8 +18,13 @@ export function LogoutButton({ className = '', variant = 'outline' }: LogoutButt
   const handleLogout = async () => {
     try {
       setLoading(true)
-      const supabase = createClient()
-      await supabase.auth.signOut()
+      await logoutAdminAction()
+      try {
+        const supabase = createClient()
+        await supabase.auth.signOut()
+      } catch {
+        // Ignore
+      }
       router.push('/admin/login')
       router.refresh()
     } catch (err) {

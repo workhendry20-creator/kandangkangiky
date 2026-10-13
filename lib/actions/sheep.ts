@@ -1,6 +1,7 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
+import { requireAdminSession } from '@/lib/auth'
 import { generateTrackingCode } from '@/lib/utils'
 import { revalidatePath } from 'next/cache'
 import type { Sheep } from '@/types/sheep'
@@ -31,16 +32,16 @@ export async function createSheep(
   input: CreateSheepInput
 ): Promise<ActionResult<Sheep>> {
   try {
-    const supabase = await createClient()
-
     // 0. Check authenticated admin session
-    const { data: authData } = await supabase.auth.getUser()
-    if (!authData?.user) {
+    const adminSession = await requireAdminSession()
+    if (!adminSession) {
       return {
         success: false,
         error: 'Sesi admin berakhir atau belum login. Silakan login kembali.',
       }
     }
+
+    const supabase = createAdminClient()
 
     // 1. Validation
     const customerName = input.customer_name?.trim()

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { getCurrentAdmin } from '@/lib/actions/auth'
 import { LogoutButton } from './LogoutButton'
 import {
   ShieldCheck,
@@ -17,7 +18,7 @@ import {
 export function AdminNavbar() {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [userEmail, setUserEmail] = useState('admin@kandangkangiky.com')
+  const [userEmail, setUserEmail] = useState('Admin Peternakan')
   const [prevPathname, setPrevPathname] = useState(pathname)
 
   // Close mobile menu on route change without useEffect cascading render
@@ -26,18 +27,28 @@ export function AdminNavbar() {
     setMobileMenuOpen(false)
   }
 
-  // Fetch current authenticated user email on client
+  // Fetch current authenticated user info on client
   useEffect(() => {
-    try {
-      const supabase = createClient()
-      supabase.auth.getUser().then(({ data }) => {
-        if (data?.user?.email) {
-          setUserEmail(data.user.email)
+    getCurrentAdmin()
+      .then((admin) => {
+        if (admin?.name || admin?.username) {
+          setUserEmail(admin.name || admin.username)
+          return
+        }
+        try {
+          const supabase = createClient()
+          supabase.auth.getUser().then(({ data }) => {
+            if (data?.user?.email) {
+              setUserEmail(data.user.email)
+            }
+          })
+        } catch {
+          // Ignore if supabase client unconfigured
         }
       })
-    } catch {
-      // Ignore if supabase client unconfigured
-    }
+      .catch(() => {
+        // Ignore error
+      })
   }, [])
 
   // Don't render admin navbar on login page

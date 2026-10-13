@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { requireAdminSession } from '@/lib/auth'
 import {
   appendFarmSheepRowToSheet,
   appendFarmEventRowToSheet,
@@ -121,7 +122,7 @@ export async function getFarmData(): Promise<{
   error?: string
 }> {
   try {
-    const db = await createClient()
+    const db = createAdminClient()
 
     // 1. Fetch farm sheep
     const { data: rawSheepData, error: sheepError } = await db
@@ -230,16 +231,16 @@ export async function createFarmSheep(
   input: CreateFarmSheepInput
 ): Promise<FarmActionResult<FarmSheep>> {
   try {
-    const supabase = await createClient()
-
     // Verify session
-    const { data: authData } = await supabase.auth.getUser()
-    if (!authData?.user) {
+    const adminSession = await requireAdminSession()
+    if (!adminSession) {
       return {
         success: false,
         error: 'Sesi admin telah berakhir atau belum login. Silakan login kembali.',
       }
     }
+
+    const supabase = createAdminClient()
 
     // Validation
     const tagCode = input.tag_code?.trim()
@@ -386,15 +387,15 @@ export async function updateFarmSheep(
   input: UpdateFarmSheepInput
 ): Promise<FarmActionResult<FarmSheep>> {
   try {
-    const supabase = await createClient()
-
-    const { data: authData } = await supabase.auth.getUser()
-    if (!authData?.user) {
+    const adminSession = await requireAdminSession()
+    if (!adminSession) {
       return {
         success: false,
         error: 'Sesi admin telah berakhir. Silakan login kembali.',
       }
     }
+
+    const supabase = createAdminClient()
 
     if (!id) {
       return { success: false, error: 'ID domba tidak valid.' }
@@ -542,12 +543,12 @@ export async function updateFarmSheep(
  */
 export async function deleteFarmSheep(id: string): Promise<FarmActionResult> {
   try {
-    const supabase = await createClient()
-
-    const { data: authData } = await supabase.auth.getUser()
-    if (!authData?.user) {
+    const adminSession = await requireAdminSession()
+    if (!adminSession) {
       return { success: false, error: 'Sesi admin telah berakhir.' }
     }
+
+    const supabase = createAdminClient()
 
     // 1. Get tag_id of sheep before deletion
     const { data: sheep } = await supabase
@@ -598,12 +599,12 @@ export async function importFarmSheepBulk(
   items: CreateFarmSheepInput[]
 ): Promise<FarmActionResult<FarmSheep[]>> {
   try {
-    const supabase = await createClient()
-
-    const { data: authData } = await supabase.auth.getUser()
-    if (!authData?.user) {
+    const adminSession = await requireAdminSession()
+    if (!adminSession) {
       return { success: false, error: 'Sesi admin telah berakhir.' }
     }
+
+    const supabase = createAdminClient()
 
     if (!Array.isArray(items) || items.length === 0) {
       return { success: false, error: 'Data CSV kosong atau tidak ada baris yang valid.' }
@@ -709,12 +710,12 @@ export async function createFarmEvent(
   input: CreateFarmEventInput
 ): Promise<FarmActionResult<FarmEvent>> {
   try {
-    const supabase = await createClient()
-
-    const { data: authData } = await supabase.auth.getUser()
-    if (!authData?.user) {
+    const adminSession = await requireAdminSession()
+    if (!adminSession) {
       return { success: false, error: 'Sesi admin telah berakhir.' }
     }
+
+    const supabase = createAdminClient()
 
     if (!input.sheep_id) {
       return { success: false, error: 'Pilih domba terlebih dahulu.' }
@@ -857,12 +858,12 @@ export async function createFarmEvent(
  */
 export async function deleteFarmEvent(id: string): Promise<FarmActionResult> {
   try {
-    const supabase = await createClient()
-
-    const { data: authData } = await supabase.auth.getUser()
-    if (!authData?.user) {
+    const adminSession = await requireAdminSession()
+    if (!adminSession) {
       return { success: false, error: 'Sesi admin telah berakhir.' }
     }
+
+    const supabase = createAdminClient()
 
     // 1. Get tag_id from associated sheep before deletion
     let tagId = ''
@@ -942,7 +943,16 @@ export async function syncAllFarmDataToSheets(): Promise<{
       }
     }
 
-    const supabase = await createClient()
+    const adminSession = await requireAdminSession()
+    if (!adminSession) {
+      return {
+        success: false,
+        message: 'Sesi admin telah berakhir. Silakan login kembali.',
+        error: 'Unauthorized',
+      }
+    }
+
+    const supabase = createAdminClient()
 
     // 1. Fetch all farm sheep
     const { data: rawSheep, error: sheepErr } = await supabase
@@ -1093,7 +1103,16 @@ export async function fullSyncToSheets(): Promise<{
       }
     }
 
-    const supabase = await createClient()
+    const adminSession = await requireAdminSession()
+    if (!adminSession) {
+      return {
+        success: false,
+        message: 'Sesi admin telah berakhir. Silakan login kembali.',
+        error: 'Unauthorized',
+      }
+    }
+
+    const supabase = createAdminClient()
 
     // 1. Fetch all active sheep from Supabase
     const { data: rawSheep, error: sheepErr } = await supabase

@@ -1,6 +1,7 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
+import { requireAdminSession } from '@/lib/auth'
 import {
   appendProgressRowToSheet,
   syncProgressToAppsScriptWebhook,
@@ -28,16 +29,16 @@ export async function createProgressLog(
   formData: FormData
 ): Promise<ProgressActionResult> {
   try {
-    const supabase = await createClient()
-
     // 0. Verify authenticated admin
-    const { data: authData } = await supabase.auth.getUser()
-    if (!authData?.user) {
+    const adminSession = await requireAdminSession()
+    if (!adminSession) {
       return {
         success: false,
         error: 'Sesi admin telah berakhir. Silakan login kembali.',
       }
     }
+
+    const supabase = createAdminClient()
 
     // 1. Extract and validate fields
     const sheepId = formData.get('sheep_id') as string
