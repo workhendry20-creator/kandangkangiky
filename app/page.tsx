@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
@@ -30,8 +31,15 @@ export default function HomePage() {
       <header className="sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md border-b border-stone-200/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-800 text-white font-bold shadow-md shadow-emerald-800/20">
-              <span className="text-xl">🐑</span>
+            <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-white shadow-md shadow-emerald-800/10 ring-2 ring-emerald-700/20 shrink-0">
+              <Image
+                src="/logo.jpg"
+                alt="Kandang Kang Iky"
+                width={40}
+                height={40}
+                className="w-full h-full object-cover"
+                priority
+              />
             </div>
             <div>
               <span className="font-extrabold text-lg text-slate-900 tracking-tight">

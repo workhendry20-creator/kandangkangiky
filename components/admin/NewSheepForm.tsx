@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useTransition } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createSheep } from '@/lib/actions/sheep'
@@ -126,8 +127,16 @@ export function NewSheepForm({
             <span>Kembali ke Dashboard</span>
           </Link>
 
-          <div className="flex items-center gap-2">
-            <span className="text-xl">🐑</span>
+          <div className="flex items-center gap-2.5">
+            <div className="relative w-7 h-7 rounded-lg overflow-hidden shrink-0 shadow-xs ring-1 ring-emerald-700/20 bg-white">
+              <Image
+                src="/logo.jpg"
+                alt="Kandang Kang Iky"
+                width={28}
+                height={28}
+                className="w-full h-full object-cover"
+              />
+            </div>
             <span className="font-bold text-sm sm:text-base text-slate-900 tracking-tight">
               Kandang Kang Iky
             </span>

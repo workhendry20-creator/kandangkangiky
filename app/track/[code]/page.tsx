@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 import React, { Suspense } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase/server'
 import { WeightChart } from '@/components/tracker/WeightChart'
@@ -69,8 +70,16 @@ async function TrackerContent({ params }: PageProps) {
               <span>Kembali ke Pencarian</span>
             </Link>
 
-            <div className="flex items-center gap-2">
-              <span className="text-xl">🐑</span>
+            <div className="flex items-center gap-2.5">
+              <div className="relative w-7 h-7 rounded-lg overflow-hidden shrink-0 shadow-xs ring-1 ring-emerald-700/20 bg-white">
+                <Image
+                  src="/logo.jpg"
+                  alt="Kandang Kang Iky Logo"
+                  width={28}
+                  height={28}
+                  className="w-full h-full object-cover"
+                />
+              </div>
               <span className="font-bold text-sm sm:text-base text-slate-900 tracking-tight">
                 Kandang Kang Iky
               </span>
@@ -155,8 +164,16 @@ async function TrackerContent({ params }: PageProps) {
             <span>Beranda Lacak</span>
           </Link>
 
-          <div className="flex items-center gap-2">
-            <span className="text-xl">🐑</span>
+          <div className="flex items-center gap-2.5">
+            <div className="relative w-7 h-7 rounded-lg overflow-hidden shrink-0 shadow-xs ring-1 ring-emerald-700/20 bg-white">
+              <Image
+                src="/logo.jpg"
+                alt="Kandang Kang Iky Logo"
+                width={28}
+                height={28}
+                className="w-full h-full object-cover"
+              />
+            </div>
             <span className="font-bold text-sm sm:text-base text-slate-900 tracking-tight">
               Kandang Kang Iky
             </span>
@@ -396,8 +413,14 @@ function TrackerFallback() {
   return (
     <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center p-8">
       <div className="text-center space-y-3">
-        <div className="w-12 h-12 rounded-2xl bg-emerald-800 text-white text-xl font-bold flex items-center justify-center mx-auto animate-bounce">
-          🐑
+        <div className="relative w-12 h-12 rounded-2xl overflow-hidden shadow-md shadow-emerald-800/10 ring-2 ring-emerald-700/20 bg-white flex items-center justify-center mx-auto animate-bounce">
+          <Image
+            src="/logo.jpg"
+            alt="Kandang Kang Iky"
+            width={48}
+            height={48}
+            className="w-full h-full object-cover"
+          />
         </div>
         <p className="text-sm font-semibold text-slate-700">
           Memuat Data Lacak Domba...

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useTransition } from 'react'
+import Image from 'next/image'
 import { createFarmSheep } from '@/lib/actions/farm-sheep'
 import type {
   FarmSheepGender,
@@ -124,8 +125,14 @@ export function NewFarmSheepModal({
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-stone-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center font-bold">
-              🐑
+            <div className="relative w-10 h-10 rounded-xl overflow-hidden shadow-xs ring-1 ring-emerald-700/20 bg-white shrink-0">
+              <Image
+                src="/logo.jpg"
+                alt="Kandang Kang Iky Logo"
+                width={40}
+                height={40}
+                className="w-full h-full object-cover"
+              />
             </div>
             <div>
               <h2 className="text-lg sm:text-xl font-bold text-slate-900">

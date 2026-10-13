@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 import React, { Suspense } from 'react'
+import Image from 'next/image'
 import { getFarmData } from '@/lib/actions/farm-sheep'
 import { FarmSheepManagement } from '@/components/admin/farm/FarmSheepManagement'
 
@@ -40,8 +41,14 @@ function FarmSheepFallback() {
   return (
     <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center p-8">
       <div className="text-center space-y-3">
-        <div className="w-12 h-12 rounded-2xl bg-emerald-800 text-white text-xl font-bold flex items-center justify-center mx-auto animate-bounce">
-          🐑
+        <div className="relative w-12 h-12 rounded-2xl overflow-hidden shadow-md shadow-emerald-800/10 ring-2 ring-emerald-700/20 bg-white flex items-center justify-center mx-auto animate-bounce">
+          <Image
+            src="/logo.jpg"
+            alt="Kandang Kang Iky"
+            width={48}
+            height={48}
+            className="w-full h-full object-cover"
+          />
         </div>
         <p className="text-sm font-semibold text-slate-700">Memuat Modul Inventaris Kandang...</p>
         <p className="text-xs text-slate-400">Mengambil data indukan, pejantan & rekam medis</p>

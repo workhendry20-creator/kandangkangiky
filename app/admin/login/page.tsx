@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, Suspense } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -85,8 +86,15 @@ function LoginContent() {
 
         {/* Brand Header */}
         <div className="relative text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-800 text-white shadow-lg shadow-emerald-800/20 mb-4 ring-4 ring-emerald-50">
-            <span className="text-2xl font-bold tracking-tight">🐑</span>
+          <div className="relative inline-flex items-center justify-center w-20 h-20 rounded-2xl overflow-hidden bg-white shadow-lg shadow-emerald-800/10 mb-4 ring-4 ring-emerald-100 shrink-0">
+            <Image
+              src="/logo.jpg"
+              alt="Kandang Kang Iky"
+              width={80}
+              height={80}
+              className="w-full h-full object-cover"
+              priority
+            />
           </div>
 
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold uppercase tracking-wider mb-2 border border-emerald-100">

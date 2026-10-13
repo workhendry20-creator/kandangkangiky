@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -18,7 +19,7 @@ import {
 export function AdminNavbar() {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [userEmail, setUserEmail] = useState('Admin Peternakan')
+  const [userEmail, setUserEmail] = useState('Admin Kang Iky')
   const [prevPathname, setPrevPathname] = useState(pathname)
 
   // Close mobile menu on route change without useEffect cascading render
@@ -72,8 +73,15 @@ export function AdminNavbar() {
               href="/admin/dashboard"
               className="flex items-center gap-2.5 group focus:outline-none"
             >
-              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-800 text-white font-bold shadow-md shadow-emerald-800/20 group-hover:scale-105 transition-transform">
-                <span className="text-xl">🐑</span>
+              <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-white shadow-md shadow-emerald-800/10 ring-2 ring-emerald-700/20 group-hover:scale-105 transition-transform shrink-0">
+                <Image
+                  src="/logo.jpg"
+                  alt="Kandang Kang Iky"
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-cover"
+                  priority
+                />
               </div>
               <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
                 Admin Console
@@ -85,11 +93,10 @@ export function AdminNavbar() {
               <Link
                 href="/admin/dashboard"
                 id="navLinkTitipanQurban"
-                className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-                  isTitipanActive
-                    ? 'bg-emerald-800 text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-stone-100'
-                }`}
+                className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${isTitipanActive
+                  ? 'bg-emerald-800 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-stone-100'
+                  }`}
               >
                 <TrendingUp className="w-3.5 h-3.5" />
                 <span>Titipan & Qurban</span>
@@ -98,11 +105,10 @@ export function AdminNavbar() {
               <Link
                 href="/admin/farm-sheep"
                 id="navLinkFarmSheep"
-                className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-                  isFarmSheepActive
-                    ? 'bg-emerald-800 text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-stone-100'
-                }`}
+                className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${isFarmSheepActive
+                  ? 'bg-emerald-800 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-stone-100'
+                  }`}
               >
                 <Warehouse className="w-3.5 h-3.5" />
                 <span>Inventaris Kandang</span>
@@ -112,16 +118,7 @@ export function AdminNavbar() {
 
           {/* Right Controls & Profile */}
           <div className="flex items-center gap-3 sm:gap-4">
-            {/* Status Online Pulsing Green Dot */}
-            <div
-              className="flex items-center justify-center p-2 rounded-full bg-emerald-50 border border-emerald-200/80 shadow-2xs"
-              title="Sistem Online & Sync Aktif"
-            >
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-600" />
-              </span>
-            </div>
+
 
             {/* Link to Public Portal */}
             <Link
@@ -182,11 +179,10 @@ export function AdminNavbar() {
             <div className="flex flex-col gap-1.5">
               <Link
                 href="/admin/dashboard"
-                className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold transition-all ${
-                  isTitipanActive
-                    ? 'bg-emerald-800 text-white shadow-xs'
-                    : 'text-slate-700 hover:bg-stone-100'
-                }`}
+                className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold transition-all ${isTitipanActive
+                  ? 'bg-emerald-800 text-white shadow-xs'
+                  : 'text-slate-700 hover:bg-stone-100'
+                  }`}
               >
                 <div className="flex items-center gap-2.5">
                   <TrendingUp className="w-4 h-4" />
@@ -197,11 +193,10 @@ export function AdminNavbar() {
 
               <Link
                 href="/admin/farm-sheep"
-                className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold transition-all ${
-                  isFarmSheepActive
-                    ? 'bg-emerald-800 text-white shadow-xs'
-                    : 'text-slate-700 hover:bg-stone-100'
-                }`}
+                className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold transition-all ${isFarmSheepActive
+                  ? 'bg-emerald-800 text-white shadow-xs'
+                  : 'text-slate-700 hover:bg-stone-100'
+                  }`}
               >
                 <div className="flex items-center gap-2.5">
                   <Warehouse className="w-4 h-4" />
