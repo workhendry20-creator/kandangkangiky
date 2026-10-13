@@ -9,7 +9,7 @@ import { WeightChart } from '@/components/tracker/WeightChart'
 import { ProgressFeed } from '@/components/tracker/ProgressFeed'
 import { TrackerActions } from '@/components/tracker/TrackerActions'
 import { CountdownCard } from '@/components/tracker/CountdownCard'
-import { formatWeight, formatDate } from '@/lib/utils'
+import { formatWeight, formatDate, calculateRealtimeAge } from '@/lib/utils'
 import type { Sheep, ProgressLog } from '@/types/sheep'
 import {
   ArrowLeft,
@@ -17,6 +17,8 @@ import {
   Sparkles,
   TrendingUp,
   Search,
+  Calendar,
+  Clock,
 } from 'lucide-react'
 
 interface PageProps {
@@ -151,6 +153,14 @@ async function TrackerContent({ params }: PageProps) {
       ? Math.min(100, Math.max(0, Math.round((weightGain / totalTargetGain) * 100)))
       : 100
 
+  // Calculate realtime age based on arrival_date / entry_date
+  const arrivalDateSource =
+    sheep.arrival_date ||
+    (data as Record<string, unknown>).arrival_date ||
+    sheep.entry_date ||
+    sheep.created_at
+  const realtimeAge = calculateRealtimeAge(arrivalDateSource as string)
+
   return (
     <div className="min-h-screen bg-[#FDFBF7] flex flex-col text-slate-800">
       {/* Top Navbar */}
@@ -205,7 +215,11 @@ async function TrackerContent({ params }: PageProps) {
                   <span>Status: {sheep.status}</span>
                 </span>
                 <span className="px-3 py-1 rounded-full text-xs font-semibold bg-stone-100 text-slate-600">
-                  Masuk: {formatDate(sheep.entry_date)}
+                  Kedatangan: {formatDate(sheep.entry_date)}
+                </span>
+                <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-100 flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-emerald-700" />
+                  <span>Umur: {realtimeAge.ageInMonthsText} ({realtimeAge.ageInDaysText})</span>
                 </span>
               </div>
 
@@ -228,6 +242,83 @@ async function TrackerContent({ params }: PageProps) {
                 trackingCode={sheep.tracking_code}
                 customerName={sheep.customer_name}
               />
+            </div>
+          </div>
+        </div>
+
+        {/* Realtime Age Information Card Section */}
+        <div className="relative overflow-hidden rounded-3xl bg-white border border-stone-200/90 shadow-xs p-6 sm:p-7 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-100">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center font-bold shadow-2xs">
+                <Calendar className="w-5 h-5 text-emerald-800" />
+              </div>
+              <div>
+                <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+                  Informasi Umur Realtime Domba
+                </h2>
+                <p className="text-xs text-slate-500">
+                  Perhitungan otomatis berdasarkan tanggal kedatangan / registrasi di peternakan.
+                </p>
+              </div>
+            </div>
+
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold border border-emerald-100 self-start sm:self-auto">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600" />
+              </span>
+              <span>Terhitung Realtime Hari Ini</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Sub-Card 1: Tanggal Lahir / Kedatangan */}
+            <div className="p-4 rounded-2xl bg-[#FDFBF7] border border-stone-200/80 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] uppercase font-bold text-slate-500 tracking-wider">
+                  Tanggal Lahir / Kedatangan
+                </span>
+                <Calendar className="w-4 h-4 text-slate-400" />
+              </div>
+              <span className="text-base sm:text-lg font-extrabold text-slate-900 block">
+                {realtimeAge.formattedDate}
+              </span>
+              <p className="text-[11px] text-slate-500">
+                Format: DD MMMM YYYY
+              </p>
+            </div>
+
+            {/* Sub-Card 2: Total Umur dalam Hari */}
+            <div className="p-4 rounded-2xl bg-[#FDFBF7] border border-stone-200/80 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] uppercase font-bold text-slate-500 tracking-wider">
+                  Total Umur (Hari)
+                </span>
+                <Clock className="w-4 h-4 text-emerald-700" />
+              </div>
+              <span className="text-base sm:text-lg font-extrabold text-emerald-800 font-mono block">
+                {realtimeAge.ageInDaysText}
+              </span>
+              <p className="text-[11px] text-slate-500">
+                Akumulasi total hari pemeliharaan
+              </p>
+            </div>
+
+            {/* Sub-Card 3: Total Umur dalam Bulan & Hari */}
+            <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200/90 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] uppercase font-bold text-emerald-900 tracking-wider">
+                  Total Umur (Bulan & Hari)
+                </span>
+                <Sparkles className="w-4 h-4 text-emerald-800" />
+              </div>
+              <span className="text-base sm:text-lg font-extrabold text-emerald-900 block">
+                {realtimeAge.ageInMonthsText}
+              </span>
+              <p className="text-[11px] text-emerald-700 font-medium">
+                Kalkulasi presisi bulan kalender
+              </p>
             </div>
           </div>
         </div>
