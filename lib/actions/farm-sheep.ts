@@ -11,11 +11,108 @@ import { revalidatePath } from 'next/cache'
 import type {
   FarmSheep,
   FarmEvent,
+  FarmSheepGender,
+  FarmSheepOrigin,
+  FarmSheepStatus,
+  FarmSheepType,
+  FarmEventType,
   CreateFarmSheepInput,
   UpdateFarmSheepInput,
   CreateFarmEventInput,
   FarmActionResult,
 } from '@/types/farm-sheep'
+
+/**
+ * Helper to execute Supabase insert with dynamic column tolerance.
+ * Automatically adapts if schema differs (e.g. tag_id vs tag_code, arrival_date vs entry_date,
+ * type vs sheep_type, notes vs description, or missing current_weight).
+ */
+async function resilientInsert(
+  client: ReturnType<typeof createAdminClient>,
+  table: string,
+  initialPayload: Record<string, unknown>
+): Promise<{ data: Record<string, unknown> | null; error: Error | null }> {
+  const payload = { ...initialPayload }
+  const maxRetries = 5
+
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    const res = await client.from(table).insert(payload).select().single()
+
+    if (!res.error) {
+      return { data: res.data as Record<string, unknown>, error: null }
+    }
+
+    const msg = res.error.message || ''
+    const match = msg.match(/Could not find the '([^']+)' column of '([^']+)' in the schema cache/)
+
+    if (match) {
+      const missingCol = match[1]
+
+      // Handle column mismatches
+      if (missingCol === 'current_weight') {
+        delete payload.current_weight
+        continue
+      } else if (missingCol === 'tag_id') {
+        payload.tag_code = payload.tag_id
+        delete payload.tag_id
+        continue
+      } else if (missingCol === 'tag_code') {
+        payload.tag_id = payload.tag_code
+        delete payload.tag_code
+        continue
+      } else if (missingCol === 'arrival_date') {
+        payload.entry_date = payload.arrival_date
+        delete payload.arrival_date
+        continue
+      } else if (missingCol === 'entry_date') {
+        payload.arrival_date = payload.entry_date
+        delete payload.entry_date
+        continue
+      } else if (missingCol === 'type') {
+        payload.sheep_type = payload.type
+        delete payload.type
+        continue
+      } else if (missingCol === 'sheep_type') {
+        payload.type = payload.sheep_type
+        delete payload.sheep_type
+        continue
+      } else if (missingCol === 'description') {
+        payload.notes = payload.description
+        delete payload.description
+        continue
+      } else if (missingCol === 'notes') {
+        payload.description = payload.notes
+        delete payload.notes
+        continue
+      } else if (missingCol === 'child_count') {
+        payload.lamb_count = payload.child_count
+        delete payload.child_count
+        continue
+      } else if (missingCol === 'lamb_count') {
+        payload.child_count = payload.lamb_count
+        delete payload.lamb_count
+        continue
+      } else if (missingCol === 'farm_sheep_id') {
+        payload.sheep_id = payload.farm_sheep_id
+        delete payload.farm_sheep_id
+        continue
+      } else if (missingCol === 'sheep_id') {
+        payload.farm_sheep_id = payload.sheep_id
+        delete payload.sheep_id
+        continue
+      } else {
+        // Unknown missing column: drop it and retry
+        delete payload[missingCol]
+        continue
+      }
+    }
+
+    // Other error
+    return { data: null, error: new Error(res.error.message) }
+  }
+
+  return { data: null, error: new Error('Gagal menyimpan: melebihi batas percobaan adaptasi skema') }
+}
 
 /**
  * Fetch all farm sheep and farm events for the management page
@@ -26,10 +123,10 @@ export async function getFarmData(): Promise<{
   error?: string
 }> {
   try {
-    const db = createAdminClient()
+    const db = await createClient()
 
     // 1. Fetch farm sheep
-    const { data: sheepData, error: sheepError } = await db
+    const { data: rawSheepData, error: sheepError } = await db
       .from('farm_sheep')
       .select('*')
       .order('created_at', { ascending: false })
@@ -38,31 +135,85 @@ export async function getFarmData(): Promise<{
       console.warn('[FarmSheep] Note fetching farm_sheep:', sheepError.message)
     }
 
-    // 2. Fetch farm events with joined sheep
-    const { data: eventsData, error: eventsError } = await db
+    // Map sheep to uniform shape
+    const farmSheep: FarmSheep[] = (rawSheepData || []).map((s: Record<string, unknown>) => {
+      const initialWeight = Number(s.initial_weight) || 0
+      const currentWeight =
+        s.current_weight !== undefined && s.current_weight !== null
+          ? Number(s.current_weight)
+          : initialWeight
+
+      return {
+        id: String(s.id),
+        tag_code: String(s.tag_id || s.tag_code || s.code || s.id),
+        name: String(s.name || ''),
+        gender: (s.gender as FarmSheepGender) || 'Betina',
+        breed: String(s.breed || 'Garut'),
+        origin: (s.origin as FarmSheepOrigin) || 'Beli',
+        entry_date: String(s.arrival_date || s.entry_date || s.created_at || '').split('T')[0],
+        initial_weight: initialWeight,
+        current_weight: currentWeight,
+        status: (s.status as FarmSheepStatus) || 'Kosongan',
+        sheep_type: ((s.type || s.sheep_type || 'Indukan') as FarmSheepType),
+        notes: (s.notes || s.description || null) as string | null,
+        created_at: String(s.created_at || new Date().toISOString()),
+      }
+    })
+
+    // 2. Fetch farm events with relation
+    let rawEventsData: Record<string, unknown>[] = []
+
+    // Try relational query with farm_sheep
+    const { data: eventsWithRel, error: relError } = await db
       .from('farm_events')
-      .select(`
-        *,
-        sheep:farm_sheep (
-          id,
-          tag_code,
-          name,
-          gender,
-          breed,
-          sheep_type
-        )
-      `)
+      .select('*, farm_sheep(*)')
       .order('event_date', { ascending: false })
       .order('created_at', { ascending: false })
 
-    if (eventsError) {
-      console.warn('[FarmSheep] Note fetching farm_events:', eventsError.message)
+    if (relError || !eventsWithRel) {
+      // Fallback query without relation
+      const { data: fallbackEvents } = await db
+        .from('farm_events')
+        .select('*')
+        .order('event_date', { ascending: false })
+        .order('created_at', { ascending: false })
+
+      rawEventsData = (fallbackEvents as Record<string, unknown>[]) || []
+    } else {
+      rawEventsData = eventsWithRel as Record<string, unknown>[]
     }
 
-    return {
-      farmSheep: (sheepData as unknown as FarmSheep[]) || [],
-      farmEvents: (eventsData as unknown as FarmEvent[]) || [],
-    }
+    const farmEvents: FarmEvent[] = rawEventsData.map((e: Record<string, unknown>) => {
+      const sheepRel = (e.farm_sheep || e.sheep) as Record<string, unknown> | undefined
+
+      return {
+        id: String(e.id),
+        sheep_id: String(e.farm_sheep_id || e.sheep_id || ''),
+        event_type: (e.event_type as FarmEventType) || 'Kelahiran',
+        event_date: String(e.event_date || e.created_at || '').split('T')[0],
+        lamb_count:
+          e.child_count !== undefined && e.child_count !== null
+            ? Number(e.child_count)
+            : e.lamb_count !== undefined && e.lamb_count !== null
+            ? Number(e.lamb_count)
+            : null,
+        action_name: (e.action_name || null) as string | null,
+        notes: (e.description || e.notes || null) as string | null,
+        created_at: String(e.created_at || new Date().toISOString()),
+        sheep: sheepRel
+          ? {
+              id: String(sheepRel.id),
+              tag_code: String(sheepRel.tag_id || sheepRel.tag_code || ''),
+              name: String(sheepRel.name || ''),
+              gender: sheepRel.gender as FarmSheepGender,
+              breed: String(sheepRel.breed || ''),
+              sheep_type: ((sheepRel.type || sheepRel.sheep_type || 'Indukan') as FarmSheepType),
+            }
+          : undefined,
+      }
+    })
+
+    return { farmSheep, farmEvents }
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Gagal mengambil data ternak kandang'
     console.error('[FarmSheep] Unexpected error:', msg)
@@ -117,39 +268,54 @@ export async function createFarmSheep(
       return { success: false, error: 'Bobot awal harus berupa angka lebih dari 0 kg.' }
     }
 
-    const currentWeight =
-      input.current_weight !== undefined && input.current_weight !== null
-        ? Number(input.current_weight)
-        : initialWeight
-
     const entryDate = input.entry_date?.trim() || new Date().toISOString().split('T')[0]
+    const status = input.status || (input.gender === 'Betina' ? 'Kosongan' : 'Pemacek')
+    const sheepType = input.sheep_type || (input.gender === 'Betina' ? 'Indukan' : 'Pejantan')
+    const notes = input.notes?.trim() || null
 
-    const payload = {
-      tag_code: tagCode,
+    // Build payload using initial_weight and set current_weight = initial_weight if available
+    const payload: Record<string, unknown> = {
+      tag_id: tagCode,
       name,
       gender: input.gender,
       breed,
       origin: input.origin || 'Beli',
-      entry_date: entryDate,
+      arrival_date: entryDate,
       initial_weight: initialWeight,
-      current_weight: currentWeight,
-      status: input.status || (input.gender === 'Betina' ? 'Kosongan' : 'Pemacek'),
-      sheep_type: input.sheep_type || (input.gender === 'Betina' ? 'Indukan' : 'Pejantan'),
-      notes: input.notes?.trim() || null,
+      current_weight: initialWeight,
+      status,
+      type: sheepType,
+      notes: notes,
     }
 
-    const db = createAdminClient()
-    const { data, error } = await db
-      .from('farm_sheep')
-      .insert(payload)
-      .select()
-      .single()
+    const { data, error } = await resilientInsert(supabase, 'farm_sheep', payload)
 
-    if (error) {
-      if (error.code === '23505') {
+    if (error || !data) {
+      const errMsg = error?.message || 'Gagal menyimpan domba ke database'
+      if (errMsg.includes('23505') || errMsg.includes('duplicate key') || errMsg.includes('already exists')) {
         return { success: false, error: `ID Domba "${tagCode}" sudah terdaftar.` }
       }
-      return { success: false, error: `Gagal menyimpan: ${error.message}` }
+      return { success: false, error: errMsg }
+    }
+
+    // Construct returned FarmSheep object
+    const createdSheep: FarmSheep = {
+      id: String(data.id),
+      tag_code: String(data.tag_id || data.tag_code || tagCode),
+      name: String(data.name || name),
+      gender: (data.gender as FarmSheepGender) || input.gender,
+      breed: String(data.breed || breed),
+      origin: (data.origin as FarmSheepOrigin) || (input.origin || 'Beli'),
+      entry_date: String(data.arrival_date || data.entry_date || entryDate).split('T')[0],
+      initial_weight: Number(data.initial_weight) || initialWeight,
+      current_weight:
+        data.current_weight !== undefined && data.current_weight !== null
+          ? Number(data.current_weight)
+          : initialWeight,
+      status: (data.status as FarmSheepStatus) || status,
+      sheep_type: ((data.type || data.sheep_type || sheepType) as FarmSheepType),
+      notes: (data.notes || data.description || notes) as string | null,
+      created_at: String(data.created_at || new Date().toISOString()),
     }
 
     // Non-blocking Google Sheets / Apps Script Webhook sync
@@ -157,17 +323,17 @@ export async function createFarmSheep(
     try {
       const syncRes = await syncFarmSheepToAppsScriptWebhook({
         action: 'CREATE_FARM_SHEEP',
-        tag_code: data.tag_code,
-        name: data.name,
-        gender: data.gender,
-        breed: data.breed,
-        origin: data.origin,
-        entry_date: data.entry_date,
-        initial_weight: data.initial_weight,
-        current_weight: data.current_weight,
-        status: data.status,
-        sheep_type: data.sheep_type,
-        notes: data.notes,
+        tag_code: createdSheep.tag_code,
+        name: createdSheep.name,
+        gender: createdSheep.gender,
+        breed: createdSheep.breed,
+        origin: createdSheep.origin,
+        entry_date: createdSheep.entry_date,
+        initial_weight: createdSheep.initial_weight,
+        current_weight: createdSheep.current_weight,
+        status: createdSheep.status,
+        sheep_type: createdSheep.sheep_type,
+        notes: createdSheep.notes,
       })
       if (syncRes.success) sheetsSynced = true
     } catch (sheetErr) {
@@ -177,17 +343,17 @@ export async function createFarmSheep(
     try {
       const appendRes = await appendFarmSheepRowToSheet({
         action: 'CREATE_FARM_SHEEP',
-        tag_code: data.tag_code,
-        name: data.name,
-        gender: data.gender,
-        breed: data.breed,
-        origin: data.origin,
-        entry_date: data.entry_date,
-        initial_weight: data.initial_weight,
-        current_weight: data.current_weight,
-        status: data.status,
-        sheep_type: data.sheep_type,
-        notes: data.notes,
+        tag_code: createdSheep.tag_code,
+        name: createdSheep.name,
+        gender: createdSheep.gender,
+        breed: createdSheep.breed,
+        origin: createdSheep.origin,
+        entry_date: createdSheep.entry_date,
+        initial_weight: createdSheep.initial_weight,
+        current_weight: createdSheep.current_weight,
+        status: createdSheep.status,
+        sheep_type: createdSheep.sheep_type,
+        notes: createdSheep.notes,
       })
       if (appendRes.success) sheetsSynced = true
     } catch {
@@ -198,8 +364,8 @@ export async function createFarmSheep(
 
     return {
       success: true,
-      message: `Domba kandang "${data.name}" (${data.tag_code}) berhasil ditambahkan!`,
-      data: data as FarmSheep,
+      message: `Domba kandang "${createdSheep.name}" (${createdSheep.tag_code}) berhasil ditambahkan!`,
+      data: createdSheep,
       sheetsSynced,
     }
   } catch (err: unknown) {
@@ -231,45 +397,118 @@ export async function updateFarmSheep(
     }
 
     const updatePayload: Record<string, unknown> = {}
-    if (input.tag_code !== undefined) updatePayload.tag_code = input.tag_code.trim()
+    if (input.tag_code !== undefined) {
+      updatePayload.tag_id = input.tag_code.trim()
+    }
     if (input.name !== undefined) updatePayload.name = input.name.trim()
     if (input.gender !== undefined) updatePayload.gender = input.gender
     if (input.breed !== undefined) updatePayload.breed = input.breed.trim()
     if (input.origin !== undefined) updatePayload.origin = input.origin
-    if (input.entry_date !== undefined) updatePayload.entry_date = input.entry_date
-    if (input.initial_weight !== undefined) updatePayload.initial_weight = Number(input.initial_weight)
-    if (input.current_weight !== undefined) updatePayload.current_weight = Number(input.current_weight)
+    if (input.entry_date !== undefined) {
+      updatePayload.arrival_date = input.entry_date
+    }
+    if (input.initial_weight !== undefined) {
+      updatePayload.initial_weight = Number(input.initial_weight)
+    }
+    if (input.current_weight !== undefined) {
+      updatePayload.current_weight = Number(input.current_weight)
+    }
     if (input.status !== undefined) updatePayload.status = input.status
-    if (input.sheep_type !== undefined) updatePayload.sheep_type = input.sheep_type
-    if (input.notes !== undefined) updatePayload.notes = input.notes?.trim() || null
+    if (input.sheep_type !== undefined) {
+      updatePayload.type = input.sheep_type
+    }
+    if (input.notes !== undefined) {
+      updatePayload.notes = input.notes?.trim() || null
+    }
 
-    const db = createAdminClient()
-    const { data, error } = await db
-      .from('farm_sheep')
-      .update(updatePayload)
-      .eq('id', id)
-      .select()
-      .single()
+    let resultData: Record<string, unknown> | null = null
+    const maxRetries = 5
 
-    if (error) {
-      return { success: false, error: `Gagal memperbarui domba: ${error.message}` }
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      const { data, error } = await supabase
+        .from('farm_sheep')
+        .update(updatePayload)
+        .eq('id', id)
+        .select()
+        .single()
+
+      if (!error && data) {
+        resultData = data as Record<string, unknown>
+        break
+      }
+
+      if (error) {
+        const msg = error.message || ''
+        const match = msg.match(/Could not find the '([^']+)' column of '([^']+)' in the schema cache/)
+        if (match) {
+          const missingCol = match[1]
+          if (missingCol === 'current_weight') {
+            delete updatePayload.current_weight
+            continue
+          } else if (missingCol === 'tag_id') {
+            updatePayload.tag_code = updatePayload.tag_id
+            delete updatePayload.tag_id
+            continue
+          } else if (missingCol === 'arrival_date') {
+            updatePayload.entry_date = updatePayload.arrival_date
+            delete updatePayload.arrival_date
+            continue
+          } else if (missingCol === 'type') {
+            updatePayload.sheep_type = updatePayload.type
+            delete updatePayload.type
+            continue
+          } else if (missingCol === 'notes') {
+            updatePayload.description = updatePayload.notes
+            delete updatePayload.notes
+            continue
+          } else {
+            delete updatePayload[missingCol]
+            continue
+          }
+        }
+
+        return { success: false, error: `Gagal memperbarui domba: ${error.message}` }
+      }
+    }
+
+    if (!resultData) {
+      return { success: false, error: 'Gagal memperbarui data domba di database.' }
+    }
+
+    const updatedSheep: FarmSheep = {
+      id: String(resultData.id),
+      tag_code: String(resultData.tag_id || resultData.tag_code || input.tag_code || ''),
+      name: String(resultData.name || input.name || ''),
+      gender: (resultData.gender as FarmSheepGender) || 'Betina',
+      breed: String(resultData.breed || ''),
+      origin: (resultData.origin as FarmSheepOrigin) || 'Beli',
+      entry_date: String(resultData.arrival_date || resultData.entry_date || '').split('T')[0],
+      initial_weight: Number(resultData.initial_weight) || 0,
+      current_weight:
+        resultData.current_weight !== undefined && resultData.current_weight !== null
+          ? Number(resultData.current_weight)
+          : Number(resultData.initial_weight) || 0,
+      status: (resultData.status as FarmSheepStatus) || 'Kosongan',
+      sheep_type: ((resultData.type || resultData.sheep_type || input.sheep_type || 'Indukan') as FarmSheepType),
+      notes: (resultData.notes || resultData.description || null) as string | null,
+      created_at: String(resultData.created_at || new Date().toISOString()),
     }
 
     // Non-blocking sync to Google Sheets
     try {
       await syncFarmSheepToAppsScriptWebhook({
         action: 'UPDATE_FARM_SHEEP',
-        tag_code: data.tag_code,
-        name: data.name,
-        gender: data.gender,
-        breed: data.breed,
-        origin: data.origin,
-        entry_date: data.entry_date,
-        initial_weight: data.initial_weight,
-        current_weight: data.current_weight,
-        status: data.status,
-        sheep_type: data.sheep_type,
-        notes: data.notes,
+        tag_code: updatedSheep.tag_code,
+        name: updatedSheep.name,
+        gender: updatedSheep.gender,
+        breed: updatedSheep.breed,
+        origin: updatedSheep.origin,
+        entry_date: updatedSheep.entry_date,
+        initial_weight: updatedSheep.initial_weight,
+        current_weight: updatedSheep.current_weight,
+        status: updatedSheep.status,
+        sheep_type: updatedSheep.sheep_type,
+        notes: updatedSheep.notes,
       })
     } catch (sheetErr) {
       console.warn('[FarmSheep] Sync error on update:', sheetErr)
@@ -279,8 +518,8 @@ export async function updateFarmSheep(
 
     return {
       success: true,
-      message: `Data domba "${data.name}" berhasil diperbarui.`,
-      data: data as FarmSheep,
+      message: `Data domba "${updatedSheep.name}" berhasil diperbarui.`,
+      data: updatedSheep,
     }
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : 'Terjadi kendala saat update domba.'
@@ -300,8 +539,7 @@ export async function deleteFarmSheep(id: string): Promise<FarmActionResult> {
       return { success: false, error: 'Sesi admin telah berakhir.' }
     }
 
-    const db = createAdminClient()
-    const { error } = await db.from('farm_sheep').delete().eq('id', id)
+    const { error } = await supabase.from('farm_sheep').delete().eq('id', id)
 
     if (error) {
       return { success: false, error: `Gagal menghapus domba: ${error.message}` }
@@ -333,67 +571,85 @@ export async function importFarmSheepBulk(
       return { success: false, error: 'Data CSV kosong atau tidak ada baris yang valid.' }
     }
 
-    // Clean and validate rows
-    const cleanedRows = items.map((item, idx) => {
+    let successCount = 0
+    const insertedSheep: FarmSheep[] = []
+
+    for (let idx = 0; idx < items.length; idx++) {
+      const item = items[idx]
       const tagCode = item.tag_code?.trim() || `DK-${Date.now()}-${idx + 1}`
       const name = item.name?.trim() || `Domba ${tagCode}`
-      const gender = (item.gender === 'Betina' ? 'Betina' : 'Jantan') as 'Jantan' | 'Betina'
+      const gender = (item.gender === 'Betina' ? 'Betina' : 'Jantan') as FarmSheepGender
       const breed = item.breed?.trim() || 'Garut'
-      const origin = (item.origin === 'Beranak' ? 'Beranak' : 'Beli') as 'Beli' | 'Beranak'
+      const origin = (item.origin === 'Beranak' ? 'Beranak' : 'Beli') as FarmSheepOrigin
       const initialWeight = Number(item.initial_weight) > 0 ? Number(item.initial_weight) : 25
-      const currentWeight =
-        item.current_weight && Number(item.current_weight) > 0
-          ? Number(item.current_weight)
-          : initialWeight
       const entryDate = item.entry_date?.trim() || new Date().toISOString().split('T')[0]
       const status = item.status || (gender === 'Betina' ? 'Kosongan' : 'Pemacek')
       const sheepType = item.sheep_type || (gender === 'Betina' ? 'Indukan' : 'Pejantan')
       const notes = item.notes?.trim() || null
 
-      return {
-        tag_code: tagCode,
+      const payload: Record<string, unknown> = {
+        tag_id: tagCode,
         name,
         gender,
         breed,
         origin,
-        entry_date: entryDate,
+        arrival_date: entryDate,
         initial_weight: initialWeight,
-        current_weight: currentWeight,
+        current_weight: initialWeight,
         status,
-        sheep_type: sheepType,
+        type: sheepType,
         notes,
       }
-    })
 
-    const db = createAdminClient()
-    const { data, error } = await db
-      .from('farm_sheep')
-      .upsert(cleanedRows, { onConflict: 'tag_code' })
-      .select()
+      const { data, error } = await resilientInsert(supabase, 'farm_sheep', payload)
 
-    if (error) {
-      return { success: false, error: `Gagal import CSV: ${error.message}` }
-    }
-
-    // Non-blocking sync to Google Sheets for bulk items
-    cleanedRows.forEach(async (row) => {
-      try {
-        await syncFarmSheepToAppsScriptWebhook({
-          action: 'BULK_IMPORT',
-          ...row,
+      if (!error && data) {
+        successCount++
+        insertedSheep.push({
+          id: String(data.id),
+          tag_code: String(data.tag_id || data.tag_code || tagCode),
+          name: String(data.name || name),
+          gender,
+          breed,
+          origin,
+          entry_date: entryDate,
+          initial_weight: initialWeight,
+          current_weight: initialWeight,
+          status,
+          sheep_type: sheepType,
+          notes,
+          created_at: String(data.created_at || new Date().toISOString()),
         })
-      } catch {
-        // Ignore
+
+        // Non-blocking sync to Google Sheets for bulk items
+        try {
+          syncFarmSheepToAppsScriptWebhook({
+            action: 'BULK_IMPORT',
+            tag_code: tagCode,
+            name,
+            gender,
+            breed,
+            origin,
+            entry_date: entryDate,
+            initial_weight: initialWeight,
+            current_weight: initialWeight,
+            status,
+            sheep_type: sheepType,
+            notes,
+          }).catch(() => {})
+        } catch {
+          // Ignore
+        }
       }
-    })
+    }
 
     revalidatePath('/admin/farm-sheep')
 
     return {
       success: true,
-      message: `Berhasil mengimpor ${data?.length || cleanedRows.length} domba ke master kandang!`,
-      importedCount: data?.length || cleanedRows.length,
-      data: (data as unknown as FarmSheep[]) || [],
+      message: `Berhasil mengimpor ${successCount} domba ke master kandang!`,
+      importedCount: successCount,
+      data: insertedSheep,
     }
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : 'Terjadi kendala saat import CSV.'
@@ -403,7 +659,7 @@ export async function importFarmSheepBulk(
 
 /**
  * Record a farm event: Kelahiran (Birth) or Tindakan (Medical/Treatment)
- * If Kelahiran: automatically updates Induk status to 'Kosongan/Menyusui'
+ * Automatically updates Induk status to 'Kosongan/Menyusui' if Kelahiran
  */
 export async function createFarmEvent(
   input: CreateFarmEventInput
@@ -426,7 +682,6 @@ export async function createFarmEvent(
 
     const eventDate = input.event_date?.trim() || new Date().toISOString().split('T')[0]
 
-    // Validate event specifics
     let lambCount: number | null = null
     let actionName: string | null = null
 
@@ -442,42 +697,43 @@ export async function createFarmEvent(
       }
     }
 
-    const db = createAdminClient()
-
     // 1. Fetch sheep record to verify and get tag/name
-    const { data: sheep, error: sheepError } = await db
+    const { data: rawSheep, error: sheepError } = await supabase
       .from('farm_sheep')
-      .select('id, tag_code, name, gender, status, sheep_type')
+      .select('*')
       .eq('id', input.sheep_id)
       .single()
 
-    if (sheepError || !sheep) {
-      return { success: false, error: 'Domba yang dipilih tidak ditemukan.' }
+    if (sheepError || !rawSheep) {
+      return { success: false, error: 'Domba yang dipilih tidak ditemukan di database.' }
     }
 
-    // 2. Insert into farm_events
-    const eventPayload = {
-      sheep_id: input.sheep_id,
+    const sheepTag = String(rawSheep.tag_id || rawSheep.tag_code || '')
+    const sheepName = String(rawSheep.name || '')
+
+    // 2. Insert into farm_events with column resilience
+    const eventPayload: Record<string, unknown> = {
+      farm_sheep_id: input.sheep_id,
       event_type: input.event_type,
       event_date: eventDate,
-      lamb_count: lambCount,
+      child_count: lambCount,
       action_name: actionName,
-      notes: input.notes?.trim() || null,
+      description: input.notes?.trim() || null,
     }
 
-    const { data: eventData, error: eventInsertError } = await db
-      .from('farm_events')
-      .insert(eventPayload)
-      .select()
-      .single()
+    const { data: eventData, error: eventInsertError } = await resilientInsert(
+      supabase,
+      'farm_events',
+      eventPayload
+    )
 
-    if (eventInsertError) {
-      return { success: false, error: `Gagal menyimpan event: ${eventInsertError.message}` }
+    if (eventInsertError || !eventData) {
+      return { success: false, error: `Gagal menyimpan event: ${eventInsertError?.message}` }
     }
 
     // 3. If Kelahiran: Otomatis memperbarui status Induk menjadi "Kosongan/Menyusui"
     if (input.event_type === 'Kelahiran') {
-      const { error: updateIndukError } = await db
+      const { error: updateIndukError } = await supabase
         .from('farm_sheep')
         .update({ status: 'Kosongan/Menyusui' })
         .eq('id', input.sheep_id)
@@ -493,8 +749,8 @@ export async function createFarmEvent(
       const webhookRes = await syncFarmEventToAppsScriptWebhook({
         action: 'RECORD_FARM_EVENT',
         event_type: input.event_type,
-        tag_code: sheep.tag_code,
-        sheep_name: sheep.name,
+        tag_code: sheepTag,
+        sheep_name: sheepName,
         event_date: eventDate,
         lamb_count: lambCount,
         action_name: actionName,
@@ -509,8 +765,8 @@ export async function createFarmEvent(
       const appendRes = await appendFarmEventRowToSheet({
         action: 'RECORD_FARM_EVENT',
         event_type: input.event_type,
-        tag_code: sheep.tag_code,
-        sheep_name: sheep.name,
+        tag_code: sheepTag,
+        sheep_name: sheepName,
         event_date: eventDate,
         lamb_count: lambCount,
         action_name: actionName,
@@ -525,17 +781,20 @@ export async function createFarmEvent(
 
     const successMsg =
       input.event_type === 'Kelahiran'
-        ? `Catatan kelahiran untuk Induk "${sheep.name}" (${lambCount} anak) berhasil disimpan dan status induk diperbarui ke Kosongan/Menyusui!`
-        : `Tindakan "${actionName}" untuk domba "${sheep.name}" berhasil dicatat!`
+        ? `Catatan kelahiran untuk Induk "${sheepName}" (${lambCount} anak) berhasil disimpan dan status induk diperbarui ke Kosongan/Menyusui!`
+        : `Tindakan "${actionName}" untuk domba "${sheepName}" berhasil dicatat!`
 
     return {
       success: true,
       message: successMsg,
-      data: eventData as FarmEvent,
+      data: eventData as unknown as FarmEvent,
       sheetsSynced,
     }
   } catch (err: unknown) {
-    const errorMsg = err instanceof Error ? err.message : 'Terjadi kendala server saat menyimpan rekam medis/kelahiran.'
+    const errorMsg =
+      err instanceof Error
+        ? err.message
+        : 'Terjadi kendala server saat menyimpan rekam medis/kelahiran.'
     return { success: false, error: errorMsg }
   }
 }
@@ -552,8 +811,7 @@ export async function deleteFarmEvent(id: string): Promise<FarmActionResult> {
       return { success: false, error: 'Sesi admin telah berakhir.' }
     }
 
-    const db = createAdminClient()
-    const { error } = await db.from('farm_events').delete().eq('id', id)
+    const { error } = await supabase.from('farm_events').delete().eq('id', id)
 
     if (error) {
       return { success: false, error: `Gagal menghapus catatan: ${error.message}` }
