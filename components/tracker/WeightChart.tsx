@@ -96,14 +96,13 @@ export function WeightChart({
     targetWeight: targetWeight,
   })
 
-  // Subsequent points from logs: akumulasi total bobot hingga tanggal tersebut secara kronologis
-  let runningWeight = initialWeight
+  // Subsequent points from logs: membaca bobot riil pada setiap titik penimbangan
   sortedLogs.forEach((log) => {
-    runningWeight = Math.round((runningWeight + Number(log.current_weight)) * 100) / 100
+    const logWeight = Number(log.current_weight) || initialWeight
     data.push({
       rawDate: log.record_date,
       date: formatDate(log.record_date),
-      actualWeight: runningWeight,
+      actualWeight: logWeight,
       targetWeight: targetWeight,
     })
   })

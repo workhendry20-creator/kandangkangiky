@@ -44,7 +44,6 @@ export async function createProgressLog(
     const sheepId = formData.get('sheep_id') as string
     const updateType = (formData.get('update_type') as string) || 'Mingguan'
     const recordDate = (formData.get('record_date') as string) || new Date().toISOString().split('T')[0]
-    const currentWeightStr = formData.get('current_weight') as string
     const healthStatus = (formData.get('health_status') as string) || 'Sehat'
     const notes = (formData.get('notes') as string) || null
     const mediaFile = formData.get('media') as File | null
@@ -53,20 +52,63 @@ export async function createProgressLog(
       return { success: false, error: 'ID domba tidak valid.' }
     }
 
-    const currentWeight = parseFloat(currentWeightStr)
-    if (isNaN(currentWeight) || currentWeight <= 0) {
-      return { success: false, error: 'Bobot saat ini harus berupa angka lebih dari 0 kg.' }
-    }
-
     // 2. Fetch sheep record to obtain tracking_code, customer_name, and initial_weight
     const { data: sheep, error: sheepError } = await supabase
       .from('sheep')
-      .select('id, tracking_code, customer_name, initial_weight')
+      .select('id, tracking_code, customer_name, initial_weight, current_weight')
       .eq('id', sheepId)
       .single()
 
     if (sheepError || !sheep) {
       return { success: false, error: 'Data domba tidak ditemukan di sistem.' }
+    }
+
+    // Ambil log progress domba terakhir (atau initial_weight jika belum ada log)
+    const { data: latestLogs } = await supabase
+      .from('progress_logs')
+      .select('current_weight, record_date, created_at')
+      .eq('sheep_id', sheepId)
+      .order('record_date', { ascending: false })
+      .order('created_at', { ascending: false })
+      .limit(1)
+
+    const initialWeight = Number(sheep.initial_weight) || 0
+    let latestWeight = initialWeight
+
+    if (
+      latestLogs &&
+      latestLogs.length > 0 &&
+      latestLogs[0].current_weight !== null &&
+      latestLogs[0].current_weight !== undefined
+    ) {
+      latestWeight = Number(latestLogs[0].current_weight)
+    } else if (sheep.current_weight !== null && sheep.current_weight !== undefined) {
+      latestWeight = Number(sheep.current_weight)
+    }
+
+    // Ambil nilai delta input (misal: 0, 0.5, 1.0)
+    const deltaStr = (formData.get('delta_input') ?? formData.get('delta_weight')) as string | null
+    let deltaInput = 0
+    if (deltaStr !== null && deltaStr !== undefined && deltaStr.trim() !== '') {
+      deltaInput = parseFloat(deltaStr)
+      if (isNaN(deltaInput)) {
+        return { success: false, error: 'Input penambahan bobot tidak valid.' }
+      }
+    } else {
+      // Fallback jika dikirim via current_weight langsung
+      const cwStr = formData.get('current_weight') as string | null
+      if (cwStr !== null && cwStr !== undefined && cwStr.trim() !== '') {
+        const directCw = parseFloat(cwStr)
+        if (!isNaN(directCw)) {
+          deltaInput = directCw - latestWeight
+        }
+      }
+    }
+
+    // Hitung weight_to_save = latest_weight + delta_input
+    const weightToSave = Math.round((latestWeight + deltaInput) * 10) / 10
+    if (weightToSave <= 0) {
+      return { success: false, error: 'Bobot terbaru tidak boleh kurang dari atau sama dengan 0 kg.' }
     }
 
     // 3. Upload media file to Supabase Storage bucket 'sheep-media' if provided
@@ -100,14 +142,14 @@ export async function createProgressLog(
       }
     }
 
-    // 4. Insert record into Supabase progress_logs table
+    // 4. Insert record into Supabase progress_logs table with weight_to_save
     const { data: logData, error: logError } = await supabase
       .from('progress_logs')
       .insert({
         sheep_id: sheepId,
         update_type: updateType,
         record_date: recordDate,
-        current_weight: currentWeight,
+        current_weight: weightToSave,
         health_status: healthStatus,
         notes: notes,
         media_url: mediaUrl,
@@ -122,26 +164,10 @@ export async function createProgressLog(
       }
     }
 
-    // 4b. Hitung akumulasi bobot: initial_weight + TOTAL(current_weight seluruh progress_logs)
-    const { data: allLogs, error: logsError } = await supabase
-      .from('progress_logs')
-      .select('current_weight')
-      .eq('sheep_id', sheepId)
-
-    const totalLogsGain = (allLogs || []).reduce(
-      (sum, log) => sum + (Number(log.current_weight) || 0),
-      0
-    )
-    const initialWeight = Number(sheep.initial_weight) || 0
-    const accumulatedCurrentWeight =
-      logsError && !allLogs
-        ? Math.round((initialWeight + currentWeight) * 100) / 100
-        : Math.round((initialWeight + totalLogsGain) * 100) / 100
-
-    // Update kolom current_weight pada tabel sheep dengan bobot akumulasi baru
+    // 4b. Update kolom current_weight pada tabel sheep dengan weight_to_save
     const { error: updateSheepError } = await supabase
       .from('sheep')
-      .update({ current_weight: accumulatedCurrentWeight })
+      .update({ current_weight: weightToSave })
       .eq('id', sheepId)
 
     if (updateSheepError) {
@@ -158,7 +184,7 @@ export async function createProgressLog(
         customerName: sheep.customer_name,
         recordDate: recordDate,
         updateType: updateType,
-        currentWeight: currentWeight,
+        currentWeight: weightToSave,
         healthStatus: healthStatus,
         notes: notes,
         mediaUrl: mediaUrl,
@@ -168,13 +194,13 @@ export async function createProgressLog(
       console.warn('Gagal sinkronisasi Google Sheets:', sheetCatchErr)
     }
 
-    // B. Google Apps Script Webhook
+    // B. Google Apps Script Webhook (mengirimkan weight_to_save)
     try {
       const webhookRes = await syncProgressToAppsScriptWebhook({
         tracking_code: sheep.tracking_code,
         customer_name: sheep.customer_name,
         record_date: recordDate,
-        current_weight: currentWeight,
+        current_weight: weightToSave,
         health_status: healthStatus,
         notes: notes,
         media_url: mediaUrl,

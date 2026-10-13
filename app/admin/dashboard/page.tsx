@@ -69,12 +69,11 @@ async function DashboardContent() {
             return bCreated - aCreated
           })
 
-          // Akumulasi: initial_weight + TOTAL(current_weight dari seluruh progress_logs domba tersebut)
-          const totalLogsGain = sortedLogs.reduce(
-            (acc, log) => acc + (Number(log.current_weight) || 0),
-            0
-          )
-          calculatedWeight = Math.round((initialWeight + totalLogsGain) * 100) / 100
+          // BB Saat Ini membaca log terbaru yang sudah dijumlahkan
+          const latestLogWeight = Number(sortedLogs[0].current_weight)
+          if (!isNaN(latestLogWeight) && latestLogWeight > 0) {
+            calculatedWeight = latestLogWeight
+          }
         }
 
         return {

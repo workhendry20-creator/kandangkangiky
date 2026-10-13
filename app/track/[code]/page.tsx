@@ -131,19 +131,18 @@ async function TrackerContent({ params }: PageProps) {
     return bCreated - aCreated
   })
 
-  // Hitung akumulasi BB Saat Ini: initial_weight + TOTAL(current_weight dari seluruh progress_logs)
+  // BB Saat Ini membaca log terbaru yang sudah dijumlahkan
   const initialWeight = Number(sheep.initial_weight) || 0
-  const totalLogsGain = rawLogs.reduce(
-    (sum, log) => sum + (Number(log.current_weight) || 0),
-    0
-  )
   const currentWeight =
-    rawLogs.length > 0
-      ? Math.round((initialWeight + totalLogsGain) * 100) / 100
+    rawLogs.length > 0 &&
+    rawLogs[0].current_weight !== null &&
+    rawLogs[0].current_weight !== undefined
+      ? Number(rawLogs[0].current_weight)
       : sheep.current_weight !== undefined && sheep.current_weight !== null
       ? Number(sheep.current_weight)
       : initialWeight
 
+  // Total Naik / Kenaikan BB dihitung dari BB Terbaru - BB Awal Masuk
   const weightGain = Math.round((currentWeight - initialWeight) * 100) / 100
 
   // Calculate Progress towards Target Weight

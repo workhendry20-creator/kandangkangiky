@@ -46,7 +46,7 @@ export function ProgressForm({ sheep, lastWeight }: ProgressFormProps) {
   // Form State
   const [recordDate, setRecordDate] = useState(() => new Date().toISOString().split('T')[0])
   const [updateType, setUpdateType] = useState<(typeof UPDATE_TYPES)[number]>('Mingguan')
-  const [currentWeight, setCurrentWeight] = useState<string>(lastWeight.toString())
+  const [deltaWeight, setDeltaWeight] = useState<string>('0')
   const [healthStatus, setHealthStatus] = useState('Sehat')
   const [notes, setNotes] = useState('')
 
@@ -61,12 +61,17 @@ export function ProgressForm({ sheep, lastWeight }: ProgressFormProps) {
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
   const [sheetsSyncNote, setSheetsSyncNote] = useState<string | null>(null)
 
-  // Handle Quick Weight Adjustments
-  const adjustWeight = (amount: number) => {
-    const val = parseFloat(currentWeight) || lastWeight
-    const nextVal = Math.max(1, Math.round((val + amount) * 10) / 10)
-    setCurrentWeight(nextVal.toString())
+  // Handle Quick Weight Adjustments (menambah/mengurangi dari nilai delta)
+  const adjustDelta = (amount: number) => {
+    const val = parseFloat(deltaWeight) || 0
+    const nextVal = Math.round((val + amount) * 10) / 10
+    setDeltaWeight(nextVal.toString())
   }
+
+  // Realtime calculated values
+  const deltaNum = parseFloat(deltaWeight)
+  const validDelta = isNaN(deltaNum) ? 0 : deltaNum
+  const calculatedNewWeight = Math.round((lastWeight + validDelta) * 10) / 10
 
   // Handle Image Selection & Compression
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -126,9 +131,14 @@ export function ProgressForm({ sheep, lastWeight }: ProgressFormProps) {
     setSuccessMsg(null)
     setSheetsSyncNote(null)
 
-    const weightNum = parseFloat(currentWeight)
-    if (isNaN(weightNum) || weightNum <= 0) {
-      setErrorMsg('Bobot saat ini harus berupa angka lebih dari 0 kg.')
+    const parsedDelta = parseFloat(deltaWeight)
+    if (isNaN(parsedDelta)) {
+      setErrorMsg('Penambahan bobot harus berupa angka valid (misal: 0, 0.5, 1.0).')
+      return
+    }
+
+    if (calculatedNewWeight <= 0) {
+      setErrorMsg('Bobot terbaru domba tidak boleh kurang dari atau sama dengan 0 kg.')
       return
     }
 
@@ -137,7 +147,9 @@ export function ProgressForm({ sheep, lastWeight }: ProgressFormProps) {
       formData.append('sheep_id', sheep.id)
       formData.append('record_date', recordDate)
       formData.append('update_type', updateType)
-      formData.append('current_weight', currentWeight)
+      formData.append('delta_input', deltaWeight)
+      formData.append('delta_weight', deltaWeight)
+      formData.append('current_weight', calculatedNewWeight.toString())
       formData.append('health_status', healthStatus)
       if (notes.trim()) {
         formData.append('notes', notes.trim())
@@ -332,30 +344,28 @@ export function ProgressForm({ sheep, lastWeight }: ProgressFormProps) {
               </div>
             </div>
 
-            {/* 2. Bobot Saat Ini (Large Input with Increments) */}
+            {/* 2. Penambahan Bobot (Delta Input dengan Helper Realtime) */}
             <div className="space-y-2 pt-2 border-t border-stone-100">
               <label
-                htmlFor="currentWeightInput"
+                htmlFor="deltaWeightInput"
                 className="block text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center justify-between"
               >
-                <span>Bobot Saat Ini (kg) <span className="text-rose-500">*</span></span>
+                <span>PENAMBAHAN BOBOT (KG) <span className="text-rose-500">*</span></span>
                 <span className="text-[11px] font-normal text-slate-400">
-                  Sebelumnya: {formatWeight(lastWeight)}
+                  BB Terakhir: {lastWeight} kg
                 </span>
               </label>
 
               <div className="relative flex items-center">
                 <Scale className="w-5 h-5 text-emerald-800 absolute left-4 pointer-events-none" />
                 <input
-                  id="currentWeightInput"
+                  id="deltaWeightInput"
                   type="number"
                   step="0.1"
-                  min="1"
-                  max="150"
                   required
-                  value={currentWeight}
-                  onChange={(e) => setCurrentWeight(e.target.value)}
-                  placeholder="34.5"
+                  value={deltaWeight}
+                  onChange={(e) => setDeltaWeight(e.target.value)}
+                  placeholder="0"
                   className="w-full pl-12 pr-14 py-3.5 rounded-2xl border border-stone-300 bg-white text-2xl font-bold font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 shadow-xs text-center"
                 />
                 <span className="text-sm font-bold text-slate-400 absolute right-4 pointer-events-none">
@@ -363,28 +373,37 @@ export function ProgressForm({ sheep, lastWeight }: ProgressFormProps) {
                 </span>
               </div>
 
-              {/* Quick Adjustment Buttons */}
+              {/* Helper text kecil di bawah input */}
+              <p className="text-xs text-center font-medium text-slate-600 bg-stone-50 py-2 px-3 rounded-xl border border-stone-200/70">
+                BB Saat Ini: <span className="font-bold text-slate-800">{lastWeight} kg</span>{' '}
+                ➔ BB Terbaru:{' '}
+                <span className="font-bold text-emerald-700">
+                  {calculatedNewWeight} kg
+                </span>
+              </p>
+
+              {/* Quick Adjustment Buttons (-0.5 kg, +0.5 kg, +1.0 kg menambah/mengurangi dari nilai delta) */}
               <div className="flex items-center justify-center gap-2 pt-1">
                 <button
                   type="button"
-                  onClick={() => adjustWeight(-0.5)}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-stone-200 bg-stone-50 hover:bg-stone-100 text-xs font-semibold text-slate-700 transition-colors"
+                  onClick={() => adjustDelta(-0.5)}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-stone-200 bg-stone-50 hover:bg-stone-100 text-xs font-semibold text-slate-700 transition-colors cursor-pointer"
                 >
                   <Minus className="w-3 h-3" />
                   <span>0.5 kg</span>
                 </button>
                 <button
                   type="button"
-                  onClick={() => adjustWeight(0.5)}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-xs font-semibold text-emerald-800 transition-colors"
+                  onClick={() => adjustDelta(0.5)}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-xs font-semibold text-emerald-800 transition-colors cursor-pointer"
                 >
                   <Plus className="w-3 h-3" />
                   <span>0.5 kg</span>
                 </button>
                 <button
                   type="button"
-                  onClick={() => adjustWeight(1.0)}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-xs font-semibold text-emerald-800 transition-colors"
+                  onClick={() => adjustDelta(1.0)}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-xs font-semibold text-emerald-800 transition-colors cursor-pointer"
                 >
                   <Plus className="w-3 h-3" />
                   <span>1.0 kg</span>

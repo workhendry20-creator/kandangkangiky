@@ -39,7 +39,7 @@ export function ProgressFeed({
     return bCreated - aCreated
   })
 
-  // Precompute running accumulated weight and total gain up to each log chronologically
+  // Precompute weight and total gain up to each log
   const chronologicalLogs = [...logs].sort((a, b) => {
     const dateDiff =
       new Date(a.record_date).getTime() - new Date(b.record_date).getTime()
@@ -50,11 +50,10 @@ export function ProgressFeed({
   })
 
   const logAccumulatedMap = new Map<string, { accumulatedWeight: number; totalGain: number }>()
-  let running = initialWeight
   chronologicalLogs.forEach((l) => {
-    running = Math.round((running + Number(l.current_weight)) * 100) / 100
-    const gain = Math.round((running - initialWeight) * 100) / 100
-    logAccumulatedMap.set(l.id, { accumulatedWeight: running, totalGain: gain })
+    const logWeight = Number(l.current_weight) || initialWeight
+    const gain = Math.round((logWeight - initialWeight) * 100) / 100
+    logAccumulatedMap.set(l.id, { accumulatedWeight: logWeight, totalGain: gain })
   })
 
   if (sortedLogs.length === 0) {
@@ -157,7 +156,7 @@ export function ProgressFeed({
                     </div>
                     <div>
                       <span className="text-[11px] text-slate-500 font-medium block">
-                        Akumulasi Bobot
+                        BB Saat Ini
                       </span>
                       <span className="text-base font-extrabold text-slate-900 font-mono">
                         {formatWeight(accumulatedWeight)}

@@ -39,11 +39,17 @@ async function ProgressContent({ params }: PageProps) {
       : initialWeight
 
   if (sheep.progress_logs && sheep.progress_logs.length > 0) {
-    const totalLogsGain = sheep.progress_logs.reduce(
-      (sum, l) => sum + (Number(l.current_weight) || 0),
-      0
-    )
-    currentAccumulatedWeight = Math.round((initialWeight + totalLogsGain) * 100) / 100
+    const sortedLogs = [...sheep.progress_logs].sort((a, b) => {
+      const dateDiff = new Date(b.record_date).getTime() - new Date(a.record_date).getTime()
+      if (dateDiff !== 0) return dateDiff
+      const aCreated = a.created_at ? new Date(a.created_at).getTime() : 0
+      const bCreated = b.created_at ? new Date(b.created_at).getTime() : 0
+      return bCreated - aCreated
+    })
+    const latestLogWeight = Number(sortedLogs[0].current_weight)
+    if (!isNaN(latestLogWeight) && latestLogWeight > 0) {
+      currentAccumulatedWeight = latestLogWeight
+    }
   }
 
   return (
