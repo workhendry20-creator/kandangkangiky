@@ -2,9 +2,7 @@
 
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import {
-  syncFarmSheepToAppsScriptWebhook,
   appendFarmSheepRowToSheet,
-  syncFarmEventToAppsScriptWebhook,
   appendFarmEventRowToSheet,
 } from '@/lib/google-sheets'
 import { revalidatePath } from 'next/cache'
@@ -321,28 +319,35 @@ export async function createFarmSheep(
     // Non-blocking Google Sheets / Apps Script Webhook sync
     let sheetsSynced = false
     try {
-      const syncRes = await syncFarmSheepToAppsScriptWebhook({
-        action: 'CREATE_FARM_SHEEP',
-        tag_code: createdSheep.tag_code,
-        name: createdSheep.name,
-        gender: createdSheep.gender,
-        breed: createdSheep.breed,
-        origin: createdSheep.origin,
-        entry_date: createdSheep.entry_date,
-        initial_weight: createdSheep.initial_weight,
-        current_weight: createdSheep.current_weight,
-        status: createdSheep.status,
-        sheep_type: createdSheep.sheep_type,
-        notes: createdSheep.notes,
-      })
-      if (syncRes.success) sheetsSynced = true
+      const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL
+      if (webhookUrl) {
+        const payloadJson = {
+          sheet_name: 'Master_Kandang',
+          type: 'farm_sheep',
+          tag_id: createdSheep.tag_code,
+          name: createdSheep.name,
+          gender: createdSheep.gender,
+          breed: createdSheep.breed,
+          origin: createdSheep.origin,
+          arrival_date: createdSheep.entry_date,
+          initial_weight: createdSheep.initial_weight,
+          status: createdSheep.status,
+          farm_type: createdSheep.sheep_type,
+        }
+
+        const res = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payloadJson),
+        })
+        if (res.ok) sheetsSynced = true
+      }
     } catch (sheetErr) {
       console.warn('[FarmSheep] Apps Script sync non-blocking error:', sheetErr)
     }
 
     try {
       const appendRes = await appendFarmSheepRowToSheet({
-        action: 'CREATE_FARM_SHEEP',
         tag_code: createdSheep.tag_code,
         name: createdSheep.name,
         gender: createdSheep.gender,
@@ -350,7 +355,6 @@ export async function createFarmSheep(
         origin: createdSheep.origin,
         entry_date: createdSheep.entry_date,
         initial_weight: createdSheep.initial_weight,
-        current_weight: createdSheep.current_weight,
         status: createdSheep.status,
         sheep_type: createdSheep.sheep_type,
         notes: createdSheep.notes,
@@ -496,20 +500,26 @@ export async function updateFarmSheep(
 
     // Non-blocking sync to Google Sheets
     try {
-      await syncFarmSheepToAppsScriptWebhook({
-        action: 'UPDATE_FARM_SHEEP',
-        tag_code: updatedSheep.tag_code,
-        name: updatedSheep.name,
-        gender: updatedSheep.gender,
-        breed: updatedSheep.breed,
-        origin: updatedSheep.origin,
-        entry_date: updatedSheep.entry_date,
-        initial_weight: updatedSheep.initial_weight,
-        current_weight: updatedSheep.current_weight,
-        status: updatedSheep.status,
-        sheep_type: updatedSheep.sheep_type,
-        notes: updatedSheep.notes,
-      })
+      const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL
+      if (webhookUrl) {
+        fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sheet_name: 'Master_Kandang',
+            type: 'farm_sheep',
+            tag_id: updatedSheep.tag_code,
+            name: updatedSheep.name,
+            gender: updatedSheep.gender,
+            breed: updatedSheep.breed,
+            origin: updatedSheep.origin,
+            arrival_date: updatedSheep.entry_date,
+            initial_weight: updatedSheep.initial_weight,
+            status: updatedSheep.status,
+            farm_type: updatedSheep.sheep_type,
+          }),
+        }).catch(() => {})
+      }
     } catch (sheetErr) {
       console.warn('[FarmSheep] Sync error on update:', sheetErr)
     }
@@ -623,20 +633,26 @@ export async function importFarmSheepBulk(
 
         // Non-blocking sync to Google Sheets for bulk items
         try {
-          syncFarmSheepToAppsScriptWebhook({
-            action: 'BULK_IMPORT',
-            tag_code: tagCode,
-            name,
-            gender,
-            breed,
-            origin,
-            entry_date: entryDate,
-            initial_weight: initialWeight,
-            current_weight: initialWeight,
-            status,
-            sheep_type: sheepType,
-            notes,
-          }).catch(() => {})
+          const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL
+          if (webhookUrl) {
+            fetch(webhookUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                sheet_name: 'Master_Kandang',
+                type: 'farm_sheep',
+                tag_id: tagCode,
+                name,
+                gender,
+                breed,
+                origin,
+                arrival_date: entryDate,
+                initial_weight: initialWeight,
+                status,
+                farm_type: sheepType,
+              }),
+            }).catch(() => {})
+          }
         } catch {
           // Ignore
         }
@@ -746,17 +762,26 @@ export async function createFarmEvent(
     // 4. Non-blocking sync to Google Sheets & Apps Script
     let sheetsSynced = false
     try {
-      const webhookRes = await syncFarmEventToAppsScriptWebhook({
-        action: 'RECORD_FARM_EVENT',
-        event_type: input.event_type,
-        tag_code: sheepTag,
-        sheep_name: sheepName,
-        event_date: eventDate,
-        lamb_count: lambCount,
-        action_name: actionName,
-        notes: input.notes?.trim() || null,
-      })
-      if (webhookRes.success) sheetsSynced = true
+      const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL
+      if (webhookUrl) {
+        const payloadJson = {
+          sheet_name: 'Kelahiran_Tindakan',
+          type: 'farm_event',
+          tag_id: sheepTag,
+          event_type: input.event_type,
+          event_date: eventDate,
+          child_count: lambCount,
+          action_name: actionName,
+          description: input.notes?.trim() || null,
+        }
+
+        const res = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payloadJson),
+        })
+        if (res.ok) sheetsSynced = true
+      }
     } catch (sheetErr) {
       console.warn('[FarmEvent] Apps Script sync non-blocking error:', sheetErr)
     }
