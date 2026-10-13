@@ -167,7 +167,7 @@ export function FarmSheepTable({
             className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-semibold shadow-md shadow-emerald-800/20 transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            <span>+ Tambah Domba</span>
+            <span>Tambah Domba</span>
           </button>
         </div>
       </div>
@@ -235,7 +235,7 @@ export function FarmSheepTable({
                           onClick={onOpenNewModal}
                           className="px-3.5 py-2 rounded-xl bg-emerald-800 text-white text-xs font-semibold shadow-xs"
                         >
-                          + Tambah Domba
+                          Tambah Domba
                         </button>
                         <button
                           type="button"

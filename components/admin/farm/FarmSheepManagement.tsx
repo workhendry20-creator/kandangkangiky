@@ -11,7 +11,6 @@ import { EditFarmSheepModal } from './EditFarmSheepModal'
 import { ImportCsvModal } from './ImportCsvModal'
 import { NewBirthModal } from './NewBirthModal'
 import { NewTreatmentModal } from './NewTreatmentModal'
-import { SyncSheetsButton } from './SyncSheetsButton'
 import {
   Warehouse,
   Baby,
@@ -19,8 +18,6 @@ import {
   Sparkles,
   TrendingUp,
   Activity,
-  FileSpreadsheet,
-  Plus,
 } from 'lucide-react'
 
 interface FarmSheepManagementProps {
@@ -77,39 +74,17 @@ export function FarmSheepManagement({
       {/* Welcome Banner */}
       <div className="relative overflow-hidden rounded-3xl bg-white border border-stone-200/90 p-6 sm:p-8 shadow-xs">
         <div className="absolute -right-10 -top-10 w-52 h-52 bg-emerald-100/50 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold border border-emerald-100">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Pusat Inventaris & Breeding Internal</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Manajemen Ternak Kandang Kang Iky
-            </h1>
-            <p className="text-sm text-slate-500 max-w-2xl leading-relaxed">
-              Kelola master data domba internal (Indukan, Pejantan/Pemacek), catat kelahiran cempe, dan monitoring rekam medis berkala.
-            </p>
+        <div className="relative z-10 space-y-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold border border-emerald-100">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Pusat Inventaris & Breeding Internal</span>
           </div>
-
-          <div className="flex flex-wrap items-center gap-2.5">
-            <SyncSheetsButton />
-            <button
-              type="button"
-              onClick={() => setIsImportModalOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-stone-300 bg-white hover:bg-stone-50 text-slate-700 text-xs sm:text-sm font-semibold shadow-xs cursor-pointer transition-all"
-            >
-              <FileSpreadsheet className="w-4 h-4 text-emerald-700" />
-              <span>Import CSV</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsNewSheepModalOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs sm:text-sm font-semibold shadow-md shadow-emerald-800/20 transition-all cursor-pointer"
-            >
-              <Plus className="w-4 h-4" />
-              <span>+ Tambah Domba</span>
-            </button>
-          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            Manajemen Ternak Kandang Kang Iky
+          </h1>
+          <p className="text-sm text-slate-500 max-w-3xl leading-relaxed">
+            Kelola master data domba internal (Indukan, Pejantan/Pemacek), catat kelahiran cempe, dan monitoring rekam medis berkala.
+          </p>
         </div>
       </div>
 
@@ -235,9 +210,6 @@ export function FarmSheepManagement({
         >
           <Warehouse className="w-4 h-4 text-emerald-700" />
           <span>Tab 1: Master Domba Kandang</span>
-          <span className="px-2 py-0.5 rounded-full text-[11px] bg-stone-100 font-semibold text-slate-700">
-            {initialSheep.length}
-          </span>
         </button>
 
         <button
@@ -252,9 +224,6 @@ export function FarmSheepManagement({
         >
           <Baby className="w-4 h-4 text-pink-600" />
           <span>Tab 2: Catatan Kelahiran</span>
-          <span className="px-2 py-0.5 rounded-full text-[11px] bg-pink-100 font-semibold text-pink-800">
-            {birthEvents.length}
-          </span>
         </button>
 
         <button
@@ -269,9 +238,6 @@ export function FarmSheepManagement({
         >
           <HeartPulse className="w-4 h-4 text-blue-600" />
           <span>Tab 3: Rekam Medis & Tindakan</span>
-          <span className="px-2 py-0.5 rounded-full text-[11px] bg-blue-100 font-semibold text-blue-800">
-            {treatmentEvents.length}
-          </span>
         </button>
       </div>
 

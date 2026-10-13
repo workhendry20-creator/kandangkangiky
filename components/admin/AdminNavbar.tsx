@@ -59,24 +59,14 @@ export function AdminNavbar() {
           <div className="flex items-center gap-6 sm:gap-8">
             <Link
               href="/admin/dashboard"
-              className="flex items-center gap-3 group focus:outline-none"
+              className="flex items-center gap-2.5 group focus:outline-none"
             >
               <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-800 text-white font-bold shadow-md shadow-emerald-800/20 group-hover:scale-105 transition-transform">
                 <span className="text-xl">🐑</span>
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-base sm:text-lg text-slate-900 tracking-tight">
-                    Kang Iky
-                  </span>
-                  <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800">
-                    Admin Console
-                  </span>
-                </div>
-                <p className="text-xs text-slate-500 font-medium">
-                  Kandang Utama: Parung, Bogor
-                </p>
-              </div>
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                Admin Console
+              </span>
             </Link>
 
             {/* Desktop Navigation Links */}
@@ -105,28 +95,21 @@ export function AdminNavbar() {
               >
                 <Warehouse className="w-3.5 h-3.5" />
                 <span>Inventaris Kandang</span>
-                <span
-                  className={`px-1.5 py-0.2 rounded-full text-[10px] font-semibold ${
-                    isFarmSheepActive
-                      ? 'bg-emerald-700 text-emerald-100'
-                      : 'bg-emerald-100 text-emerald-800'
-                  }`}
-                >
-                  Baru
-                </span>
               </Link>
             </nav>
           </div>
 
           {/* Right Controls & Profile */}
           <div className="flex items-center gap-3 sm:gap-4">
-            {/* Google Sheets Sync Pill */}
-            <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-stone-100 border border-stone-200/60 text-xs font-medium text-slate-700">
-              <span className="relative flex h-2 w-2">
+            {/* Status Online Pulsing Green Dot */}
+            <div
+              className="flex items-center justify-center p-2 rounded-full bg-emerald-50 border border-emerald-200/80 shadow-2xs"
+              title="Sistem Online & Sync Aktif"
+            >
+              <span className="relative flex h-2.5 w-2.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-600" />
               </span>
-              <span>Google Sheets Sync Ready</span>
             </div>
 
             {/* Link to Public Portal */}
@@ -213,9 +196,6 @@ export function AdminNavbar() {
                   <Warehouse className="w-4 h-4" />
                   <span>Inventaris Kandang</span>
                 </div>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800">
-                  Baru
-                </span>
               </Link>
             </div>
 

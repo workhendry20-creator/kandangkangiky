@@ -76,7 +76,7 @@ export function TreatmentEventsTable({
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white text-xs font-semibold shadow-md shadow-blue-700/20 transition-all cursor-pointer self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
-          <span>+ Rekam Tindakan Medis</span>
+          <span>Rekam Tindakan Medis</span>
         </button>
       </div>
 
@@ -139,7 +139,7 @@ export function TreatmentEventsTable({
                         onClick={onOpenNewTreatmentModal}
                         className="px-4 py-2 rounded-xl bg-blue-700 text-white text-xs font-semibold shadow-xs"
                       >
-                        + Rekam Tindakan Pertama
+                        Rekam Tindakan Pertama
                       </button>
                     </div>
                   </td>

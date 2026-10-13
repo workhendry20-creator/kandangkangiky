@@ -77,7 +77,7 @@ export function BirthEventsTable({
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-pink-700 hover:bg-pink-800 text-white text-xs font-semibold shadow-md shadow-pink-700/20 transition-all cursor-pointer self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
-          <span>+ Catat Kelahiran Baru</span>
+          <span>Catat Kelahiran Baru</span>
         </button>
       </div>
 
@@ -140,7 +140,7 @@ export function BirthEventsTable({
                         onClick={onOpenNewBirthModal}
                         className="px-4 py-2 rounded-xl bg-pink-700 text-white text-xs font-semibold shadow-xs"
                       >
-                        + Catat Kelahiran Pertama
+                        Catat Kelahiran Pertama
                       </button>
                     </div>
                   </td>
