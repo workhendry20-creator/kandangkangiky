@@ -2,7 +2,7 @@
 
 import React, { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { syncAllFarmDataToSheets } from '@/lib/actions/farm-sheep'
+import { fullSyncToSheets } from '@/lib/actions/farm-sheep'
 import { RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react'
 
 interface SyncSheetsButtonProps {
@@ -21,17 +21,17 @@ export function SyncSheetsButton({ className = '', size = 'md' }: SyncSheetsButt
     setFeedback(null)
     startTransition(async () => {
       try {
-        const res = await syncAllFarmDataToSheets()
+        const res = await fullSyncToSheets()
         if (res.success) {
           setFeedback({
             type: 'success',
-            message: res.message || 'Data berhasil disinkronisasi ke Google Sheets!',
+            message: res.message || 'Full sync ke Google Sheets berhasil!',
           })
           router.refresh()
         } else {
           setFeedback({
             type: 'error',
-            message: res.message || res.error || 'Gagal sinkronisasi ke Google Sheets.',
+            message: res.message || res.error || 'Gagal melakukan sync ke Google Sheets.',
           })
         }
       } catch (err: unknown) {
@@ -54,9 +54,9 @@ export function SyncSheetsButton({ className = '', size = 'md' }: SyncSheetsButt
         type="button"
         onClick={handleSync}
         disabled={isPending}
-        title="Sinkronisasi seluruh data domba & rekam medis ke Google Sheets"
-        className={`inline-flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50/80 hover:bg-emerald-100/90 text-emerald-800 font-semibold shadow-xs transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
-          isSmall ? 'px-3 py-2 text-xs' : 'px-4 py-2.5 text-xs sm:text-sm'
+        title="Bersihkan & Sinkronisasi ulang data domba kandang ke Google Sheets"
+        className={`inline-flex items-center gap-1.5 rounded-xl border border-emerald-300/80 bg-emerald-50 hover:bg-emerald-100/90 text-emerald-800 font-semibold shadow-xs transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
+          isSmall ? 'px-3 py-2 text-xs' : 'px-3.5 py-2.5 text-xs sm:text-sm'
         } ${className}`}
       >
         <RefreshCw
@@ -64,7 +64,7 @@ export function SyncSheetsButton({ className = '', size = 'md' }: SyncSheetsButt
             isPending ? 'animate-spin' : ''
           }`}
         />
-        <span>{isPending ? 'Menyinkronkan...' : 'Sync ke Sheets'}</span>
+        <span>{isPending ? 'Menyinkronkan...' : '🔄 Sync Sheets'}</span>
       </button>
 
       {/* Floating feedback toast */}
