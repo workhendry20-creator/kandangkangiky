@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useTransition } from 'react'
+import { useState, useTransition } from 'react'
 import { deleteFarmEvent } from '@/lib/actions/farm-sheep'
 import type { FarmEvent } from '@/types/farm-sheep'
 import {
@@ -74,7 +74,7 @@ export function BirthEventsTable({
         <button
           type="button"
           onClick={onOpenNewBirthModal}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-pink-700 hover:bg-pink-800 text-white text-xs font-semibold shadow-md shadow-pink-700/20 transition-all cursor-pointer self-start sm:self-auto"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-pink-700 hover:bg-pink-800 text-white text-xs font-semibold shadow-xs transition-all cursor-pointer self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
           <span>Catat Kelahiran Baru</span>
@@ -86,13 +86,13 @@ export function BirthEventsTable({
         <div
           className={`p-3.5 rounded-2xl border flex items-center justify-between gap-3 text-xs sm:text-sm font-semibold transition-all shadow-xs ${
             toast.type === 'success'
-              ? 'bg-emerald-50 text-emerald-900 border-emerald-200'
+              ? 'bg-[#EBF2E8] text-[#5C6F57] border-[#B1C5AA]'
               : 'bg-rose-50 text-rose-900 border-rose-200'
           }`}
         >
           <div className="flex items-center gap-2">
             {toast.type === 'success' ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-[#5C6F57] shrink-0" />
             ) : (
               <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
             )}
@@ -101,6 +101,7 @@ export function BirthEventsTable({
           <button
             type="button"
             onClick={() => setToast(null)}
+            aria-label="Tutup notifikasi"
             className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
           >
             <X className="w-4 h-4" />
@@ -109,11 +110,11 @@ export function BirthEventsTable({
       )}
 
       {/* Table Card */}
-      <div className="bg-white rounded-3xl border border-stone-200/90 shadow-xs overflow-hidden">
+      <div className="bg-white rounded-3xl border border-[#B1C5AA]/40 shadow-xs overflow-hidden">
         <div className="overflow-x-auto w-full">
           <table className="w-full text-left border-collapse min-w-[650px]">
             <thead>
-              <tr className="border-b border-stone-200 bg-stone-50/70 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+              <tr className="border-b border-[#B1C5AA]/30 bg-[#EBF2E8]/60 text-[11px] font-bold uppercase tracking-wider text-[#5C6F57]">
                 <th className="py-3.5 px-4 sm:px-6">Tgl Lahir</th>
                 <th className="py-3.5 px-4">Induk Betina</th>
                 <th className="py-3.5 px-4">Jumlah Anak</th>
@@ -194,6 +195,7 @@ export function BirthEventsTable({
                         type="button"
                         disabled={isDeletingId !== null}
                         onClick={() => handleDelete(event.id)}
+                        aria-label="Hapus catatan kelahiran"
                         className="p-1.5 rounded-lg text-slate-400 hover:text-rose-700 hover:bg-rose-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                         title="Hapus catatan kelahiran"
                       >

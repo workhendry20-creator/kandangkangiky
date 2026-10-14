@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useTransition } from 'react'
+import { useState, useTransition, type FormEvent } from 'react'
 import Image from 'next/image'
 import { createFarmSheep } from '@/lib/actions/farm-sheep'
 import type {
@@ -79,7 +79,7 @@ export function NewFarmSheepModal({
     setTagCode(`${prefix}-${Math.floor(100 + Math.random() * 900)}`)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
     setErrorMsg(null)
     setSuccessMsg(null)
@@ -121,11 +121,11 @@ export function NewFarmSheepModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto">
-      <div className="relative w-full max-w-2xl bg-white rounded-3xl border border-stone-200/90 shadow-2xl p-6 sm:p-8 my-8 text-slate-800 max-h-[90vh] overflow-y-auto">
+      <div className="relative w-full max-w-2xl bg-white rounded-3xl border border-[#B1C5AA]/40 shadow-2xl p-6 sm:p-8 my-8 text-slate-800 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-stone-100">
           <div className="flex items-center gap-3">
-            <div className="relative w-10 h-10 rounded-xl overflow-hidden shadow-xs ring-1 ring-emerald-700/20 bg-white shrink-0">
+            <div className="relative w-10 h-10 rounded-xl overflow-hidden shadow-xs ring-1 ring-[#5C6F57]/20 bg-white shrink-0">
               <Image
                 src="/logo.jpg"
                 alt="Kandang Kang Iky Logo"
@@ -146,7 +146,8 @@ export function NewFarmSheepModal({
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-stone-100 transition-colors"
+            aria-label="Tutup modal"
+            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-[#EBF2E8] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -160,8 +161,8 @@ export function NewFarmSheepModal({
           </div>
         )}
         {successMsg && (
-          <div className="mt-4 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <div className="mt-4 p-3.5 rounded-xl bg-[#EBF2E8] border border-[#B1C5AA] text-[#5C6F57] text-xs flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-[#5C6F57] shrink-0" />
             <span>{successMsg}</span>
           </div>
         )}
@@ -180,13 +181,14 @@ export function NewFarmSheepModal({
                   value={tagCode}
                   onChange={(e) => setTagCode(e.target.value)}
                   placeholder="Contoh: DK-101"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 shadow-xs"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57] shadow-xs"
                 />
                 <button
                   type="button"
                   onClick={handleRegenerateTag}
+                  aria-label="Generate ID Baru"
                   title="Generate ID Baru"
-                  className="p-2.5 rounded-xl border border-stone-300 hover:bg-stone-50 text-slate-600 cursor-pointer"
+                  className="p-2.5 rounded-xl border border-stone-300 hover:bg-[#EBF2E8] text-slate-600 cursor-pointer transition-colors"
                 >
                   <RefreshCw className="w-4 h-4" />
                 </button>
@@ -203,7 +205,7 @@ export function NewFarmSheepModal({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Contoh: Si Cantik / Rambo"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 shadow-xs"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57] shadow-xs"
               />
             </div>
           </div>
@@ -247,7 +249,7 @@ export function NewFarmSheepModal({
               <select
                 value={sheepType}
                 onChange={(e) => setSheepType(e.target.value as FarmSheepType)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 shadow-xs"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57] shadow-xs"
               >
                 <option value="Indukan">Indukan (Betina Produktif)</option>
                 <option value="Pejantan">Pejantan (Pemacak)</option>
@@ -265,7 +267,7 @@ export function NewFarmSheepModal({
               <select
                 value={breed}
                 onChange={(e) => setBreed(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 shadow-xs"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57] shadow-xs"
               >
                 {BREED_OPTIONS.map((b) => (
                   <option key={b} value={b}>
@@ -295,7 +297,7 @@ export function NewFarmSheepModal({
                   onClick={() => setOrigin('Beli')}
                   className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                     origin === 'Beli'
-                      ? 'border-emerald-600 bg-emerald-50 text-emerald-800 shadow-xs'
+                      ? 'border-[#5C6F57] bg-[#EBF2E8] text-[#5C6F57] shadow-xs'
                       : 'border-stone-200 text-slate-600 hover:bg-stone-50'
                   }`}
                 >
@@ -329,7 +331,7 @@ export function NewFarmSheepModal({
                   required
                   value={entryDate}
                   onChange={(e) => setEntryDate(e.target.value)}
-                  className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 shadow-xs"
+                  className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57] shadow-xs"
                 />
               </div>
             </div>
@@ -347,7 +349,7 @@ export function NewFarmSheepModal({
                   value={initialWeight}
                   onChange={(e) => setInitialWeight(e.target.value)}
                   placeholder="Contoh: 35.5"
-                  className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 shadow-xs"
+                  className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57] shadow-xs"
                 />
               </div>
             </div>
@@ -361,7 +363,7 @@ export function NewFarmSheepModal({
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value as FarmSheepStatus)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 shadow-xs"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57] shadow-xs"
             >
               {gender === 'Betina' ? (
                 <>
@@ -395,7 +397,7 @@ export function NewFarmSheepModal({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Catatan ciri khas, nomor kandang/sekat, riwayat vaksin..."
-              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 shadow-xs resize-none"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57] shadow-xs resize-none"
             />
           </div>
 
@@ -412,7 +414,7 @@ export function NewFarmSheepModal({
             <button
               type="submit"
               disabled={isPending}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-semibold shadow-md shadow-emerald-800/20 transition-all cursor-pointer disabled:opacity-60"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#5C6F57] hover:bg-[#4d5e49] text-white text-xs font-semibold shadow-xs transition-all cursor-pointer disabled:opacity-60"
             >
               {isPending ? (
                 <>

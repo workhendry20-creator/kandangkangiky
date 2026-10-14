@@ -1,8 +1,11 @@
 'use client'
 
-import React from 'react'
+import { useSyncExternalStore } from 'react'
 
-const emptySubscribe = () => () => {}
+// Static subscription callback for useSyncExternalStore since target date does not change internally
+const emptySubscribe = () => () => {
+  /* no-op subscription */
+}
 
 function calculateDaysRemaining(targetDateStr: string): number {
   const target = new Date(targetDateStr).getTime()
@@ -17,7 +20,7 @@ interface CountdownCardProps {
 export function CountdownCard({
   targetDateStr = '2026-05-27T00:00:00Z',
 }: CountdownCardProps) {
-  const daysRemaining = React.useSyncExternalStore(
+  const daysRemaining = useSyncExternalStore(
     emptySubscribe,
     () => calculateDaysRemaining(targetDateStr),
     () => 85
@@ -31,7 +34,7 @@ export function CountdownCard({
       <span className="text-base font-extrabold text-white font-mono block">
         {daysRemaining} Hari
       </span>
-      <span className="text-[11px] text-emerald-400 font-medium">
+      <span className="text-[11px] text-[#B1C5AA] font-medium">
         10 Dzulhijjah 1447H
       </span>
     </div>

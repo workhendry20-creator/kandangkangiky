@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Copy, Check, MessageCircle } from 'lucide-react'
 
 interface TrackerActionsProps {
@@ -40,8 +40,8 @@ export function TrackerActions({
       >
         {copied ? (
           <>
-            <Check className="w-4 h-4 text-emerald-600" />
-            <span className="text-emerald-700 font-bold">Link Berhasil Disalin!</span>
+            <Check className="w-4 h-4 text-[#5C6F57]" />
+            <span className="text-[#5C6F57] font-bold">Link Berhasil Disalin!</span>
           </>
         ) : (
           <>
@@ -56,9 +56,9 @@ export function TrackerActions({
         href={waUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="w-full sm:w-1/2 inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl bg-emerald-800 hover:bg-emerald-900 active:scale-[0.99] text-white text-sm font-semibold shadow-md shadow-emerald-800/20 transition-all text-center"
+        className="w-full sm:w-1/2 inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl bg-[#89A482] hover:bg-[#789371] active:scale-[0.99] text-white text-sm font-semibold shadow-xs transition-all text-center"
       >
-        <MessageCircle className="w-4 h-4 text-emerald-200" />
+        <MessageCircle className="w-4 h-4 text-white/80" />
         <span>Chat Admin WhatsApp</span>
       </a>
     </div>

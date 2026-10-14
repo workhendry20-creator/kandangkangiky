@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import Image from 'next/image'
 import { formatDate, formatWeight } from '@/lib/utils'
 import type { ProgressLog } from '@/types/sheep'
@@ -58,8 +58,8 @@ export function ProgressFeed({
 
   if (sortedLogs.length === 0) {
     return (
-      <div className="rounded-3xl bg-white border border-stone-200/90 p-8 text-center space-y-3">
-        <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-800 text-2xl flex items-center justify-center mx-auto">
+      <div className="rounded-3xl bg-white border border-[#B1C5AA]/40 p-8 text-center space-y-3">
+        <div className="w-12 h-12 rounded-2xl bg-[#EBF2E8] text-[#5C6F57] text-2xl flex items-center justify-center mx-auto">
           🐑
         </div>
         <div className="space-y-1">
@@ -76,7 +76,7 @@ export function ProgressFeed({
 
   return (
     <div className="space-y-6">
-      <div className="relative pl-6 sm:pl-8 before:absolute before:left-3 sm:before:left-4 before:top-3 before:bottom-3 before:w-0.5 before:bg-emerald-200">
+      <div className="relative pl-6 sm:pl-8 before:absolute before:left-3 sm:before:left-4 before:top-3 before:bottom-3 before:w-0.5 before:bg-[#B1C5AA]/60">
         {sortedLogs.map((log, index) => {
           const accumInfo = logAccumulatedMap.get(log.id) || {
             accumulatedWeight: initialWeight + Number(log.current_weight),
@@ -99,10 +99,10 @@ export function ProgressFeed({
             <div key={log.id} className="relative pb-8 last:pb-0 group">
               {/* Timeline Marker Dot */}
               <div
-                className={`absolute -left-6 sm:-left-8 top-1.5 w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center border-4 border-[#FDFBF7] ${
+                className={`absolute -left-6 sm:-left-8 top-1.5 w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center border-4 border-[#EBF2E8] ${
                   isLatest
-                    ? 'bg-emerald-800 text-white shadow-md shadow-emerald-800/30'
-                    : 'bg-emerald-100 text-emerald-700'
+                    ? 'bg-[#5C6F57] text-white shadow-xs'
+                    : 'bg-[#D9E5D6] text-[#5C6F57]'
                 }`}
               >
                 {isLatest ? (
@@ -113,11 +113,11 @@ export function ProgressFeed({
               </div>
 
               {/* Feed Card */}
-              <div className="rounded-2xl bg-white border border-stone-200/90 shadow-xs hover:shadow-md transition-shadow p-5 space-y-4">
+              <div className="rounded-2xl bg-white border border-[#B1C5AA]/40 shadow-xs hover:shadow-md transition-shadow p-5 space-y-4">
                 {/* Card Header */}
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-100">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#EBF2E8] text-[#5C6F57] border border-[#B1C5AA]">
                       <Calendar className="w-3 h-3" />
                       <span>{formatDate(log.record_date)}</span>
                     </span>
@@ -125,7 +125,7 @@ export function ProgressFeed({
                       {updateBadgeLabel}
                     </span>
                     {isLatest && (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 uppercase tracking-wider">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#D9E5D6] text-[#5C6F57] uppercase tracking-wider">
                         Terbaru
                       </span>
                     )}
@@ -137,7 +137,7 @@ export function ProgressFeed({
                     <span
                       className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
                         log.health_status === 'Sehat'
-                          ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                          ? 'bg-[#EBF2E8] text-[#5C6F57] border border-[#B1C5AA]'
                           : log.health_status === 'Dalam Perawatan'
                           ? 'bg-amber-50 text-amber-800 border border-amber-200'
                           : 'bg-rose-50 text-rose-800 border border-rose-200'
@@ -149,9 +149,9 @@ export function ProgressFeed({
                 </div>
 
                 {/* Weight Record Indicator */}
-                <div className="p-3.5 rounded-xl bg-[#FAF7F2] border border-stone-100 flex items-center justify-between">
+                <div className="p-3.5 rounded-xl bg-[#EBF2E8]/40 border border-[#B1C5AA]/30 flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-emerald-100/60 text-emerald-800 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-lg bg-[#D9E5D6] text-[#5C6F57] flex items-center justify-center">
                       <Scale className="w-4 h-4" />
                     </div>
                     <div>
@@ -168,7 +168,7 @@ export function ProgressFeed({
                     <span className="text-[10px] text-slate-400 font-medium block">
                       Total Kenaikan
                     </span>
-                    <span className="inline-flex items-center gap-0.5 text-xs font-bold text-emerald-700">
+                    <span className="inline-flex items-center gap-0.5 text-xs font-bold text-[#5C6F57]">
                       <TrendingUp className="w-3 h-3" />
                       <span>
                         {totalGain >= 0 ? `+${totalGain.toFixed(1)}` : totalGain.toFixed(1)} kg
@@ -227,6 +227,7 @@ export function ProgressFeed({
             <button
               type="button"
               onClick={() => setActiveModalImage(null)}
+              aria-label="Tutup foto"
               className="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />

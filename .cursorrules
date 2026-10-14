@@ -1,0 +1,14 @@
+# UI & Design System Guidelines
+
+- Primary Color Palette:
+  - Main Primary: #89A482 (Sage Green)
+  - Dark Accent: #5C6F57 (Deep Forest)
+  - Light Accent: #B1C5AA
+  - Soft Background: #EBF2E8
+  - primary-soft: "#D9E5D6" (Card background / badge soft)
+  - primary-light: "#B1C5AA" (Soft Light Sage untuk border & subtle highlight)
+- Visual Rules (Anti-AI Slop):
+  - Do NOT use generic AI neon gradients (purple/pink/cyan).
+  - Do NOT use overly thick blurry drop-shadows. Use thin borders (`border-slate-200` or `border-[#B1C5AA]/40`).
+  - Keep typography clean with clear font weight contrasts.
+  - Keep UI layouts clean, human-crafted, and responsive.

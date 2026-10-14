@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react'
+import { Suspense } from "react";
 import Image from 'next/image'
 import { connection } from 'next/server'
 import { generateTrackingCode } from '@/lib/utils'

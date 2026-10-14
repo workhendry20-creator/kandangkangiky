@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { createAdminClient } from "@/lib/supabase/server";
 import { requireAdminSession } from '@/lib/auth'
 import {
   appendFarmSheepRowToSheet,

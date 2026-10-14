@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useTransition, useRef } from 'react'
+import { useState, useTransition, useRef } from 'react'
 import { importFarmSheepBulk } from '@/lib/actions/farm-sheep'
 import type {
   CreateFarmSheepInput,
@@ -208,12 +208,12 @@ export function ImportCsvModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto">
-      <div className="relative w-full max-w-3xl bg-white rounded-3xl border border-stone-200/90 shadow-2xl p-6 sm:p-8 my-8 text-slate-800 max-h-[90vh] overflow-y-auto">
+      <div className="relative w-full max-w-3xl bg-white rounded-3xl border border-[#B1C5AA]/40 shadow-2xl p-6 sm:p-8 my-8 text-slate-800 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-stone-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center">
-              <FileSpreadsheet className="w-5 h-5 text-emerald-700" />
+            <div className="w-10 h-10 rounded-xl bg-[#EBF2E8] text-[#5C6F57] flex items-center justify-center">
+              <FileSpreadsheet className="w-5 h-5 text-[#5C6F57]" />
             </div>
             <div>
               <h2 className="text-lg sm:text-xl font-bold text-slate-900">
@@ -227,14 +227,15 @@ export function ImportCsvModal({
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-stone-100 transition-colors"
+            aria-label="Tutup modal"
+            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-[#EBF2E8] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Action Bar for Template */}
-        <div className="mt-4 p-4 rounded-2xl bg-[#FDFBF7] border border-stone-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="mt-4 p-4 rounded-2xl bg-[#EBF2E8]/40 border border-[#B1C5AA]/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="text-xs text-slate-600">
             <p className="font-semibold text-slate-900">Format Kolom Spreadsheet:</p>
             <p className="text-slate-500 font-mono text-[11px] mt-0.5">
@@ -245,11 +246,11 @@ export function ImportCsvModal({
             <button
               type="button"
               onClick={handleCopyTemplate}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-stone-300 bg-white text-xs font-semibold text-slate-700 hover:bg-stone-50 cursor-pointer shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-stone-300 bg-white text-xs font-semibold text-slate-700 hover:bg-[#EBF2E8] cursor-pointer shadow-2xs transition-colors"
             >
               {copiedTemplate ? (
                 <>
-                  <Check className="w-3.5 h-3.5 text-emerald-600" />
+                  <Check className="w-3.5 h-3.5 text-[#5C6F57]" />
                   <span>Tersalin!</span>
                 </>
               ) : (
@@ -262,7 +263,7 @@ export function ImportCsvModal({
             <button
               type="button"
               onClick={handleDownloadTemplate}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-600 bg-emerald-50 text-xs font-semibold text-emerald-800 hover:bg-emerald-100 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#5C6F57] bg-[#EBF2E8] text-xs font-semibold text-[#5C6F57] hover:bg-[#D9E5D6] cursor-pointer transition-colors"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Unduh .CSV</span>
@@ -277,8 +278,8 @@ export function ImportCsvModal({
             onClick={() => setInputMode('file')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               inputMode === 'file'
-                ? 'bg-emerald-800 text-white shadow-xs'
-                : 'text-slate-600 hover:bg-stone-100'
+                ? 'bg-[#5C6F57] text-white shadow-xs'
+                : 'text-slate-600 hover:bg-[#EBF2E8]'
             }`}
           >
             Upload File CSV
@@ -288,8 +289,8 @@ export function ImportCsvModal({
             onClick={() => setInputMode('paste')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               inputMode === 'paste'
-                ? 'bg-emerald-800 text-white shadow-xs'
-                : 'text-slate-600 hover:bg-stone-100'
+                ? 'bg-[#5C6F57] text-white shadow-xs'
+                : 'text-slate-600 hover:bg-[#EBF2E8]'
             }`}
           >
             Paste Teks CSV
@@ -308,7 +309,7 @@ export function ImportCsvModal({
             />
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-stone-300 hover:border-emerald-600 rounded-2xl p-6 sm:p-8 text-center cursor-pointer transition-colors bg-stone-50/50 hover:bg-emerald-50/30"
+              className="border-2 border-dashed border-stone-300 hover:border-[#5C6F57] rounded-2xl p-6 sm:p-8 text-center cursor-pointer transition-colors bg-stone-50/50 hover:bg-[#EBF2E8]/30"
             >
               <Upload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
               <p className="text-sm font-bold text-slate-800">
@@ -329,7 +330,7 @@ export function ImportCsvModal({
               value={rawCsvText}
               onChange={(e) => handlePasteChange(e.target.value)}
               placeholder="Paste baris data spreadsheet di sini..."
-              className="w-full p-3 font-mono text-xs rounded-xl border border-stone-300 bg-stone-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700"
+              className="w-full p-3 font-mono text-xs rounded-xl border border-stone-300 bg-stone-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57]"
             />
           </div>
         )}
@@ -342,8 +343,8 @@ export function ImportCsvModal({
           </div>
         )}
         {successMsg && (
-          <div className="mt-4 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <div className="mt-4 p-3.5 rounded-xl bg-[#EBF2E8] border border-[#B1C5AA] text-[#5C6F57] text-xs flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-[#5C6F57] shrink-0" />
             <span>{successMsg}</span>
           </div>
         )}
@@ -353,13 +354,13 @@ export function ImportCsvModal({
           <div className="mt-5 space-y-2">
             <div className="flex items-center justify-between text-xs font-bold text-slate-700">
               <span>Preview Data ({parsedRows.length} Domba Terdeteksi):</span>
-              <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+              <span className="text-[#5C6F57] bg-[#EBF2E8] px-2 py-0.5 rounded-md border border-[#B1C5AA]">
                 Siap Diimpor
               </span>
             </div>
             <div className="border border-stone-200 rounded-xl overflow-hidden max-h-48 overflow-y-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-stone-100 text-slate-600 font-bold sticky top-0 border-b border-stone-200">
+                <thead className="bg-[#EBF2E8]/60 text-[#5C6F57] font-bold sticky top-0 border-b border-[#B1C5AA]/30">
                   <tr>
                     <th className="p-2">Tag</th>
                     <th className="p-2">Nama</th>
@@ -398,7 +399,7 @@ export function ImportCsvModal({
             type="button"
             onClick={onClose}
             disabled={isPending}
-            className="px-4 py-2.5 rounded-xl border border-stone-300 text-slate-700 text-xs font-semibold hover:bg-stone-50"
+            className="px-4 py-2.5 rounded-xl border border-stone-300 text-slate-700 text-xs font-semibold hover:bg-[#EBF2E8] transition-colors"
           >
             Tutup
           </button>
@@ -406,7 +407,7 @@ export function ImportCsvModal({
             type="button"
             onClick={handleImportSubmit}
             disabled={isPending || parsedRows.length === 0}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-semibold shadow-md shadow-emerald-800/20 disabled:opacity-50 cursor-pointer"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#5C6F57] hover:bg-[#4d5e49] text-white text-xs font-semibold shadow-xs disabled:opacity-50 cursor-pointer transition-colors"
           >
             {isPending ? (
               <>

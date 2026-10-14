@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useTransition } from 'react'
+import { useState, useTransition, type FormEvent } from 'react'
 import { updateFarmSheep } from '@/lib/actions/farm-sheep'
 import type {
   FarmSheep,
@@ -46,7 +46,7 @@ function EditFarmSheepFormContent({
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
     setErrorMsg(null)
     setSuccessMsg(null)
@@ -80,12 +80,12 @@ function EditFarmSheepFormContent({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg bg-white rounded-3xl border border-stone-200/90 shadow-2xl p-6 sm:p-8 text-slate-800">
+      <div className="relative w-full max-w-lg bg-white rounded-3xl border border-[#B1C5AA]/40 shadow-2xl p-6 sm:p-8 text-slate-800">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-stone-100">
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-mono font-bold text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md">
+              <span className="font-mono font-bold text-xs bg-[#D9E5D6] text-[#5C6F57] px-2 py-0.5 rounded-md">
                 {sheep.tag_code}
               </span>
               <h2 className="text-lg font-bold text-slate-900">Edit Data Domba</h2>
@@ -97,7 +97,8 @@ function EditFarmSheepFormContent({
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-stone-100 transition-colors"
+            aria-label="Tutup modal"
+            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-[#EBF2E8] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -110,8 +111,8 @@ function EditFarmSheepFormContent({
           </div>
         )}
         {successMsg && (
-          <div className="mt-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <div className="mt-4 p-3 rounded-xl bg-[#EBF2E8] border border-[#B1C5AA] text-[#5C6F57] text-xs flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-[#5C6F57] shrink-0" />
             <span>{successMsg}</span>
           </div>
         )}
@@ -126,7 +127,7 @@ function EditFarmSheepFormContent({
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm font-semibold"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57]"
             />
           </div>
 
@@ -138,7 +139,7 @@ function EditFarmSheepFormContent({
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as FarmSheepStatus)}
-                className="w-full px-3 py-2.5 rounded-xl border border-stone-300 text-sm bg-white"
+                className="w-full px-3 py-2.5 rounded-xl border border-stone-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57]"
               >
                 {sheep.gender === 'Betina' ? (
                   <>
@@ -172,7 +173,7 @@ function EditFarmSheepFormContent({
                 required
                 value={currentWeight}
                 onChange={(e) => setCurrentWeight(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-xl border border-stone-300 text-sm"
+                className="w-full px-3 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57]"
               />
             </div>
           </div>
@@ -184,7 +185,7 @@ function EditFarmSheepFormContent({
             <select
               value={sheepType}
               onChange={(e) => setSheepType(e.target.value as FarmSheepType)}
-              className="w-full px-3 py-2.5 rounded-xl border border-stone-300 text-sm bg-white"
+              className="w-full px-3 py-2.5 rounded-xl border border-stone-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57]"
             >
               <option value="Indukan">Indukan</option>
               <option value="Pejantan">Pejantan</option>
@@ -200,7 +201,7 @@ function EditFarmSheepFormContent({
               rows={2}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full px-3.5 py-2 rounded-xl border border-stone-300 text-sm resize-none"
+              className="w-full px-3.5 py-2 rounded-xl border border-stone-300 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57]"
             />
           </div>
 
@@ -209,14 +210,14 @@ function EditFarmSheepFormContent({
               type="button"
               onClick={onClose}
               disabled={isPending}
-              className="px-4 py-2 rounded-xl border border-stone-300 text-xs font-semibold text-slate-600 hover:bg-stone-50"
+              className="px-4 py-2 rounded-xl border border-stone-300 text-xs font-semibold text-slate-600 hover:bg-[#EBF2E8] transition-colors"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={isPending}
-              className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-semibold shadow-xs disabled:opacity-60 cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#5C6F57] hover:bg-[#4d5e49] text-white text-xs font-semibold shadow-xs disabled:opacity-60 cursor-pointer transition-colors"
             >
               {isPending ? (
                 <>

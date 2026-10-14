@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useTransition } from 'react'
+import { useState, useTransition, type FormEvent } from 'react'
 import { createFarmEvent } from '@/lib/actions/farm-sheep'
 import type { FarmSheep } from '@/types/farm-sheep'
 import {
@@ -44,7 +44,7 @@ export function NewBirthModal({
 
   const effectiveSheepId = selectedSheepId || indukanList[0]?.id || ''
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
     setErrorMsg(null)
     setSuccessMsg(null)
@@ -83,7 +83,7 @@ export function NewBirthModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto">
-      <div className="relative w-full max-w-lg bg-white rounded-3xl border border-stone-200/90 shadow-2xl p-6 sm:p-8 text-slate-800">
+      <div className="relative w-full max-w-lg bg-white rounded-3xl border border-[#B1C5AA]/40 shadow-2xl p-6 sm:p-8 text-slate-800">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-stone-100">
           <div className="flex items-center gap-3">
@@ -102,7 +102,8 @@ export function NewBirthModal({
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-stone-100 transition-colors"
+            aria-label="Tutup modal"
+            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-[#EBF2E8] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -116,8 +117,8 @@ export function NewBirthModal({
           </div>
         )}
         {successMsg && (
-          <div className="mt-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <div className="mt-4 p-3 rounded-xl bg-[#EBF2E8] border border-[#B1C5AA] text-[#5C6F57] text-xs flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-[#5C6F57] shrink-0" />
             <span>{successMsg}</span>
           </div>
         )}
@@ -146,7 +147,7 @@ export function NewBirthModal({
                 required
                 value={effectiveSheepId}
                 onChange={(e) => setSelectedSheepId(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 shadow-xs"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57] shadow-xs"
               >
                 {indukanList.map((s) => (
                   <option key={s.id} value={s.id}>
@@ -170,7 +171,7 @@ export function NewBirthModal({
                   required
                   value={eventDate}
                   onChange={(e) => setEventDate(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700/20"
+                  className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57]"
                 />
               </div>
             </div>
@@ -182,7 +183,7 @@ export function NewBirthModal({
               <select
                 value={lambCount}
                 onChange={(e) => setLambCount(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700/20"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57]"
               >
                 <option value="1">1 Ekor (Tunggal)</option>
                 <option value="2">2 Ekor (Kembar 2)</option>
@@ -202,7 +203,7 @@ export function NewBirthModal({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Contoh: 1 jantan (3.2 kg) & 1 betina (3.0 kg), proses lahiran lancar dibantu kandang, kolostrum cukup..."
-              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-emerald-700/20"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57]"
             />
           </div>
 
@@ -212,14 +213,14 @@ export function NewBirthModal({
               type="button"
               onClick={onClose}
               disabled={isPending}
-              className="px-4 py-2 rounded-xl border border-stone-300 text-xs font-semibold text-slate-700 hover:bg-stone-50"
+              className="px-4 py-2 rounded-xl border border-stone-300 text-xs font-semibold text-slate-700 hover:bg-[#EBF2E8] transition-colors"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={isPending || indukanList.length === 0}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-pink-700 hover:bg-pink-800 text-white text-xs font-semibold shadow-md shadow-pink-700/20 disabled:opacity-60 cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-pink-700 hover:bg-pink-800 text-white text-xs font-semibold shadow-xs disabled:opacity-60 cursor-pointer transition-colors"
             >
               {isPending ? (
                 <>

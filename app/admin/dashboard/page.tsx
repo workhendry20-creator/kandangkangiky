@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-import React, { Suspense } from 'react'
+import { Suspense } from "react";
 import Image from 'next/image'
 import { createAdminClient } from '@/lib/supabase/server'
 import { SheepTable } from '@/components/admin/SheepTable'

@@ -1,6 +1,5 @@
 'use client'
 
-import React from 'react'
 import {
   ResponsiveContainer,
   LineChart,
@@ -158,15 +157,15 @@ export function WeightChart({
               dot={false}
               activeDot={{ r: 4 }}
             />
-            {/* Actual Weight Curve (Solid Emerald) */}
+            {/* Actual Weight Curve (Solid Sage Green) */}
             <Line
               type="monotone"
               dataKey="actualWeight"
               name="Bobot Real (kg)"
-              stroke="#065F46"
+              stroke="#5C6F57"
               strokeWidth={3}
-              dot={{ r: 4, fill: '#065F46', stroke: '#FFFFFF', strokeWidth: 2 }}
-              activeDot={{ r: 6, fill: '#10B981', stroke: '#FFFFFF', strokeWidth: 2 }}
+              dot={{ r: 4, fill: '#5C6F57', stroke: '#FFFFFF', strokeWidth: 2 }}
+              activeDot={{ r: 6, fill: '#89A482', stroke: '#FFFFFF', strokeWidth: 2 }}
             />
           </LineChart>
         </ResponsiveContainer>
@@ -174,7 +173,7 @@ export function WeightChart({
 
       <div className="mt-3 pt-3 border-t border-stone-100 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
         <span className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-800" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#5C6F57]" />
           <span>Titik Timbang Real</span>
         </span>
         <span className="flex items-center gap-1.5">

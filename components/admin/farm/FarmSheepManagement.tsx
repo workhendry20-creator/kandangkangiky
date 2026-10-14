@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from "react";
 import { useRouter } from 'next/navigation'
 import type { FarmSheep, FarmEvent } from '@/types/farm-sheep'
 import { FarmSheepTable } from './FarmSheepTable'
@@ -66,16 +66,16 @@ export function FarmSheepManagement({
   ).length
 
   const birthEvents = initialEvents.filter((e) => e.event_type === 'Kelahiran')
-  const treatmentEvents = initialEvents.filter((e) => e.event_type === 'Tindakan')
+  const _treatmentEvents = initialEvents.filter((e) => e.event_type === 'Tindakan')
   const totalLambs = birthEvents.reduce((acc, e) => acc + (e.lamb_count || 1), 0)
 
   return (
     <div className="space-y-6 sm:space-y-8">
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-white border border-stone-200/90 p-6 sm:p-8 shadow-xs">
-        <div className="absolute -right-10 -top-10 w-52 h-52 bg-emerald-100/50 rounded-full blur-3xl pointer-events-none" />
+      <div className="relative overflow-hidden rounded-3xl bg-white border border-[#B1C5AA]/40 p-6 sm:p-8 shadow-xs">
+        <div className="absolute -right-10 -top-10 w-52 h-52 bg-[#D9E5D6]/40 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold border border-emerald-100">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#D9E5D6] text-[#5C6F57] text-xs font-semibold border border-[#B1C5AA]/40">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Pusat Inventaris & Breeding Internal</span>
           </div>
@@ -91,13 +91,13 @@ export function FarmSheepManagement({
       {/* KPI Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
         {/* Card 1: Total Domba Kandang */}
-        <div className="bg-white rounded-2xl p-5 border border-stone-200/90 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+        <div className="bg-white rounded-2xl p-5 border border-[#B1C5AA]/40 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
               Total Domba Kandang
             </span>
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center font-bold">
-              <Warehouse className="w-4 h-4 text-emerald-700" />
+            <div className="w-9 h-9 rounded-xl bg-[#D9E5D6] text-[#5C6F57] flex items-center justify-center font-bold">
+              <Warehouse className="w-4 h-4 text-[#5C6F57]" />
             </div>
           </div>
           <div>
@@ -105,7 +105,7 @@ export function FarmSheepManagement({
               <span className="text-3xl font-bold text-slate-900">{totalSheep}</span>
               <span className="text-sm text-slate-500">ekor</span>
             </div>
-            <div className="mt-2 flex items-center gap-1.5 text-xs text-emerald-700 font-semibold">
+            <div className="mt-2 flex items-center gap-1.5 text-xs text-[#5C6F57] font-semibold">
               <TrendingUp className="w-3.5 h-3.5" />
               <span>Populasi Internal Aktif</span>
             </div>
@@ -118,7 +118,7 @@ export function FarmSheepManagement({
         </div>
 
         {/* Card 2: Indukan Produktif */}
-        <div className="bg-white rounded-2xl p-5 border border-stone-200/90 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+        <div className="bg-white rounded-2xl p-5 border border-[#B1C5AA]/40 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
               Indukan Produktif
@@ -144,7 +144,7 @@ export function FarmSheepManagement({
         </div>
 
         {/* Card 3: Pejantan / Pemacek */}
-        <div className="bg-white rounded-2xl p-5 border border-stone-200/90 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+        <div className="bg-white rounded-2xl p-5 border border-[#B1C5AA]/40 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
               Pejantan / Pemacek
@@ -170,7 +170,7 @@ export function FarmSheepManagement({
         </div>
 
         {/* Card 4: Total Kelahiran Cempe */}
-        <div className="bg-white rounded-2xl p-5 border border-stone-200/90 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+        <div className="bg-white rounded-2xl p-5 border border-[#B1C5AA]/40 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
               Total Kelahiran
@@ -191,24 +191,24 @@ export function FarmSheepManagement({
           </div>
           <div className="mt-4 pt-3 border-t border-stone-100 flex justify-between text-[11px] text-slate-500">
             <span>Rekam Breeding Kandang</span>
-            <span className="text-emerald-700 font-medium">Aktif</span>
+            <span className="text-[#5C6F57] font-semibold">Aktif</span>
           </div>
         </div>
       </div>
 
       {/* Sub-Tab Navigation Bar */}
-      <div className="flex items-center gap-2 p-1.5 bg-stone-200/60 rounded-2xl w-full sm:w-fit overflow-x-auto">
+      <div className="flex items-center gap-2 p-1.5 bg-[#EBF2E8] border border-[#B1C5AA]/40 rounded-2xl w-full sm:w-fit overflow-x-auto">
         <button
           type="button"
           onClick={() => setActiveTab('master')}
           id="tabMasterKandang"
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 ${
             activeTab === 'master'
-              ? 'bg-white text-slate-900 shadow-sm'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+              ? 'bg-[#5C6F57] text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-[#D9E5D6]/50'
           }`}
         >
-          <Warehouse className="w-4 h-4 text-emerald-700" />
+          <Warehouse className="w-4 h-4 text-inherit" />
           <span>Tab 1: Master Domba Kandang</span>
         </button>
 

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useTransition } from 'react'
+import { useState, useTransition, type FormEvent } from 'react'
 import { createFarmEvent } from '@/lib/actions/farm-sheep'
 import type { FarmSheep } from '@/types/farm-sheep'
 import {
@@ -53,7 +53,7 @@ export function NewTreatmentModal({
 
   const effectiveSheepId = selectedSheepId || sheepList[0]?.id || ''
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
     setErrorMsg(null)
     setSuccessMsg(null)
@@ -96,7 +96,7 @@ export function NewTreatmentModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto">
-      <div className="relative w-full max-w-lg bg-white rounded-3xl border border-stone-200/90 shadow-2xl p-6 sm:p-8 text-slate-800">
+      <div className="relative w-full max-w-lg bg-white rounded-3xl border border-[#B1C5AA]/40 shadow-2xl p-6 sm:p-8 text-slate-800">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-stone-100">
           <div className="flex items-center gap-3">
@@ -115,7 +115,8 @@ export function NewTreatmentModal({
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-stone-100 transition-colors"
+            aria-label="Tutup modal"
+            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-[#EBF2E8] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -129,8 +130,8 @@ export function NewTreatmentModal({
           </div>
         )}
         {successMsg && (
-          <div className="mt-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <div className="mt-4 p-3 rounded-xl bg-[#EBF2E8] border border-[#B1C5AA] text-[#5C6F57] text-xs flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-[#5C6F57] shrink-0" />
             <span>{successMsg}</span>
           </div>
         )}
@@ -150,7 +151,7 @@ export function NewTreatmentModal({
                 required
                 value={effectiveSheepId}
                 onChange={(e) => setSelectedSheepId(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 shadow-xs"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57] shadow-xs"
               >
                 {sheepList.map((s) => (
                   <option key={s.id} value={s.id}>
@@ -169,7 +170,7 @@ export function NewTreatmentModal({
             <select
               value={presetAction}
               onChange={(e) => setPresetAction(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 shadow-xs"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57] shadow-xs"
             >
               {TREATMENT_PRESETS.map((p) => (
                 <option key={p} value={p}>
@@ -184,7 +185,7 @@ export function NewTreatmentModal({
                 placeholder="Tuliskan nama tindakan medis..."
                 value={customAction}
                 onChange={(e) => setCustomAction(e.target.value)}
-                className="mt-2 w-full px-3.5 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700/20"
+                className="mt-2 w-full px-3.5 py-2 rounded-xl border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57]"
               />
             )}
           </div>
@@ -201,7 +202,7 @@ export function NewTreatmentModal({
                 required
                 value={eventDate}
                 onChange={(e) => setEventDate(e.target.value)}
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700/20"
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57]"
               />
             </div>
           </div>
@@ -216,7 +217,7 @@ export function NewTreatmentModal({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Contoh: Diberi Albendazole 10ml per oral oleh Mantri Joko, kondisi domba aktif setelah observasi..."
-              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-emerald-700/20"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57]"
             />
           </div>
 
@@ -226,14 +227,14 @@ export function NewTreatmentModal({
               type="button"
               onClick={onClose}
               disabled={isPending}
-              className="px-4 py-2 rounded-xl border border-stone-300 text-xs font-semibold text-slate-700 hover:bg-stone-50"
+              className="px-4 py-2 rounded-xl border border-stone-300 text-xs font-semibold text-slate-700 hover:bg-[#EBF2E8] transition-colors"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={isPending || sheepList.length === 0}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white text-xs font-semibold shadow-md shadow-blue-700/20 disabled:opacity-60 cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white text-xs font-semibold shadow-xs disabled:opacity-60 cursor-pointer transition-colors"
             >
               {isPending ? (
                 <>

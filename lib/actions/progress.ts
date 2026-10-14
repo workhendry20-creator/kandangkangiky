@@ -4,7 +4,6 @@ import { createAdminClient } from '@/lib/supabase/server'
 import { requireAdminSession } from '@/lib/auth'
 import {
   appendProgressRowToSheet,
-  syncProgressToAppsScriptWebhook,
 } from '@/lib/google-sheets'
 import { revalidatePath } from 'next/cache'
 import type { ProgressLog } from '@/types/sheep'
@@ -223,7 +222,7 @@ export async function createProgressLog(
       })
       if (sheetRes.success) sheetsSynced = true
     } catch (sheetCatchErr) {
-      // Ignored if service account credentials not configured
+      console.warn('[Sync Sheets Warning] Failed to sync progress to Google Sheets:', sheetCatchErr)
     }
 
     // 6. Revalidate relevant paths

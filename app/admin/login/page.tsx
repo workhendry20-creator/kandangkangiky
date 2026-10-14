@@ -4,19 +4,17 @@ import React, { useState, Suspense } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 import {
   ShieldCheck,
   ArrowLeft,
   AlertCircle,
   Sparkles,
-  Mail,
   Lock,
   Eye,
   EyeOff,
   LogIn,
   User,
-} from 'lucide-react'
+} from "lucide-react";
 import { loginAdminAction } from '@/lib/actions/auth'
 
 function LoginContent() {

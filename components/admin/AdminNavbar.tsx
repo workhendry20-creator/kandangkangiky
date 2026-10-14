@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -64,7 +64,7 @@ export function AdminNavbar() {
   const isFarmSheepActive = pathname.startsWith('/admin/farm-sheep')
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-stone-200/80 shadow-xs">
+    <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-[#B1C5AA]/40 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="h-18 flex items-center justify-between gap-4">
           {/* Brand & Left Navigation */}
@@ -73,7 +73,7 @@ export function AdminNavbar() {
               href="/admin/dashboard"
               className="flex items-center gap-2.5 group focus:outline-none"
             >
-              <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-white shadow-md shadow-emerald-800/10 ring-2 ring-emerald-700/20 group-hover:scale-105 transition-transform shrink-0">
+              <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-white shadow-xs ring-1 ring-[#B1C5AA]/60 group-hover:scale-105 transition-transform shrink-0">
                 <Image
                   src="/logo.jpg"
                   alt="Kandang Kang Iky"
@@ -83,19 +83,19 @@ export function AdminNavbar() {
                   priority
                 />
               </div>
-              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[#D9E5D6] text-[#5C6F57] border border-[#B1C5AA]/40">
                 Admin Console
               </span>
             </Link>
 
             {/* Desktop Navigation Links */}
-            <nav className="hidden md:flex items-center gap-1.5 pl-4 border-l border-stone-200">
+            <nav className="hidden md:flex items-center gap-1.5 pl-4 border-l border-[#B1C5AA]/40">
               <Link
                 href="/admin/dashboard"
                 id="navLinkTitipanQurban"
                 className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${isTitipanActive
-                  ? 'bg-emerald-800 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-stone-100'
+                  ? 'bg-[#5C6F57] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-[#EBF2E8]/60'
                   }`}
               >
                 <TrendingUp className="w-3.5 h-3.5" />
@@ -106,8 +106,8 @@ export function AdminNavbar() {
                 href="/admin/farm-sheep"
                 id="navLinkFarmSheep"
                 className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${isFarmSheepActive
-                  ? 'bg-emerald-800 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-stone-100'
+                  ? 'bg-[#5C6F57] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-[#EBF2E8]/60'
                   }`}
               >
                 <Warehouse className="w-3.5 h-3.5" />
@@ -118,14 +118,12 @@ export function AdminNavbar() {
 
           {/* Right Controls & Profile */}
           <div className="flex items-center gap-3 sm:gap-4">
-
-
             {/* Link to Public Portal */}
             <Link
               href="/"
               target="_blank"
               rel="noreferrer"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-stone-100 transition-colors"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-[#EBF2E8]/60 transition-colors"
               title="Buka Website Publik"
             >
               <ExternalLink className="w-3.5 h-3.5" />
@@ -133,8 +131,8 @@ export function AdminNavbar() {
             </Link>
 
             {/* User Profile Badge */}
-            <div className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-3 border-l border-stone-200">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-emerald-800 text-white text-xs font-bold flex items-center justify-center ring-2 ring-emerald-100 shadow-xs">
+            <div className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-3 border-l border-[#B1C5AA]/40">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#5C6F57] text-white text-xs font-bold flex items-center justify-center ring-1 ring-[#B1C5AA]/60 shadow-xs">
                 {userInitials}
               </div>
               <div className="hidden xl:flex flex-col text-left">
@@ -144,7 +142,7 @@ export function AdminNavbar() {
                 >
                   {userEmail}
                 </span>
-                <span className="text-[11px] text-emerald-700 font-medium flex items-center gap-1">
+                <span className="text-[11px] text-[#5C6F57] font-semibold flex items-center gap-1">
                   <ShieldCheck className="w-3 h-3" />
                   Owner / Peternak
                 </span>
@@ -161,7 +159,7 @@ export function AdminNavbar() {
               type="button"
               id="btnMobileMenuToggle"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden inline-flex items-center justify-center p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-stone-100 focus:outline-none transition-colors"
+              className="md:hidden inline-flex items-center justify-center p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-[#EBF2E8]/60 focus:outline-none transition-colors"
               aria-label="Buka menu navigasi"
             >
               {mobileMenuOpen ? (
@@ -175,13 +173,13 @@ export function AdminNavbar() {
 
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-stone-100 space-y-3 animate-in fade-in slide-in-from-top-2 duration-150">
+          <div className="md:hidden py-4 border-t border-[#B1C5AA]/40 space-y-3 animate-in fade-in slide-in-from-top-2 duration-150">
             <div className="flex flex-col gap-1.5">
               <Link
                 href="/admin/dashboard"
                 className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold transition-all ${isTitipanActive
-                  ? 'bg-emerald-800 text-white shadow-xs'
-                  : 'text-slate-700 hover:bg-stone-100'
+                  ? 'bg-[#5C6F57] text-white shadow-xs'
+                  : 'text-slate-700 hover:bg-[#EBF2E8]/60'
                   }`}
               >
                 <div className="flex items-center gap-2.5">
@@ -194,8 +192,8 @@ export function AdminNavbar() {
               <Link
                 href="/admin/farm-sheep"
                 className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold transition-all ${isFarmSheepActive
-                  ? 'bg-emerald-800 text-white shadow-xs'
-                  : 'text-slate-700 hover:bg-stone-100'
+                  ? 'bg-[#5C6F57] text-white shadow-xs'
+                  : 'text-slate-700 hover:bg-[#EBF2E8]/60'
                   }`}
               >
                 <div className="flex items-center gap-2.5">
@@ -205,7 +203,7 @@ export function AdminNavbar() {
               </Link>
             </div>
 
-            <div className="pt-3 border-t border-stone-100 flex items-center justify-between">
+            <div className="pt-3 border-t border-[#B1C5AA]/40 flex items-center justify-between">
               <Link
                 href="/"
                 target="_blank"

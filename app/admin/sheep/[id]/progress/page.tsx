@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react'
+import { Suspense } from "react";
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'

@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-import React, { Suspense } from 'react'
+import { Suspense } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase/server'
@@ -9,7 +9,7 @@ import { WeightChart } from '@/components/tracker/WeightChart'
 import { ProgressFeed } from '@/components/tracker/ProgressFeed'
 import { TrackerActions } from '@/components/tracker/TrackerActions'
 import { CountdownCard } from '@/components/tracker/CountdownCard'
-import { formatWeight, formatDate, calculateRealtimeAge } from '@/lib/utils'
+import { formatWeight, calculateRealtimeAge } from '@/lib/utils'
 import type { Sheep, ProgressLog } from '@/types/sheep'
 import {
   ArrowLeft,
@@ -60,20 +60,20 @@ async function TrackerContent({ params }: PageProps) {
 
   if (error || !data) {
     return (
-      <div className="min-h-screen bg-[#FDFBF7] flex flex-col text-slate-800">
+      <div className="min-h-screen bg-[#EBF2E8] flex flex-col text-slate-800">
         {/* Top Navbar */}
-        <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-stone-200/80 shadow-xs">
+        <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-[#B1C5AA]/30 shadow-xs">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 h-18 flex items-center justify-between gap-4">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-600 hover:text-emerald-800 transition-colors p-2 -ml-2 rounded-xl hover:bg-stone-100"
+              className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-600 hover:text-[#5C6F57] transition-colors p-2 -ml-2 rounded-xl hover:bg-[#EBF2E8]"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Kembali ke Beranda</span>
             </Link>
 
             <div className="flex items-center gap-2.5">
-              <div className="relative w-7 h-7 rounded-lg overflow-hidden shrink-0 shadow-xs ring-1 ring-emerald-700/20 bg-white">
+              <div className="relative w-7 h-7 rounded-lg overflow-hidden shrink-0 shadow-xs ring-1 ring-[#5C6F57]/20 bg-white">
                 <Image
                   src="/logo.jpg"
                   alt="Kandang Kang Iky Logo"
@@ -103,14 +103,14 @@ async function TrackerContent({ params }: PageProps) {
               Kode Tracking Tidak Ditemukan
             </h1>
             <p className="text-sm text-slate-500 leading-relaxed">
-              Kode tracking <span className="font-mono font-bold text-emerald-800 bg-stone-100 px-2 py-0.5 rounded-md border border-stone-200">&ldquo;{trackingCode}&rdquo;</span> tidak terdaftar di sistem Kandang Kang Iky. Pastikan Anda memasukkan kode yang sesuai dari kwitansi atau pesan tim kami.
+              Kode tracking <span className="font-mono font-bold text-[#5C6F57] bg-stone-100 px-2 py-0.5 rounded-md border border-stone-200">&ldquo;{trackingCode}&rdquo;</span> tidak terdaftar di sistem Kandang Kang Iky. Pastikan Anda memasukkan kode yang sesuai dari kwitansi atau pesan tim kami.
             </p>
           </div>
 
           <div className="pt-2 w-full flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
               href="/"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-sm font-semibold shadow-md shadow-emerald-800/20 transition-all cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#5C6F57] hover:bg-[#4d5e49] text-white text-sm font-semibold shadow-xs transition-all cursor-pointer"
             >
               <Search className="w-4 h-4" />
               <span>Kembali ke Halaman Pencarian</span>
@@ -135,12 +135,12 @@ async function TrackerContent({ params }: PageProps) {
   const initialWeight = Number(sheep.initial_weight) || 0
   const currentWeight =
     rawLogs.length > 0 &&
-    rawLogs[0].current_weight !== null &&
-    rawLogs[0].current_weight !== undefined
+      rawLogs[0].current_weight !== null &&
+      rawLogs[0].current_weight !== undefined
       ? Number(rawLogs[0].current_weight)
       : sheep.current_weight !== undefined && sheep.current_weight !== null
-      ? Number(sheep.current_weight)
-      : initialWeight
+        ? Number(sheep.current_weight)
+        : initialWeight
 
   // Total Naik / Kenaikan BB dihitung dari BB Terbaru - BB Awal Masuk
   const weightGain = Math.round((currentWeight - initialWeight) * 100) / 100
@@ -161,20 +161,20 @@ async function TrackerContent({ params }: PageProps) {
   const realtimeAge = calculateRealtimeAge(arrivalDateSource as string)
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] flex flex-col text-slate-800">
+    <div className="min-h-screen bg-[#EBF2E8] flex flex-col text-slate-800">
       {/* Top Navbar */}
-      <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-stone-200/80 shadow-xs">
+      <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-[#B1C5AA]/30 shadow-xs">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-18 flex items-center justify-between gap-4">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-600 hover:text-emerald-800 transition-colors p-2 -ml-2 rounded-xl hover:bg-stone-100"
+            className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-600 hover:text-[#5C6F57] transition-colors p-2 -ml-2 rounded-xl hover:bg-[#EBF2E8]"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Kembali ke Beranda</span>
           </Link>
 
           <div className="flex items-center gap-2.5">
-            <div className="relative w-7 h-7 rounded-lg overflow-hidden shrink-0 shadow-xs ring-1 ring-emerald-700/20 bg-white">
+            <div className="relative w-7 h-7 rounded-lg overflow-hidden shrink-0 shadow-xs ring-1 ring-[#5C6F57]/20 bg-white">
               <Image
                 src="/logo.jpg"
                 alt="Kandang Kang Iky Logo"
@@ -193,16 +193,14 @@ async function TrackerContent({ params }: PageProps) {
       {/* Main Content */}
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8">
         {/* Sheep Hero Profile Header */}
-        <div className="relative overflow-hidden rounded-3xl bg-white border border-stone-200/90 p-6 sm:p-8 shadow-xs">
-          <div className="absolute -right-12 -top-12 w-64 h-64 bg-emerald-100/40 rounded-full blur-3xl pointer-events-none" />
-
+        <div className="relative overflow-hidden rounded-3xl bg-white border border-[#B1C5AA]/40 p-6 sm:p-8 shadow-xs">
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#EBF2E8] text-[#5C6F57] border border-[#B1C5AA]">
                   {sheep.tracking_code}
                 </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#D9E5D6] text-[#5C6F57]">
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>Status: {sheep.status}</span>
                 </span>
@@ -224,11 +222,11 @@ async function TrackerContent({ params }: PageProps) {
         </div>
 
         {/* Realtime Age Information Card Section */}
-        <div className="relative overflow-hidden rounded-3xl bg-white border border-stone-200/90 shadow-xs p-6 sm:p-7 space-y-4">
+        <div className="relative overflow-hidden rounded-3xl bg-white border border-[#B1C5AA]/40 shadow-xs p-6 sm:p-7 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-100">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center font-bold shadow-2xs">
-                <Calendar className="w-5 h-5 text-emerald-800" />
+              <div className="w-9 h-9 rounded-xl bg-[#EBF2E8] text-[#5C6F57] flex items-center justify-center font-bold shadow-2xs">
+                <Calendar className="w-5 h-5 text-[#5C6F57]" />
               </div>
               <div>
                 <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
@@ -240,10 +238,10 @@ async function TrackerContent({ params }: PageProps) {
               </div>
             </div>
 
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold border border-emerald-100 self-start sm:self-auto">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EBF2E8] text-[#5C6F57] text-xs font-semibold border border-[#B1C5AA] self-start sm:self-auto">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#89A482] opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#5C6F57]" />
               </span>
               <span>Terhitung Realtime Hari Ini</span>
             </div>
@@ -251,7 +249,7 @@ async function TrackerContent({ params }: PageProps) {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {/* Sub-Card 1: Tanggal Lahir / Kedatangan */}
-            <div className="p-4 rounded-2xl bg-[#FDFBF7] border border-stone-200/80 space-y-1">
+            <div className="p-4 rounded-2xl bg-[#EBF2E8]/40 border border-[#B1C5AA]/30 space-y-1">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] uppercase font-bold text-slate-500 tracking-wider">
                   Tanggal Lahir / Kedatangan
@@ -267,14 +265,14 @@ async function TrackerContent({ params }: PageProps) {
             </div>
 
             {/* Sub-Card 2: Total Umur dalam Hari */}
-            <div className="p-4 rounded-2xl bg-[#FDFBF7] border border-stone-200/80 space-y-1">
+            <div className="p-4 rounded-2xl bg-[#EBF2E8]/40 border border-[#B1C5AA]/30 space-y-1">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] uppercase font-bold text-slate-500 tracking-wider">
                   Total Umur (Hari)
                 </span>
-                <Clock className="w-4 h-4 text-emerald-700" />
+                <Clock className="w-4 h-4 text-[#5C6F57]" />
               </div>
-              <span className="text-base sm:text-lg font-extrabold text-emerald-800 font-mono block">
+              <span className="text-base sm:text-lg font-extrabold text-[#5C6F57] font-mono block">
                 {realtimeAge.ageInDaysText}
               </span>
               <p className="text-[11px] text-slate-500">
@@ -283,17 +281,17 @@ async function TrackerContent({ params }: PageProps) {
             </div>
 
             {/* Sub-Card 3: Total Umur dalam Bulan & Hari */}
-            <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200/90 space-y-1">
+            <div className="p-4 rounded-2xl bg-[#EBF2E8] border border-[#B1C5AA] space-y-1">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] uppercase font-bold text-emerald-900 tracking-wider">
+                <span className="text-[11px] uppercase font-bold text-[#5C6F57] tracking-wider">
                   Total Umur (Bulan & Hari)
                 </span>
-                <Sparkles className="w-4 h-4 text-emerald-800" />
+                <Sparkles className="w-4 h-4 text-[#5C6F57]" />
               </div>
-              <span className="text-base sm:text-lg font-extrabold text-emerald-900 block">
+              <span className="text-base sm:text-lg font-extrabold text-[#5C6F57] block">
                 {realtimeAge.ageInMonthsText}
               </span>
-              <p className="text-[11px] text-emerald-700 font-medium">
+              <p className="text-[11px] text-[#5C6F57]/80 font-medium">
                 Kalkulasi presisi bulan kalender
               </p>
             </div>
@@ -303,21 +301,21 @@ async function TrackerContent({ params }: PageProps) {
         {/* 5 Key Metric Cards Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4">
           {/* Card 1: Ras & Gender */}
-          <div className="p-4 rounded-2xl bg-white border border-stone-200/80 shadow-xs space-y-1">
+          <div className="p-4 rounded-2xl bg-white border border-[#B1C5AA]/40 shadow-xs space-y-1">
             <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
               Ras / Gender
             </span>
             <span className="text-sm font-bold text-slate-900 block truncate">
               {sheep.breed}
             </span>
-            <span className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1">
+            <span className="text-[11px] text-[#5C6F57] font-semibold flex items-center gap-1">
               <span>{sheep.gender === 'Jantan' ? '♂' : '♀'}</span>
               <span>{sheep.gender}</span>
             </span>
           </div>
 
           {/* Card 3: BB Awal */}
-          <div className="p-4 rounded-2xl bg-white border border-stone-200/80 shadow-xs space-y-1">
+          <div className="p-4 rounded-2xl bg-white border border-[#B1C5AA]/40 shadow-xs space-y-1">
             <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
               BB Awal Masuk
             </span>
@@ -328,21 +326,21 @@ async function TrackerContent({ params }: PageProps) {
           </div>
 
           {/* Card 4: BB Saat Ini */}
-          <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 shadow-xs space-y-1">
-            <span className="text-[10px] uppercase font-bold text-emerald-800 block tracking-wider">
+          <div className="p-4 rounded-2xl bg-[#EBF2E8] border border-[#B1C5AA] shadow-xs space-y-1">
+            <span className="text-[10px] uppercase font-bold text-[#5C6F57] block tracking-wider">
               BB Saat Ini
             </span>
-            <span className="text-base font-extrabold text-emerald-900 font-mono block">
+            <span className="text-base font-extrabold text-[#5C6F57] font-mono block">
               {formatWeight(currentWeight)}
             </span>
-            <span className="inline-flex items-center gap-0.5 text-[11px] text-emerald-700 font-bold">
+            <span className="inline-flex items-center gap-0.5 text-[11px] text-[#5C6F57] font-bold">
               <TrendingUp className="w-3 h-3" />
               <span>{weightGain >= 0 ? `+${weightGain.toFixed(1)}` : weightGain.toFixed(1)} kg</span>
             </span>
           </div>
 
           {/* Card 5: Target BB */}
-          <div className="p-4 rounded-2xl bg-white border border-stone-200/80 shadow-xs space-y-1">
+          <div className="p-4 rounded-2xl bg-white border border-[#B1C5AA]/40 shadow-xs space-y-1">
             <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
               Target Bobot
             </span>
@@ -359,29 +357,29 @@ async function TrackerContent({ params }: PageProps) {
         </div>
 
         {/* Growth Progress Bar Banner */}
-        <div className="p-5 rounded-2xl bg-white border border-stone-200/90 shadow-xs space-y-3">
+        <div className="p-5 rounded-2xl bg-white border border-[#B1C5AA]/40 shadow-xs space-y-3">
           <div className="flex items-center justify-between text-xs">
             <div className="flex items-center gap-2">
-              <Scale className="w-4 h-4 text-emerald-800" />
+              <Scale className="w-4 h-4 text-[#5C6F57]" />
               <span className="font-bold text-slate-800">
                 Pencapaian Penggemukan Target Iduladha
               </span>
             </div>
-            <span className="font-bold text-emerald-800">
+            <span className="font-bold text-[#5C6F57]">
               {progressPercent}% ({formatWeight(currentWeight)} / {formatWeight(sheep.target_weight)})
             </span>
           </div>
 
           <div className="w-full h-3 rounded-full bg-stone-100 overflow-hidden">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-emerald-600 to-emerald-800 transition-all duration-500"
+              className="h-full rounded-full bg-[#5C6F57] transition-all duration-500"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
         </div>
 
         {/* Weight Growth Chart Section */}
-        <div className="rounded-3xl bg-white border border-stone-200/90 shadow-xs p-6 sm:p-8 space-y-4">
+        <div className="rounded-3xl bg-white border border-[#B1C5AA]/40 shadow-xs p-6 sm:p-8 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-stone-100">
             <div>
               <h2 className="text-lg font-bold text-slate-900">
@@ -391,7 +389,7 @@ async function TrackerContent({ params }: PageProps) {
                 Data tercatat dari penimbangan berkala di Kandang Kang Iky.
               </p>
             </div>
-            <span className="text-xs font-semibold px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-100 self-start sm:self-auto">
+            <span className="text-xs font-semibold px-3 py-1 rounded-full bg-[#EBF2E8] text-[#5C6F57] border border-[#B1C5AA] self-start sm:self-auto">
               {rawLogs.length + 1} Titik Pengukuran
             </span>
           </div>
@@ -428,12 +426,12 @@ async function TrackerContent({ params }: PageProps) {
         </div>
 
         {/* Bottom CTA Card */}
-        <div className="rounded-3xl bg-emerald-900 text-white p-6 sm:p-8 space-y-4 shadow-xl shadow-emerald-950/20">
+        <div className="rounded-3xl bg-[#5C6F57] text-white p-6 sm:p-8 space-y-4 shadow-sm border border-[#4d5e49]">
           <div className="max-w-2xl space-y-2">
             <h3 className="text-xl font-bold">
               Ingin Mengetahui Info Lebih Lanjut Tentang Domba Anda?
             </h3>
-            <p className="text-xs sm:text-sm text-emerald-100 leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#D9E5D6] leading-relaxed">
               Tim peternak Kang Iky siap memberikan informasi langsung dan dokumentasi video tambahan melalui WhatsApp resmi kami.
             </p>
           </div>
@@ -464,9 +462,9 @@ async function TrackerContent({ params }: PageProps) {
 
 function TrackerFallback() {
   return (
-    <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center p-8">
+    <div className="min-h-screen bg-[#EBF2E8] flex items-center justify-center p-8">
       <div className="text-center space-y-3">
-        <div className="relative w-12 h-12 rounded-2xl overflow-hidden shadow-md shadow-emerald-800/10 ring-2 ring-emerald-700/20 bg-white flex items-center justify-center mx-auto animate-bounce">
+        <div className="relative w-12 h-12 rounded-2xl overflow-hidden shadow-xs ring-1 ring-[#5C6F57]/20 bg-white flex items-center justify-center mx-auto animate-bounce">
           <Image
             src="/logo.jpg"
             alt="Kandang Kang Iky"
