@@ -164,7 +164,7 @@ async function TrackerContent({ params }: PageProps) {
     <div className="min-h-screen bg-[#EBF2E8] flex flex-col text-slate-800">
       {/* Top Navbar */}
       <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-[#B1C5AA]/30 shadow-xs">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-18 flex items-center justify-between gap-4">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between gap-4">
           <Link
             href="/"
             className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-600 hover:text-[#5C6F57] transition-colors p-2 -ml-2 rounded-xl hover:bg-[#EBF2E8]"
@@ -191,7 +191,7 @@ async function TrackerContent({ params }: PageProps) {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8">
+      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
         {/* Sheep Hero Profile Header */}
         <div className="relative overflow-hidden rounded-3xl bg-white border border-[#B1C5AA]/40 p-6 sm:p-8 shadow-xs">
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -353,7 +353,9 @@ async function TrackerContent({ params }: PageProps) {
           </div>
 
           {/* Card 6: Countdown Iduladha */}
-          <CountdownCard />
+          <div className="col-span-2 sm:col-span-1 lg:col-span-1">
+            <CountdownCard />
+          </div>
         </div>
 
         {/* Growth Progress Bar Banner */}

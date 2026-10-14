@@ -197,7 +197,7 @@ export function FarmSheepManagement({
       </div>
 
       {/* Sub-Tab Navigation Bar */}
-      <div className="flex items-center gap-2 p-1.5 bg-[#EBF2E8] border border-[#B1C5AA]/40 rounded-2xl w-full sm:w-fit overflow-x-auto">
+      <div className="flex items-center gap-2 p-1.5 bg-[#EBF2E8] border border-[#B1C5AA]/40 rounded-2xl w-full sm:w-fit overflow-x-auto overscroll-x-contain">
         <button
           type="button"
           onClick={() => setActiveTab('master')}
@@ -218,11 +218,11 @@ export function FarmSheepManagement({
           id="tabCatatanKelahiran"
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 ${
             activeTab === 'birth'
-              ? 'bg-white text-slate-900 shadow-sm'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+              ? 'bg-[#5C6F57] text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-[#D9E5D6]/50'
           }`}
         >
-          <Baby className="w-4 h-4 text-pink-600" />
+          <Baby className="w-4 h-4 text-inherit" />
           <span>Tab 2: Catatan Kelahiran</span>
         </button>
 
@@ -232,11 +232,11 @@ export function FarmSheepManagement({
           id="tabRekamTindakan"
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 ${
             activeTab === 'treatment'
-              ? 'bg-white text-slate-900 shadow-sm'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+              ? 'bg-[#5C6F57] text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-[#D9E5D6]/50'
           }`}
         >
-          <HeartPulse className="w-4 h-4 text-blue-600" />
+          <HeartPulse className="w-4 h-4 text-inherit" />
           <span>Tab 3: Rekam Medis & Tindakan</span>
         </button>
       </div>

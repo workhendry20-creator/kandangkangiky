@@ -105,15 +105,15 @@ async function DashboardContent() {
       : '0.0'
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col bg-[#EBF2E8]">
       {/* Main Content Body */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Welcome Greeting Banner */}
-        <div className="relative overflow-hidden rounded-3xl bg-white border border-stone-200/90 p-6 sm:p-8 shadow-sm">
-          <div className="absolute -right-10 -top-10 w-52 h-52 bg-emerald-100/50 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative overflow-hidden rounded-3xl bg-white border border-[#B1C5AA]/40 p-6 sm:p-8 shadow-xs">
+          <div className="absolute -right-10 -top-10 w-52 h-52 bg-[#D9E5D6]/40 rounded-full blur-3xl pointer-events-none" />
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold border border-emerald-100">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#D9E5D6] text-[#5C6F57] text-xs font-semibold border border-[#B1C5AA]/40">
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>Pusat Kendali Penggemukan & Qurban</span>
               </div>
@@ -128,14 +128,14 @@ async function DashboardContent() {
         </div>
 
         {/* KPI Stat Cards (3 Required + 1 Avg Weight) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Card 1: Total Ternak */}
-          <div className="bg-white rounded-2xl p-5 border border-stone-200/90 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div className="bg-white rounded-2xl p-5 border border-[#B1C5AA]/40 shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                 Total Ternak
               </span>
-              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
+              <div className="w-9 h-9 rounded-xl bg-[#D9E5D6] text-[#5C6F57] flex items-center justify-center font-bold">
                 🐑
               </div>
             </div>
@@ -144,7 +144,7 @@ async function DashboardContent() {
                 <span className="text-3xl font-bold text-slate-900">{totalSheep}</span>
                 <span className="text-sm text-slate-500">ekor</span>
               </div>
-              <div className="mt-2 flex items-center gap-1.5 text-xs text-emerald-700 font-semibold">
+              <div className="mt-2 flex items-center gap-1.5 text-xs text-[#5C6F57] font-semibold">
                 <TrendingUp className="w-3.5 h-3.5" />
                 <span>Master Data Aktif</span>
               </div>
@@ -157,7 +157,7 @@ async function DashboardContent() {
           </div>
 
           {/* Card 2: Total Customer */}
-          <div className="bg-white rounded-2xl p-5 border border-stone-200/90 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div className="bg-white rounded-2xl p-5 border border-[#B1C5AA]/40 shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                 Total Customer
@@ -178,38 +178,38 @@ async function DashboardContent() {
             </div>
             <div className="mt-4 pt-3 border-t border-stone-100 flex justify-between text-[11px] text-slate-500">
               <span>Pemilik Titipan Domba</span>
-              <span className="text-emerald-700 font-medium">100% Terverifikasi</span>
+              <span className="text-[#5C6F57] font-medium">100% Terverifikasi</span>
             </div>
           </div>
 
           {/* Card 3: Status Penitipan */}
-          <div className="bg-white rounded-2xl p-5 border border-stone-200/90 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div className="bg-white rounded-2xl p-5 border border-[#B1C5AA]/40 shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                 Status Penitipan
               </span>
-              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center font-bold">
-                <Activity className="w-4 h-4 text-emerald-700" />
+              <div className="w-9 h-9 rounded-xl bg-[#EBF2E8] text-[#5C6F57] flex items-center justify-center font-bold">
+                <Activity className="w-4 h-4 text-[#5C6F57]" />
               </div>
             </div>
             <div>
               <div className="flex items-baseline gap-1.5">
-                <span className="text-3xl font-bold text-emerald-800">{penitipanCount}</span>
+                <span className="text-3xl font-bold text-[#5C6F57]">{penitipanCount}</span>
                 <span className="text-sm text-slate-500">ekor aktif</span>
               </div>
-              <div className="mt-2 flex items-center gap-1.5 text-xs text-emerald-700 font-semibold">
+              <div className="mt-2 flex items-center gap-1.5 text-xs text-[#5C6F57] font-semibold">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 <span>Sedang Dalam Perawatan</span>
               </div>
             </div>
             <div className="mt-4 pt-3 border-t border-stone-100 flex justify-between text-[11px] text-slate-500">
               <span>Target Iduladha 1447H</span>
-              <span className="text-emerald-700 font-medium">Parung, Bogor</span>
+              <span className="text-[#5C6F57] font-medium">Parung, Bogor</span>
             </div>
           </div>
 
           {/* Card 4: Rata-rata Bobot */}
-          <div className="bg-white rounded-2xl p-5 border border-stone-200/90 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div className="bg-white rounded-2xl p-5 border border-[#B1C5AA]/40 shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                 Rata-rata Bobot
@@ -230,7 +230,7 @@ async function DashboardContent() {
             </div>
             <div className="mt-4 pt-3 border-t border-stone-100 flex justify-between text-[11px] text-slate-500">
               <span>Sensor & Timbangan Digital</span>
-              <span className="text-emerald-700 font-medium">Terkalibrasi</span>
+              <span className="text-[#5C6F57] font-medium">Terkalibrasi</span>
             </div>
           </div>
         </div>
@@ -240,10 +240,10 @@ async function DashboardContent() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto border-t border-stone-200 bg-white py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+      <footer className="mt-auto border-t border-[#B1C5AA]/40 bg-white py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <div className="flex items-center gap-2">
-            <span>© 2026 Kandang Kang Iky.</span>
+            <span className="font-semibold text-slate-700">© 2026 Kandang Kang Iky.</span>
             <span>•</span>
             <span>AgriFintech & Livestock Intelligence Management.</span>
           </div>
@@ -260,9 +260,9 @@ async function DashboardContent() {
 
 function DashboardFallback() {
   return (
-    <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center p-8">
+    <div className="min-h-screen bg-[#EBF2E8] flex items-center justify-center p-8">
       <div className="text-center space-y-3">
-        <div className="relative w-12 h-12 rounded-2xl overflow-hidden shadow-md shadow-emerald-800/10 ring-2 ring-emerald-700/20 bg-white flex items-center justify-center mx-auto animate-bounce">
+        <div className="relative w-12 h-12 rounded-2xl overflow-hidden shadow-xs ring-1 ring-[#B1C5AA]/50 bg-white flex items-center justify-center mx-auto">
           <Image
             src="/logo.jpg"
             alt="Kandang Kang Iky"
@@ -271,8 +271,8 @@ function DashboardFallback() {
             className="w-full h-full object-cover"
           />
         </div>
-        <p className="text-sm font-semibold text-slate-700">Memuat Dashboard Admin...</p>
-        <p className="text-xs text-slate-400">Mengambil data ternak dari Supabase</p>
+        <p className="text-sm font-semibold text-slate-800">Memuat Dashboard Admin...</p>
+        <p className="text-xs text-slate-500">Mengambil data ternak dari Supabase</p>
       </div>
     </div>
   )

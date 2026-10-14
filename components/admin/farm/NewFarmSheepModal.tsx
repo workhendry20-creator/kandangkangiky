@@ -120,8 +120,8 @@ export function NewFarmSheepModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto">
-      <div className="relative w-full max-w-2xl bg-white rounded-3xl border border-[#B1C5AA]/40 shadow-2xl p-6 sm:p-8 my-8 text-slate-800 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto">
+      <div className="relative w-full max-w-lg lg:max-w-2xl bg-white rounded-3xl border border-[#B1C5AA]/40 shadow-2xl p-5 sm:p-7 lg:p-8 my-auto max-h-[92dvh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-stone-100">
           <div className="flex items-center gap-3">

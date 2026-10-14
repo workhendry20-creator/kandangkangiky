@@ -86,7 +86,7 @@ export function ProgressFeed({
     <div className="space-y-4">
       {/* Compact Datasheet Table Card */}
       <div className="bg-white rounded-3xl border border-[#B1C5AA]/40 shadow-xs overflow-hidden">
-        <div className="overflow-x-auto w-full">
+        <div className="overflow-x-auto overscroll-x-contain w-full">
           <table className="w-full text-left border-collapse min-w-[620px]">
             <thead>
               <tr className="border-b border-[#B1C5AA]/30 bg-[#EBF2E8]/60 text-[11px] font-bold uppercase tracking-wider text-[#5C6F57]">

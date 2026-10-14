@@ -79,8 +79,8 @@ function EditFarmSheepFormContent({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg bg-white rounded-3xl border border-[#B1C5AA]/40 shadow-2xl p-6 sm:p-8 text-slate-800">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto">
+      <div className="relative w-full max-w-lg bg-white rounded-3xl border border-[#B1C5AA]/40 shadow-2xl p-5 sm:p-7 my-auto max-h-[92dvh] overflow-y-auto text-slate-800">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-stone-100">
           <div>

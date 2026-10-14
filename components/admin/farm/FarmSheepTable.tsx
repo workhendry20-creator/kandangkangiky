@@ -201,8 +201,8 @@ export function FarmSheepTable({
 
       {/* Main Table Card */}
       <div className="bg-white rounded-3xl border border-[#B1C5AA]/40 shadow-xs overflow-hidden">
-        <div className="overflow-x-auto w-full">
-          <table className="w-full text-left border-collapse min-w-[760px]">
+        <div className="overflow-x-auto overscroll-x-contain w-full">
+          <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
               <tr className="border-b border-[#B1C5AA]/40 bg-[#EBF2E8]/60 text-[11px] font-bold uppercase tracking-wider text-slate-600">
                 <th className="py-3.5 px-4 sm:px-6">ID & Nama</th>
