@@ -60,13 +60,13 @@ async function TrackerContent({ params }: PageProps) {
 
   if (error || !data) {
     return (
-      <div className="min-h-screen bg-[#EBF2E8] flex flex-col text-slate-800">
+      <div className="min-h-screen bg-white flex flex-col text-slate-800">
         {/* Top Navbar */}
-        <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-[#B1C5AA]/30 shadow-xs">
+        <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-stone-200/80 shadow-xs">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 h-18 flex items-center justify-between gap-4">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-600 hover:text-[#5C6F57] transition-colors p-2 -ml-2 rounded-xl hover:bg-[#EBF2E8]"
+              className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-600 hover:text-[#5C6F57] transition-colors p-2 -ml-2 rounded-xl hover:bg-stone-100"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Kembali ke Beranda</span>
@@ -161,13 +161,13 @@ async function TrackerContent({ params }: PageProps) {
   const realtimeAge = calculateRealtimeAge(arrivalDateSource as string)
 
   return (
-    <div className="min-h-screen bg-[#EBF2E8] flex flex-col text-slate-800">
+    <div className="min-h-screen bg-white flex flex-col text-slate-800">
       {/* Top Navbar */}
-      <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-[#B1C5AA]/30 shadow-xs">
+      <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-stone-200/80 shadow-xs">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between gap-4">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-600 hover:text-[#5C6F57] transition-colors p-2 -ml-2 rounded-xl hover:bg-[#EBF2E8]"
+            className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-600 hover:text-[#5C6F57] transition-colors p-2 -ml-2 rounded-xl hover:bg-stone-100"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Kembali ke Beranda</span>
@@ -193,7 +193,7 @@ async function TrackerContent({ params }: PageProps) {
       {/* Main Content */}
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
         {/* Sheep Hero Profile Header */}
-        <div className="relative overflow-hidden rounded-3xl bg-white border border-[#B1C5AA]/40 p-6 sm:p-8 shadow-xs">
+        <div className="relative overflow-hidden rounded-3xl bg-white border border-stone-200 shadow-xs p-6 sm:p-8">
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-2">
@@ -301,7 +301,7 @@ async function TrackerContent({ params }: PageProps) {
         {/* 5 Key Metric Cards Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4">
           {/* Card 1: Ras & Gender */}
-          <div className="p-4 rounded-2xl bg-white border border-[#B1C5AA]/40 shadow-xs space-y-1">
+          <div className="p-4 rounded-2xl bg-white border border-stone-200 shadow-xs space-y-1">
             <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
               Ras / Gender
             </span>
@@ -315,7 +315,7 @@ async function TrackerContent({ params }: PageProps) {
           </div>
 
           {/* Card 3: BB Awal */}
-          <div className="p-4 rounded-2xl bg-white border border-[#B1C5AA]/40 shadow-xs space-y-1">
+          <div className="p-4 rounded-2xl bg-white border border-stone-200 shadow-xs space-y-1">
             <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
               BB Awal Masuk
             </span>
@@ -340,7 +340,7 @@ async function TrackerContent({ params }: PageProps) {
           </div>
 
           {/* Card 5: Target BB */}
-          <div className="p-4 rounded-2xl bg-white border border-[#B1C5AA]/40 shadow-xs space-y-1">
+          <div className="p-4 rounded-2xl bg-white border border-stone-200 shadow-xs space-y-1">
             <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
               Target Bobot
             </span>
@@ -359,7 +359,7 @@ async function TrackerContent({ params }: PageProps) {
         </div>
 
         {/* Growth Progress Bar Banner */}
-        <div className="p-5 rounded-2xl bg-white border border-[#B1C5AA]/40 shadow-xs space-y-3">
+        <div className="p-5 rounded-2xl bg-white border border-stone-200 shadow-xs space-y-3">
           <div className="flex items-center justify-between text-xs">
             <div className="flex items-center gap-2">
               <Scale className="w-4 h-4 text-[#5C6F57]" />
@@ -381,7 +381,7 @@ async function TrackerContent({ params }: PageProps) {
         </div>
 
         {/* Weight Growth Chart Section */}
-        <div className="rounded-3xl bg-white border border-[#B1C5AA]/40 shadow-xs p-6 sm:p-8 space-y-4">
+        <div className="rounded-3xl bg-white border border-stone-200 shadow-xs p-6 sm:p-8 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-stone-100">
             <div>
               <h2 className="text-lg font-bold text-slate-900">
@@ -464,7 +464,7 @@ async function TrackerContent({ params }: PageProps) {
 
 function TrackerFallback() {
   return (
-    <div className="min-h-screen bg-[#EBF2E8] flex items-center justify-center p-8">
+    <div className="min-h-screen bg-white flex items-center justify-center p-8">
       <div className="text-center space-y-3">
         <div className="relative w-12 h-12 rounded-2xl overflow-hidden shadow-xs ring-1 ring-[#5C6F57]/20 bg-white flex items-center justify-center mx-auto animate-bounce">
           <Image

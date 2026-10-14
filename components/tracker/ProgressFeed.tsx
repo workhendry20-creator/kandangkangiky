@@ -63,7 +63,7 @@ export function ProgressFeed({
 
   if (sortedLogs.length === 0) {
     return (
-      <div className="rounded-3xl bg-white border border-[#B1C5AA]/40 p-8 text-center space-y-3 shadow-xs">
+      <div className="rounded-3xl bg-white border border-stone-200 p-8 text-center space-y-3 shadow-xs">
         <div className="w-12 h-12 rounded-2xl bg-[#EBF2E8] text-[#5C6F57] text-2xl flex items-center justify-center mx-auto">
           🐑
         </div>
@@ -85,11 +85,11 @@ export function ProgressFeed({
   return (
     <div className="space-y-4">
       {/* Compact Datasheet Table Card */}
-      <div className="bg-white rounded-3xl border border-[#B1C5AA]/40 shadow-xs overflow-hidden">
+      <div className="bg-white rounded-3xl border border-stone-200 shadow-xs overflow-hidden">
         <div className="overflow-x-auto overscroll-x-contain w-full">
           <table className="w-full text-left border-collapse min-w-[620px]">
             <thead>
-              <tr className="border-b border-[#B1C5AA]/30 bg-[#EBF2E8]/60 text-[11px] font-bold uppercase tracking-wider text-[#5C6F57]">
+              <tr className="border-b border-stone-200 bg-stone-50/90 text-[11px] font-bold uppercase tracking-wider text-slate-600">
                 <th className="py-3 px-4 sm:px-5">Tanggal Update</th>
                 <th className="py-3 px-4">Jenis Update</th>
                 <th className="py-3 px-4">BB & Kenaikan</th>
@@ -119,7 +119,7 @@ export function ProgressFeed({
                 return (
                   <tr
                     key={log.id}
-                    className="hover:bg-[#EBF2E8]/20 transition-colors"
+                    className="hover:bg-stone-50/80 transition-colors"
                   >
                     {/* Tanggal Update */}
                     <td className="py-3 px-4 sm:px-5 font-semibold text-slate-800 whitespace-nowrap">
@@ -227,7 +227,7 @@ export function ProgressFeed({
         </div>
 
         {/* Footer info & collapse toggle */}
-        <div className="p-3.5 sm:p-4 border-t border-stone-100 bg-[#EBF2E8]/30 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
+        <div className="p-3.5 sm:p-4 border-t border-stone-200 bg-stone-50/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
           <span>
             Menampilkan <span className="font-bold text-slate-800">{displayedLogs.length}</span> dari{' '}
             <span className="font-bold text-slate-800">{sortedLogs.length}</span> catatan riwayat perkembangan
@@ -237,7 +237,7 @@ export function ProgressFeed({
             <button
               type="button"
               onClick={() => setIsExpanded(!isExpanded)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-[#B1C5AA] bg-white hover:bg-[#EBF2E8] text-[#5C6F57] text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-[#5C6F57] text-xs font-semibold shadow-xs transition-colors cursor-pointer"
             >
               {isExpanded ? (
                 <>

@@ -26,9 +26,9 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#EBF2E8] text-slate-800">
+    <div className="min-h-screen flex flex-col bg-white text-slate-800">
       {/* Navigation Header */}
-      <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-[#B1C5AA]/40 shadow-xs">
+      <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-stone-200/80 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-white shadow-xs ring-1 ring-[#5C6F57]/20 shrink-0">
@@ -86,7 +86,7 @@ export default function HomePage() {
           <div className="pt-4 max-w-xl mx-auto w-full">
             <form
               onSubmit={handleSearch}
-              className="p-2 sm:p-2.5 rounded-2xl bg-white border border-[#B1C5AA]/40 shadow-xs flex flex-col sm:flex-row items-center gap-2"
+              className="p-2 sm:p-2.5 rounded-2xl bg-white border border-stone-200 shadow-sm flex flex-col sm:flex-row items-center gap-2"
             >
               <div className="relative flex-1 w-full">
                 <Search className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
@@ -115,7 +115,7 @@ export default function HomePage() {
 
           {/* 3 Value Highlights */}
           <div className="pt-10 grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
-            <div className="p-5 rounded-2xl bg-white border border-[#B1C5AA]/40 shadow-xs space-y-2">
+            <div className="p-5 rounded-2xl bg-white border border-stone-200 shadow-xs hover:border-[#B1C5AA] transition-colors space-y-2">
               <div className="w-9 h-9 rounded-xl bg-[#EBF2E8] text-[#5C6F57] flex items-center justify-center">
                 <TrendingUp className="w-5 h-5" />
               </div>
@@ -127,7 +127,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-white border border-[#B1C5AA]/40 shadow-xs space-y-2">
+            <div className="p-5 rounded-2xl bg-white border border-stone-200 shadow-xs hover:border-[#B1C5AA] transition-colors space-y-2">
               <div className="w-9 h-9 rounded-xl bg-[#EBF2E8] text-[#5C6F57] flex items-center justify-center">
                 <HeartPulse className="w-5 h-5" />
               </div>
@@ -139,7 +139,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-white border border-[#B1C5AA]/40 shadow-xs space-y-2">
+            <div className="p-5 rounded-2xl bg-white border border-stone-200 shadow-xs hover:border-[#B1C5AA] transition-colors space-y-2">
               <div className="w-9 h-9 rounded-xl bg-[#EBF2E8] text-[#5C6F57] flex items-center justify-center">
                 <Activity className="w-5 h-5" />
               </div>
@@ -155,7 +155,7 @@ export default function HomePage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-[#B1C5AA]/40 bg-white py-6 mt-auto">
+      <footer className="border-t border-stone-200 bg-stone-50/50 py-6 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <div>
             © 2026 Kandang Kang Iky. Hak cipta dilindungi.
