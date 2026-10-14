@@ -114,7 +114,7 @@ export default function HomePage() {
           </div>
 
           {/* 3 Value Highlights */}
-          <div className="pt-10 grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
+          <div className="pt-10 grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
             <div className="p-5 rounded-2xl bg-white border border-[#B1C5AA]/40 shadow-xs space-y-2">
               <div className="w-9 h-9 rounded-xl bg-[#EBF2E8] text-[#5C6F57] flex items-center justify-center">
                 <TrendingUp className="w-5 h-5" />

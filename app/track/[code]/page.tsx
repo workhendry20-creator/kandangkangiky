@@ -247,7 +247,7 @@ async function TrackerContent({ params }: PageProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Sub-Card 1: Tanggal Lahir / Kedatangan */}
             <div className="p-4 rounded-2xl bg-[#EBF2E8]/40 border border-[#B1C5AA]/30 space-y-1">
               <div className="flex items-center justify-between">
