@@ -4,6 +4,7 @@ export interface ProgressLog {
   update_type: 'Harian' | 'Mingguan' | 'Bulanan'
   record_date: string
   current_weight: number
+  weight_gain?: number | null
   health_status: string
   notes?: string | null
   media_url?: string | null

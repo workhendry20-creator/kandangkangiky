@@ -148,6 +148,8 @@ export function ProgressForm({ sheep, lastWeight }: ProgressFormProps) {
       formData.append('sheep_id', sheep.id)
       formData.append('record_date', recordDate)
       formData.append('update_type', updateType)
+      formData.append('penambahan_bobot', deltaWeight)
+      formData.append('weight_gain', deltaWeight)
       formData.append('delta_input', deltaWeight)
       formData.append('delta_weight', deltaWeight)
       formData.append('current_weight', calculatedNewWeight.toString())
@@ -362,6 +364,7 @@ export function ProgressForm({ sheep, lastWeight }: ProgressFormProps) {
                 <Scale className="w-5 h-5 text-[#5C6F57] absolute left-4 pointer-events-none" />
                 <input
                   id="deltaWeightInput"
+                  name="penambahan_bobot"
                   type="number"
                   step="0.1"
                   required

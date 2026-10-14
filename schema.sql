@@ -27,11 +27,15 @@ CREATE TABLE IF NOT EXISTS public.progress_logs (
     update_type VARCHAR(15) CHECK (update_type IN ('Harian', 'Mingguan', 'Bulanan')),
     record_date DATE NOT NULL DEFAULT CURRENT_DATE,
     current_weight NUMERIC(5,2) NOT NULL,
+    weight_gain NUMERIC(5,2) DEFAULT 0,
     health_status VARCHAR(50) DEFAULT 'Sehat',
     notes TEXT,
     media_url TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Migrasi aman jika kolom weight_gain belum ada
+ALTER TABLE public.progress_logs ADD COLUMN IF NOT EXISTS weight_gain NUMERIC(5,2) DEFAULT 0;
 
 CREATE INDEX IF NOT EXISTS idx_progress_logs_sheep_id ON public.progress_logs(sheep_id);
 

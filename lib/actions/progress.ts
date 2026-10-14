@@ -86,12 +86,18 @@ export async function createProgressLog(
       latestWeight = Number(sheep.current_weight)
     }
 
-    // Ambil nilai delta input (misal: 0, 0.5, 1.0)
-    const deltaStr = (formData.get('delta_input') ?? formData.get('delta_weight')) as string | null
-    let deltaInput = 0
-    if (deltaStr !== null && deltaStr !== undefined && deltaStr.trim() !== '') {
-      deltaInput = parseFloat(deltaStr)
-      if (isNaN(deltaInput)) {
+    // Ambil nilai penambahan bobot murni (misal: 0, 0.5, 1.0) dari penambahan_bobot / weight_gain / delta_input
+    const gainStr = (
+      formData.get('penambahan_bobot') ??
+      formData.get('weight_gain') ??
+      formData.get('delta_input') ??
+      formData.get('delta_weight')
+    ) as string | null
+
+    let weightGain = 0
+    if (gainStr !== null && gainStr !== undefined && gainStr.trim() !== '') {
+      weightGain = parseFloat(gainStr)
+      if (isNaN(weightGain)) {
         return { success: false, error: 'Input penambahan bobot tidak valid.' }
       }
     } else {
@@ -100,13 +106,15 @@ export async function createProgressLog(
       if (cwStr !== null && cwStr !== undefined && cwStr.trim() !== '') {
         const directCw = parseFloat(cwStr)
         if (!isNaN(directCw)) {
-          deltaInput = directCw - latestWeight
+          weightGain = directCw - latestWeight
         }
       }
     }
 
-    // Hitung weight_to_save = latest_weight + delta_input
-    const weightToSave = Math.round((latestWeight + deltaInput) * 10) / 10
+    weightGain = Math.round(weightGain * 10) / 10
+
+    // Hitung weight_to_save = latest_weight + weight_gain
+    const weightToSave = Math.round((latestWeight + weightGain) * 10) / 10
     if (weightToSave <= 0) {
       return { success: false, error: 'Bobot terbaru tidak boleh kurang dari atau sama dengan 0 kg.' }
     }
@@ -142,20 +150,48 @@ export async function createProgressLog(
       }
     }
 
-    // 4. Insert record into Supabase progress_logs table with weight_to_save
-    const { data: logData, error: logError } = await supabase
+    // 4. Insert record into Supabase progress_logs table with current_weight & weight_gain
+    let { data: logData, error: logError } = await supabase
       .from('progress_logs')
       .insert({
         sheep_id: sheepId,
         update_type: updateType,
         record_date: recordDate,
         current_weight: weightToSave,
+        weight_gain: weightGain,
         health_status: healthStatus,
         notes: notes,
         media_url: mediaUrl,
       })
       .select()
       .single()
+
+    // Fallback if weight_gain column is not yet present in Supabase table schema
+    if (
+      logError &&
+      (logError.message?.includes('weight_gain') ||
+        logError.code === '42703' ||
+        logError.code === 'PGRST204')
+    ) {
+      const fallbackInsert = await supabase
+        .from('progress_logs')
+        .insert({
+          sheep_id: sheepId,
+          update_type: updateType,
+          record_date: recordDate,
+          current_weight: weightToSave,
+          health_status: healthStatus,
+          notes: notes,
+          media_url: mediaUrl,
+        })
+        .select()
+        .single()
+
+      if (!fallbackInsert.error) {
+        logData = fallbackInsert.data
+        logError = null
+      }
+    }
 
     if (logError) {
       return {
@@ -189,7 +225,8 @@ export async function createProgressLog(
             kode_tracking: sheep.tracking_code,
             nama_customer: sheep.customer_name,
             tgl_catatan: recordDate,
-            bobot: Number(weightToSave),
+            bobot: Number(weightToSave),             // Total bobot terbaru
+            penambahan_bobot: Number(weightGain),    // Angka penambahan murni
             kesehatan: healthStatus,
             catatan: notes ? notes.trim() : '-',
             url_photo: mediaUrl || '',
@@ -202,6 +239,8 @@ export async function createProgressLog(
             record_date: recordDate,
             weight: Number(weightToSave),
             current_weight: Number(weightToSave),
+            delta_weight: Number(weightGain),
+            weight_gain: Number(weightGain),
             health_status: healthStatus,
             notes: notes ? notes.trim() : '-',
             photo_url: mediaUrl || '',
@@ -283,13 +322,15 @@ export async function syncAllProgressLogsToSheets(): Promise<{
     const supabase = createAdminClient()
 
     // Ambil seluruh log progress beserta info dombanya
-    const { data: logs, error: logsErr } = await supabase
+    let logs: Array<Record<string, any>> = []
+    const firstQuery = await supabase
       .from('progress_logs')
       .select(`
         id,
         record_date,
         update_type,
         current_weight,
+        weight_gain,
         health_status,
         notes,
         media_url,
@@ -302,12 +343,46 @@ export async function syncAllProgressLogsToSheets(): Promise<{
       .order('record_date', { ascending: true })
       .order('created_at', { ascending: true })
 
-    if (logsErr) {
+    // Fallback query jika kolom weight_gain belum tersedia di Supabase
+    if (
+      firstQuery.error &&
+      (firstQuery.error.message?.includes('weight_gain') || firstQuery.error.code === '42703')
+    ) {
+      const fallback = await supabase
+        .from('progress_logs')
+        .select(`
+          id,
+          record_date,
+          update_type,
+          current_weight,
+          health_status,
+          notes,
+          media_url,
+          sheep:sheep_id (
+            tracking_code,
+            customer_name,
+            initial_weight
+          )
+        `)
+        .order('record_date', { ascending: true })
+        .order('created_at', { ascending: true })
+
+      if (fallback.error) {
+        return {
+          success: false,
+          message: `Gagal mengambil log progress: ${fallback.error.message}`,
+          error: fallback.error.message,
+        }
+      }
+      logs = (fallback.data as Array<Record<string, any>>) || []
+    } else if (firstQuery.error) {
       return {
         success: false,
-        message: `Gagal mengambil log progress: ${logsErr.message}`,
-        error: logsErr.message,
+        message: `Gagal mengambil log progress: ${firstQuery.error.message}`,
+        error: firstQuery.error.message,
       }
+    } else {
+      logs = (firstQuery.data as Array<Record<string, any>>) || []
     }
 
     let syncedCount = 0
@@ -318,6 +393,11 @@ export async function syncAllProgressLogsToSheets(): Promise<{
       const initialWeight = Number((sheepInfo as { initial_weight?: number })?.initial_weight) || 0
       const weightVal = Number(log.current_weight) || 0
       const deltaVal = Math.round((weightVal - initialWeight) * 10) / 10
+      const gainVal =
+        (log as { weight_gain?: number | null })?.weight_gain !== null &&
+        (log as { weight_gain?: number | null })?.weight_gain !== undefined
+          ? Number((log as { weight_gain?: number | null })?.weight_gain)
+          : deltaVal
 
       const payload = {
         sheet_name: 'Log_Titipan',
@@ -325,7 +405,8 @@ export async function syncAllProgressLogsToSheets(): Promise<{
         kode_tracking: trackingCode,
         nama_customer: customerName,
         tgl_catatan: log.record_date,
-        bobot: weightVal,
+        bobot: weightVal,                        // Total bobot terbaru
+        penambahan_bobot: gainVal,               // Angka penambahan murni
         kesehatan: log.health_status,
         catatan: log.notes ? log.notes.trim() : '-',
         url_photo: log.media_url || '',
@@ -342,8 +423,8 @@ export async function syncAllProgressLogsToSheets(): Promise<{
         update_type: (log as { update_type?: string })?.update_type || 'Mingguan',
         weight: weightVal,
         current_weight: weightVal,
-        delta_weight: deltaVal,
-        weight_gain: deltaVal,
+        delta_weight: gainVal,
+        weight_gain: gainVal,
         health_status: log.health_status,
         status: log.health_status,
         notes: log.notes ? log.notes.trim() : '-',

@@ -19,6 +19,8 @@ export interface WebhookProgressPayload {
   record_date: string
   weight?: number
   current_weight?: number
+  penambahan_bobot?: number
+  weight_gain?: number
   health_status: string
   notes?: string | null
   photo_url?: string | null
@@ -128,6 +130,7 @@ export async function syncProgressToAppsScriptWebhook(
       nama_customer: payload.customer_name,
       tgl_catatan: payload.record_date,
       bobot: Number(payload.weight ?? payload.current_weight ?? 0),
+      penambahan_bobot: Number(payload.penambahan_bobot ?? payload.weight_gain ?? 0),
       kesehatan: payload.health_status,
       catatan: payload.notes ? payload.notes.trim() : '-',
       url_photo: payload.photo_url || payload.media_url || '',
@@ -143,6 +146,8 @@ export async function syncProgressToAppsScriptWebhook(
       date: payload.record_date,
       weight: Number(payload.weight ?? payload.current_weight ?? 0),
       current_weight: Number(payload.weight ?? payload.current_weight ?? 0),
+      delta_weight: Number(payload.penambahan_bobot ?? payload.weight_gain ?? 0),
+      weight_gain: Number(payload.penambahan_bobot ?? payload.weight_gain ?? 0),
       health_status: payload.health_status,
       status: payload.health_status,
       notes: payload.notes ? payload.notes.trim() : '-',
