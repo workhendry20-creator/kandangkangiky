@@ -174,56 +174,44 @@ export async function createProgressLog(
       console.warn('Gagal memperbarui current_weight pada tabel sheep:', updateSheepError.message)
     }
 
-    // 5. POST ke Google Apps Script Webhook (Sheet: Log_Titipan) secara non-blocking
+    // 5. POST ke Google Sheets Web App API (Sheet: Log_Titipan) secara asynchronous
     let sheetsSynced = false
-    try {
-      const webhookUrl = getGoogleSheetsWebhookUrl()
-      if (webhookUrl) {
-        const payloadJson = {
-          sheet_name: 'Log_Titipan',
-          sheet: 'Log_Titipan',
-          type: 'titipan_log',
-          action: 'insert',
-          tracking_code: sheep.tracking_code,
-          code: sheep.tracking_code,
-          tag_id: sheep.tracking_code,
-          customer_name: sheep.customer_name,
-          name: sheep.customer_name,
-          record_date: recordDate,
-          date: recordDate,
-          update_type: updateType,
-          weight: Number(weightToSave),
-          current_weight: Number(weightToSave),
-          delta_weight: Number(deltaInput),
-          weight_gain: Number(deltaInput),
-          health_status: healthStatus,
-          status: healthStatus,
-          notes: notes ? notes.trim() : '-',
-          keterangan: notes ? notes.trim() : '-',
-          photo_url: mediaUrl || '',
-          media_url: mediaUrl || '',
-        }
+    const sheetUrl = process.env.GOOGLE_SHEETS_WEB_APP_URL || process.env.GOOGLE_APPS_SCRIPT_URL
 
-        const res = await fetch(webhookUrl, {
+    if (sheetUrl) {
+      try {
+        await fetch(sheetUrl.replace(/^hhttps:\/\//, 'https://').trim(), {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(payloadJson),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sheet_name: 'Log_Titipan',
+            action: 'insert',
+            kode_tracking: sheep.tracking_code,
+            nama_customer: sheep.customer_name,
+            tgl_catatan: recordDate,
+            bobot: Number(weightToSave),
+            kesehatan: healthStatus,
+            catatan: notes ? notes.trim() : '-',
+            url_photo: mediaUrl || '',
+            // Compatibility aliases
+            sheet: 'Log_Titipan',
+            type: 'titipan_log',
+            tracking_code: sheep.tracking_code,
+            customer_name: sheep.customer_name,
+            date: recordDate,
+            record_date: recordDate,
+            weight: Number(weightToSave),
+            current_weight: Number(weightToSave),
+            health_status: healthStatus,
+            notes: notes ? notes.trim() : '-',
+            photo_url: mediaUrl || '',
+          }),
           redirect: 'follow',
         })
-
-        if (res.ok) {
-          sheetsSynced = true
-        } else {
-          const resText = await res.text().catch(() => '')
-          console.warn('[Progress Webhook Warning]:', res.status, resText || res.statusText)
-        }
-      } else {
-        console.warn('[Progress] Google Sheets Webhook URL belum terkonfigurasi (GOOGLE_SHEETS_WEB_APP_URL atau GOOGLE_APPS_SCRIPT_URL)')
+        sheetsSynced = true
+      } catch (err) {
+        console.error('Gagal sync log harian ke Google Sheets:', err)
       }
-    } catch (sheetErr) {
-      console.warn('[Progress] Apps Script sync non-blocking error:', sheetErr)
     }
 
     // Direct Google Sheets API v4 fallback (non-blocking)
@@ -333,9 +321,17 @@ export async function syncAllProgressLogsToSheets(): Promise<{
 
       const payload = {
         sheet_name: 'Log_Titipan',
+        action: 'insert',
+        kode_tracking: trackingCode,
+        nama_customer: customerName,
+        tgl_catatan: log.record_date,
+        bobot: weightVal,
+        kesehatan: log.health_status,
+        catatan: log.notes ? log.notes.trim() : '-',
+        url_photo: log.media_url || '',
+        // Compatibility aliases
         sheet: 'Log_Titipan',
         type: 'titipan_log',
-        action: 'insert',
         tracking_code: trackingCode,
         code: trackingCode,
         tag_id: trackingCode,

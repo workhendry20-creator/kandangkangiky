@@ -123,8 +123,16 @@ export async function syncProgressToAppsScriptWebhook(
 
     const bodyPayload = {
       sheet_name: payload.sheet_name || 'Log_Titipan',
-      sheet: payload.sheet_name || 'Log_Titipan',
       action: 'insert',
+      kode_tracking: payload.tracking_code,
+      nama_customer: payload.customer_name,
+      tgl_catatan: payload.record_date,
+      bobot: Number(payload.weight ?? payload.current_weight ?? 0),
+      kesehatan: payload.health_status,
+      catatan: payload.notes ? payload.notes.trim() : '-',
+      url_photo: payload.photo_url || payload.media_url || '',
+      // Compatibility aliases
+      sheet: payload.sheet_name || 'Log_Titipan',
       type: payload.type || 'titipan_log',
       tracking_code: payload.tracking_code,
       code: payload.tracking_code,
