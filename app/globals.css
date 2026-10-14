@@ -2,19 +2,40 @@
 
 @theme {
   --font-sans: var(--font-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --color-primary: #065F46;
-  --color-primary-hover: #044e39;
-  --color-accent: #10B981;
-  --color-surface: #FDFBF7;
+  
+  /* Sage Green Custom Palette (.cursorrules) */
+  --color-primary: #89A482;
+  --color-primary-hover: #758E6F;
+  --color-primary-dark: #5C6F57;
+  --color-primary-light: #B1C5AA;
+  --color-primary-soft: #D9E5D6;
+  --color-primary-bg: #EBF2E8;
+
+  --color-sage: #89A482;
+  --color-sage-dark: #5C6F57;
+  --color-sage-light: #B1C5AA;
+  --color-sage-soft: #D9E5D6;
+  --color-sage-bg: #EBF2E8;
+
+  --color-accent: #5C6F57;
+  --color-accent-dark: #485844;
+  --color-accent-light: #B1C5AA;
+  
+  --color-surface: #FFFFFF;
 }
 
 :root {
-  --background: #FDFBF7;
+  --background: #EBF2E8;
   --foreground: #1E293B;
+  --primary: #89A482;
+  --primary-dark: #5C6F57;
+  --primary-light: #B1C5AA;
+  --primary-soft: #D9E5D6;
+  --primary-bg: #EBF2E8;
 }
 
 body {
-  background-color: #FDFBF7;
+  background-color: #EBF2E8;
   color: #1E293B;
   font-family: var(--font-sans);
 }

@@ -13,7 +13,8 @@ export const metadata: Metadata = {
   description:
     'Platform pemantauan perkembangan hewan ternak, manajemen penitipan qurban, dan rekam medis terpadu Kandang Kang Iky.',
   icons: {
-    icon: '/favicon.ico',
+    icon: '/logo.jpg',
+    apple: '/logo.jpg',
   },
 }
 

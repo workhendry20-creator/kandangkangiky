@@ -1,6 +1,5 @@
 'use client'
 
-import React from 'react'
 import {
   ResponsiveContainer,
   LineChart,
@@ -27,6 +26,7 @@ interface WeightChartProps {
   logs: Array<{
     record_date: string
     current_weight: number
+    created_at?: string
   }>
 }
 
@@ -75,10 +75,15 @@ export function WeightChart({
   entryDate,
   logs,
 }: WeightChartProps) {
-  // Build chart points from entry date + chronological logs
-  const sortedLogs = [...logs].sort(
-    (a, b) => new Date(a.record_date).getTime() - new Date(b.record_date).getTime()
-  )
+  // Build chart points from entry date + chronological logs (ASC: lama ke baru)
+  const sortedLogs = [...logs].sort((a, b) => {
+    const dateDiff =
+      new Date(a.record_date).getTime() - new Date(b.record_date).getTime()
+    if (dateDiff !== 0) return dateDiff
+    const aCreated = a.created_at ? new Date(a.created_at).getTime() : 0
+    const bCreated = b.created_at ? new Date(b.created_at).getTime() : 0
+    return aCreated - bCreated
+  })
 
   const data: ChartDataPoint[] = []
 
@@ -90,12 +95,13 @@ export function WeightChart({
     targetWeight: targetWeight,
   })
 
-  // Subsequent points from logs
+  // Subsequent points from logs: membaca bobot riil pada setiap titik penimbangan
   sortedLogs.forEach((log) => {
+    const logWeight = Number(log.current_weight) || initialWeight
     data.push({
       rawDate: log.record_date,
       date: formatDate(log.record_date),
-      actualWeight: Number(log.current_weight),
+      actualWeight: logWeight,
       targetWeight: targetWeight,
     })
   })
@@ -104,7 +110,7 @@ export function WeightChart({
   const allWeights = [
     initialWeight,
     targetWeight,
-    ...sortedLogs.map((l) => Number(l.current_weight)),
+    ...data.map((d) => d.actualWeight).filter((w): w is number => w !== null),
   ]
   const minWeight = Math.max(0, Math.floor(Math.min(...allWeights) - 2))
   const maxWeight = Math.ceil(Math.max(...allWeights) + 3)
@@ -151,15 +157,15 @@ export function WeightChart({
               dot={false}
               activeDot={{ r: 4 }}
             />
-            {/* Actual Weight Curve (Solid Emerald) */}
+            {/* Actual Weight Curve (Solid Sage Green) */}
             <Line
               type="monotone"
               dataKey="actualWeight"
               name="Bobot Real (kg)"
-              stroke="#065F46"
+              stroke="#5C6F57"
               strokeWidth={3}
-              dot={{ r: 4, fill: '#065F46', stroke: '#FFFFFF', strokeWidth: 2 }}
-              activeDot={{ r: 6, fill: '#10B981', stroke: '#FFFFFF', strokeWidth: 2 }}
+              dot={{ r: 4, fill: '#5C6F57', stroke: '#FFFFFF', strokeWidth: 2 }}
+              activeDot={{ r: 6, fill: '#89A482', stroke: '#FFFFFF', strokeWidth: 2 }}
             />
           </LineChart>
         </ResponsiveContainer>
@@ -167,7 +173,7 @@ export function WeightChart({
 
       <div className="mt-3 pt-3 border-t border-stone-100 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
         <span className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-800" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#5C6F57]" />
           <span>Titik Timbang Real</span>
         </span>
         <span className="flex items-center gap-1.5">

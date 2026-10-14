@@ -93,3 +93,87 @@ CREATE POLICY "Authenticated upload sheep-media"
     ON storage.objects FOR INSERT
     TO authenticated
     WITH CHECK (bucket_id = 'sheep-media');
+
+-- ==========================================
+-- 5. TABEL FARM_SHEEP (Inventaris Internal Kandang)
+-- ==========================================
+CREATE TABLE IF NOT EXISTS public.farm_sheep (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    tag_code VARCHAR(30) UNIQUE NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    gender VARCHAR(10) NOT NULL CHECK (gender IN ('Jantan', 'Betina')),
+    breed VARCHAR(50) NOT NULL,
+    origin VARCHAR(20) NOT NULL DEFAULT 'Beli' CHECK (origin IN ('Beli', 'Beranak')),
+    entry_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    initial_weight NUMERIC(5,2) NOT NULL,
+    current_weight NUMERIC(5,2),
+    status VARCHAR(30) NOT NULL DEFAULT 'Kosongan' CHECK (status IN ('Hamil', 'Kosongan', 'Menyusui', 'Kosongan/Menyusui', 'Pemacek', 'Siap Kawin', 'Sehat', 'Afkir', 'Terjual')),
+    sheep_type VARCHAR(20) NOT NULL CHECK (sheep_type IN ('Pejantan', 'Indukan', 'Anakan')),
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_farm_sheep_tag_code ON public.farm_sheep(tag_code);
+CREATE INDEX IF NOT EXISTS idx_farm_sheep_sheep_type ON public.farm_sheep(sheep_type);
+
+-- ==========================================
+-- 6. TABEL FARM_EVENTS (Catatan Kelahiran & Rekam Medis)
+-- ==========================================
+CREATE TABLE IF NOT EXISTS public.farm_events (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    sheep_id UUID REFERENCES public.farm_sheep(id) ON DELETE CASCADE NOT NULL,
+    event_type VARCHAR(20) NOT NULL CHECK (event_type IN ('Kelahiran', 'Tindakan')),
+    event_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    lamb_count INT,
+    action_name VARCHAR(100),
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_farm_events_sheep_id ON public.farm_events(sheep_id);
+CREATE INDEX IF NOT EXISTS idx_farm_events_type ON public.farm_events(event_type);
+
+-- RLS for farm_sheep and farm_events
+ALTER TABLE public.farm_sheep ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.farm_events ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public read access on farm_sheep"
+    ON public.farm_sheep FOR SELECT
+    TO anon, authenticated
+    USING (true);
+
+CREATE POLICY "Allow authenticated insert on farm_sheep"
+    ON public.farm_sheep FOR INSERT
+    TO authenticated
+    WITH CHECK (true);
+
+CREATE POLICY "Allow authenticated update on farm_sheep"
+    ON public.farm_sheep FOR UPDATE
+    TO authenticated
+    USING (true);
+
+CREATE POLICY "Allow authenticated delete on farm_sheep"
+    ON public.farm_sheep FOR DELETE
+    TO authenticated
+    WITH CHECK (true);
+
+CREATE POLICY "Allow public read access on farm_events"
+    ON public.farm_events FOR SELECT
+    TO anon, authenticated
+    USING (true);
+
+CREATE POLICY "Allow authenticated insert on farm_events"
+    ON public.farm_events FOR INSERT
+    TO authenticated
+    WITH CHECK (true);
+
+CREATE POLICY "Allow authenticated update on farm_events"
+    ON public.farm_events FOR UPDATE
+    TO authenticated
+    USING (true);
+
+CREATE POLICY "Allow authenticated delete on farm_events"
+    ON public.farm_events FOR DELETE
+    TO authenticated
+    WITH CHECK (true);
+

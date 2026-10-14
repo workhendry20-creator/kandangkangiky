@@ -1,9 +1,9 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
+import { requireAdminSession } from '@/lib/auth'
 import {
   appendProgressRowToSheet,
-  syncProgressToAppsScriptWebhook,
 } from '@/lib/google-sheets'
 import { revalidatePath } from 'next/cache'
 import type { ProgressLog } from '@/types/sheep'
@@ -28,22 +28,21 @@ export async function createProgressLog(
   formData: FormData
 ): Promise<ProgressActionResult> {
   try {
-    const supabase = await createClient()
-
     // 0. Verify authenticated admin
-    const { data: authData } = await supabase.auth.getUser()
-    if (!authData?.user) {
+    const adminSession = await requireAdminSession()
+    if (!adminSession) {
       return {
         success: false,
         error: 'Sesi admin telah berakhir. Silakan login kembali.',
       }
     }
 
+    const supabase = createAdminClient()
+
     // 1. Extract and validate fields
     const sheepId = formData.get('sheep_id') as string
     const updateType = (formData.get('update_type') as string) || 'Mingguan'
     const recordDate = (formData.get('record_date') as string) || new Date().toISOString().split('T')[0]
-    const currentWeightStr = formData.get('current_weight') as string
     const healthStatus = (formData.get('health_status') as string) || 'Sehat'
     const notes = (formData.get('notes') as string) || null
     const mediaFile = formData.get('media') as File | null
@@ -52,20 +51,63 @@ export async function createProgressLog(
       return { success: false, error: 'ID domba tidak valid.' }
     }
 
-    const currentWeight = parseFloat(currentWeightStr)
-    if (isNaN(currentWeight) || currentWeight <= 0) {
-      return { success: false, error: 'Bobot saat ini harus berupa angka lebih dari 0 kg.' }
-    }
-
-    // 2. Fetch sheep record to obtain tracking_code and customer_name
+    // 2. Fetch sheep record to obtain tracking_code, customer_name, and initial_weight
     const { data: sheep, error: sheepError } = await supabase
       .from('sheep')
-      .select('id, tracking_code, customer_name')
+      .select('id, tracking_code, customer_name, initial_weight, current_weight')
       .eq('id', sheepId)
       .single()
 
     if (sheepError || !sheep) {
       return { success: false, error: 'Data domba tidak ditemukan di sistem.' }
+    }
+
+    // Ambil log progress domba terakhir (atau initial_weight jika belum ada log)
+    const { data: latestLogs } = await supabase
+      .from('progress_logs')
+      .select('current_weight, record_date, created_at')
+      .eq('sheep_id', sheepId)
+      .order('record_date', { ascending: false })
+      .order('created_at', { ascending: false })
+      .limit(1)
+
+    const initialWeight = Number(sheep.initial_weight) || 0
+    let latestWeight = initialWeight
+
+    if (
+      latestLogs &&
+      latestLogs.length > 0 &&
+      latestLogs[0].current_weight !== null &&
+      latestLogs[0].current_weight !== undefined
+    ) {
+      latestWeight = Number(latestLogs[0].current_weight)
+    } else if (sheep.current_weight !== null && sheep.current_weight !== undefined) {
+      latestWeight = Number(sheep.current_weight)
+    }
+
+    // Ambil nilai delta input (misal: 0, 0.5, 1.0)
+    const deltaStr = (formData.get('delta_input') ?? formData.get('delta_weight')) as string | null
+    let deltaInput = 0
+    if (deltaStr !== null && deltaStr !== undefined && deltaStr.trim() !== '') {
+      deltaInput = parseFloat(deltaStr)
+      if (isNaN(deltaInput)) {
+        return { success: false, error: 'Input penambahan bobot tidak valid.' }
+      }
+    } else {
+      // Fallback jika dikirim via current_weight langsung
+      const cwStr = formData.get('current_weight') as string | null
+      if (cwStr !== null && cwStr !== undefined && cwStr.trim() !== '') {
+        const directCw = parseFloat(cwStr)
+        if (!isNaN(directCw)) {
+          deltaInput = directCw - latestWeight
+        }
+      }
+    }
+
+    // Hitung weight_to_save = latest_weight + delta_input
+    const weightToSave = Math.round((latestWeight + deltaInput) * 10) / 10
+    if (weightToSave <= 0) {
+      return { success: false, error: 'Bobot terbaru tidak boleh kurang dari atau sama dengan 0 kg.' }
     }
 
     // 3. Upload media file to Supabase Storage bucket 'sheep-media' if provided
@@ -99,14 +141,14 @@ export async function createProgressLog(
       }
     }
 
-    // 4. Insert record into Supabase progress_logs table
+    // 4. Insert record into Supabase progress_logs table with weight_to_save
     const { data: logData, error: logError } = await supabase
       .from('progress_logs')
       .insert({
         sheep_id: sheepId,
         update_type: updateType,
         record_date: recordDate,
-        current_weight: currentWeight,
+        current_weight: weightToSave,
         health_status: healthStatus,
         notes: notes,
         media_url: mediaUrl,
@@ -121,50 +163,66 @@ export async function createProgressLog(
       }
     }
 
-    // 4b. Update latest current_weight on the sheep record in Supabase
+    // 4b. Update kolom current_weight pada tabel sheep dengan weight_to_save
     const { error: updateSheepError } = await supabase
       .from('sheep')
-      .update({ current_weight: currentWeight })
+      .update({ current_weight: weightToSave })
       .eq('id', sheepId)
 
     if (updateSheepError) {
       console.warn('Gagal memperbarui current_weight pada tabel sheep:', updateSheepError.message)
     }
 
-    // 5. Append row to Google Sheets and/or Apps Script Webhook simultaneously (non-blocking)
+    // 5. POST ke Google Apps Script Webhook (Sheet: Log_Titipan) secara non-blocking
     let sheetsSynced = false
+    try {
+      const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL?.replace(/^hhttps:\/\//, 'https://').trim()
+      if (webhookUrl) {
+        const payloadJson = {
+          sheet_name: 'Log_Titipan',
+          type: 'titipan_log',
+          tracking_code: sheep.tracking_code,
+          customer_name: sheep.customer_name,
+          record_date: recordDate,
+          weight: weightToSave,
+          health_status: healthStatus,
+          notes: notes,
+          photo_url: mediaUrl || '',
+        }
 
-    // A. Direct Google Sheets API v4
+        const res = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payloadJson),
+        })
+
+        if (res.ok) {
+          sheetsSynced = true
+        } else {
+          console.warn('[Progress Webhook Warning]:', res.statusText || `HTTP ${res.status}`)
+        }
+      }
+    } catch (sheetErr) {
+      console.warn('[Progress] Apps Script sync non-blocking error:', sheetErr)
+    }
+
+    // Direct Google Sheets API v4 fallback (non-blocking)
     try {
       const sheetRes = await appendProgressRowToSheet({
         trackingCode: sheep.tracking_code,
         customerName: sheep.customer_name,
         recordDate: recordDate,
         updateType: updateType,
-        currentWeight: currentWeight,
+        currentWeight: weightToSave,
         healthStatus: healthStatus,
         notes: notes,
         mediaUrl: mediaUrl,
       })
       if (sheetRes.success) sheetsSynced = true
     } catch (sheetCatchErr) {
-      console.warn('Gagal sinkronisasi Google Sheets:', sheetCatchErr)
-    }
-
-    // B. Google Apps Script Webhook
-    try {
-      const webhookRes = await syncProgressToAppsScriptWebhook({
-        tracking_code: sheep.tracking_code,
-        customer_name: sheep.customer_name,
-        record_date: recordDate,
-        current_weight: currentWeight,
-        health_status: healthStatus,
-        notes: notes,
-        media_url: mediaUrl,
-      })
-      if (webhookRes.success) sheetsSynced = true
-    } catch (webhookCatchErr) {
-      console.warn('Gagal sinkronisasi Apps Script Webhook:', webhookCatchErr)
+      console.warn('[Sync Sheets Warning] Failed to sync progress to Google Sheets:', sheetCatchErr)
     }
 
     // 6. Revalidate relevant paths
@@ -183,5 +241,106 @@ export async function createProgressLog(
     const errorMsg =
       err instanceof Error ? err.message : 'Terjadi kendala server saat menyimpan progress.'
     return { success: false, error: errorMsg }
+  }
+}
+
+/**
+ * Server Action to sync all titipan progress logs to Google Sheets (Log_Titipan)
+ */
+export async function syncAllProgressLogsToSheets(): Promise<{
+  success: boolean
+  message: string
+  syncedCount?: number
+  error?: string
+}> {
+  try {
+    const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL?.replace(/^hhttps:\/\//, 'https://').trim()
+    if (!webhookUrl) {
+      return {
+        success: false,
+        message: 'URL Google Apps Script belum terkonfigurasi di server (GOOGLE_APPS_SCRIPT_URL).',
+        error: 'GOOGLE_APPS_SCRIPT_URL not configured',
+      }
+    }
+
+    const adminSession = await requireAdminSession()
+    if (!adminSession) {
+      return {
+        success: false,
+        message: 'Sesi admin telah berakhir. Silakan login kembali.',
+        error: 'Unauthorized',
+      }
+    }
+
+    const supabase = createAdminClient()
+
+    // Ambil seluruh log progress beserta info dombanya
+    const { data: logs, error: logsErr } = await supabase
+      .from('progress_logs')
+      .select(`
+        id,
+        record_date,
+        current_weight,
+        health_status,
+        notes,
+        media_url,
+        sheep:sheep_id (
+          tracking_code,
+          customer_name,
+          initial_weight
+        )
+      `)
+      .order('record_date', { ascending: true })
+      .order('created_at', { ascending: true })
+
+    if (logsErr) {
+      return {
+        success: false,
+        message: `Gagal mengambil log progress: ${logsErr.message}`,
+        error: logsErr.message,
+      }
+    }
+
+    let syncedCount = 0
+    for (const log of logs || []) {
+      const sheepInfo = Array.isArray(log.sheep) ? log.sheep[0] : log.sheep
+      const trackingCode = (sheepInfo as { tracking_code?: string })?.tracking_code || '-'
+      const customerName = (sheepInfo as { customer_name?: string })?.customer_name || '-'
+      const weightVal = Number(log.current_weight) || 0
+
+      const payload = {
+        sheet_name: 'Log_Titipan',
+        type: 'titipan_log',
+        tracking_code: trackingCode,
+        customer_name: customerName,
+        record_date: log.record_date,
+        weight: weightVal,
+        health_status: log.health_status,
+        notes: log.notes || '',
+        photo_url: log.media_url || '',
+      }
+
+      try {
+        const res = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+        if (res.ok) {
+          syncedCount++
+        }
+      } catch (err) {
+        console.warn(`[SyncAllProgress] Gagal sync log ${log.id}:`, err)
+      }
+    }
+
+    return {
+      success: true,
+      message: `Berhasil menyinkronkan ${syncedCount} log progress titipan ke Google Sheets!`,
+      syncedCount,
+    }
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : 'Terjadi kesalahan sinkronisasi.'
+    return { success: false, message: errorMsg, error: errorMsg }
   }
 }

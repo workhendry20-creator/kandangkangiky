@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
@@ -25,13 +26,20 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FDFBF7] text-slate-800">
+    <div className="min-h-screen flex flex-col bg-[#EBF2E8] text-slate-800">
       {/* Navigation Header */}
-      <header className="sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md border-b border-stone-200/80">
+      <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-[#B1C5AA]/40 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-800 text-white font-bold shadow-md shadow-emerald-800/20">
-              <span className="text-xl">🐑</span>
+            <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-white shadow-xs ring-1 ring-[#5C6F57]/20 shrink-0">
+              <Image
+                src="/logo.jpg"
+                alt="Kandang Kang Iky"
+                width={40}
+                height={40}
+                className="w-full h-full object-cover"
+                priority
+              />
             </div>
             <div>
               <span className="font-extrabold text-lg text-slate-900 tracking-tight">
@@ -46,7 +54,7 @@ export default function HomePage() {
           <div className="flex items-center gap-3">
             <Link
               href="/admin/login"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs sm:text-sm font-semibold shadow-sm transition-all"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#5C6F57] hover:bg-[#485844] text-white text-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer"
             >
               <Lock className="w-3.5 h-3.5" />
               <span>Login Admin</span>
@@ -56,16 +64,16 @@ export default function HomePage() {
       </header>
 
       {/* Main Hero Section */}
-      <main className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+      <main className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-12 sm:py-20">
         <div className="max-w-3xl w-full text-center space-y-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold border border-emerald-100 shadow-xs">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#D9E5D6] text-[#5C6F57] text-xs font-semibold border border-[#B1C5AA]/40 shadow-xs">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Transparan, Terukur & Terawat Hingga Iduladha</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
             Pantau Perkembangan Domba Titipan Anda Secara{' '}
-            <span className="text-emerald-800 underline decoration-emerald-300 decoration-wavy decoration-2">
+            <span className="text-[#5C6F57] underline decoration-[#B1C5AA] decoration-wavy decoration-2">
               Real-Time
             </span>
           </h1>
@@ -75,10 +83,10 @@ export default function HomePage() {
           </p>
 
           {/* Central Search Card */}
-          <div className="pt-4 max-w-xl mx-auto">
+          <div className="pt-4 max-w-xl mx-auto w-full">
             <form
               onSubmit={handleSearch}
-              className="p-2 sm:p-2.5 rounded-2xl bg-white border border-stone-200/90 shadow-xl shadow-stone-200/50 flex flex-col sm:flex-row items-center gap-2"
+              className="p-2 sm:p-2.5 rounded-2xl bg-white border border-[#B1C5AA]/40 shadow-xs flex flex-col sm:flex-row items-center gap-2"
             >
               <div className="relative flex-1 w-full">
                 <Search className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
@@ -94,21 +102,21 @@ export default function HomePage() {
               <button
                 type="submit"
                 id="btnTrackSheep"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-sm font-semibold shadow-md shadow-emerald-800/20 transition-all cursor-pointer shrink-0"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#5C6F57] hover:bg-[#485844] text-white text-sm font-semibold shadow-xs transition-all cursor-pointer shrink-0"
               >
                 <span>Lacak Ternak</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </form>
-            <p className="text-xs text-slate-400 mt-2.5 text-center">
+            <p className="text-xs text-slate-500 mt-2.5 text-center">
               Masukkan kode tracking 8-9 karakter pada kwitansi penitipan Anda.
             </p>
           </div>
 
           {/* 3 Value Highlights */}
-          <div className="pt-12 grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
-            <div className="p-5 rounded-2xl bg-white border border-stone-200/80 shadow-xs space-y-2">
-              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center">
+          <div className="pt-10 grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
+            <div className="p-5 rounded-2xl bg-white border border-[#B1C5AA]/40 shadow-xs space-y-2">
+              <div className="w-9 h-9 rounded-xl bg-[#EBF2E8] text-[#5C6F57] flex items-center justify-center">
                 <TrendingUp className="w-5 h-5" />
               </div>
               <h3 className="font-bold text-sm text-slate-900">
@@ -119,8 +127,8 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-white border border-stone-200/80 shadow-xs space-y-2">
-              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center">
+            <div className="p-5 rounded-2xl bg-white border border-[#B1C5AA]/40 shadow-xs space-y-2">
+              <div className="w-9 h-9 rounded-xl bg-[#EBF2E8] text-[#5C6F57] flex items-center justify-center">
                 <HeartPulse className="w-5 h-5" />
               </div>
               <h3 className="font-bold text-sm text-slate-900">
@@ -131,8 +139,8 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-white border border-stone-200/80 shadow-xs space-y-2">
-              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center">
+            <div className="p-5 rounded-2xl bg-white border border-[#B1C5AA]/40 shadow-xs space-y-2">
+              <div className="w-9 h-9 rounded-xl bg-[#EBF2E8] text-[#5C6F57] flex items-center justify-center">
                 <Activity className="w-5 h-5" />
               </div>
               <h3 className="font-bold text-sm text-slate-900">
@@ -147,13 +155,13 @@ export default function HomePage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-stone-200 bg-white py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+      <footer className="border-t border-[#B1C5AA]/40 bg-white py-6 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <div>
             © 2026 Kandang Kang Iky. Hak cipta dilindungi.
           </div>
           <div className="flex items-center gap-4 text-slate-500">
-            <Link href="/admin/login" className="hover:text-emerald-800">
+            <Link href="/admin/login" className="hover:text-[#5C6F57] transition-colors">
               Admin Console
             </Link>
             <span>•</span>
