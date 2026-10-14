@@ -64,12 +64,12 @@ function LoginContent() {
   }
 
   return (
-    <div className="w-full max-w-md">
+    <div className="w-full max-w-md mx-auto">
       {/* Back to Home Button */}
       <div className="mb-6">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-emerald-800 transition-colors"
+          className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-[#5C6F57] transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Kembali ke Beranda Utama</span>
@@ -77,14 +77,13 @@ function LoginContent() {
       </div>
 
       {/* Main Card */}
-      <div className="relative overflow-hidden rounded-3xl bg-white border border-stone-200/90 shadow-xl shadow-stone-200/50 p-8 sm:p-10 transition-all">
+      <div className="relative overflow-hidden rounded-3xl bg-white border border-[#B1C5AA]/40 shadow-xs p-6 sm:p-8 lg:p-10 transition-all">
         {/* Subtle Ambient Decorative Glow */}
-        <div className="absolute -right-16 -top-16 w-44 h-44 bg-emerald-100/60 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -left-16 -bottom-16 w-44 h-44 bg-amber-100/50 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -right-16 -top-16 w-44 h-44 bg-[#D9E5D6]/50 rounded-full blur-3xl pointer-events-none" />
 
         {/* Brand Header */}
         <div className="relative text-center mb-8">
-          <div className="relative inline-flex items-center justify-center w-20 h-20 rounded-2xl overflow-hidden bg-white shadow-lg shadow-emerald-800/10 mb-4 ring-4 ring-emerald-100 shrink-0">
+          <div className="relative inline-flex items-center justify-center w-20 h-20 rounded-2xl overflow-hidden bg-white shadow-xs mb-4 ring-2 ring-[#5C6F57]/20 shrink-0">
             <Image
               src="/logo.jpg"
               alt="Kandang Kang Iky"
@@ -95,7 +94,7 @@ function LoginContent() {
             />
           </div>
 
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold uppercase tracking-wider mb-2 border border-emerald-100">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D9E5D6] text-[#5C6F57] text-xs font-semibold uppercase tracking-wider mb-2 border border-[#B1C5AA]/40">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Admin Console</span>
           </div>
@@ -145,7 +144,7 @@ function LoginContent() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Contoh: admin"
-                className="w-full pl-10 pr-4 py-3 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 transition-all shadow-xs"
+                className="w-full pl-10 pr-4 py-3 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57] transition-all shadow-xs"
               />
             </div>
           </div>
@@ -169,7 +168,7 @@ function LoginContent() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-11 py-3 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 transition-all shadow-xs"
+                className="w-full pl-10 pr-11 py-3 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57] transition-all shadow-xs"
               />
               <button
                 type="button"
@@ -191,7 +190,7 @@ function LoginContent() {
             type="submit"
             id="btnLoginSubmit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 active:scale-[0.99] text-white font-semibold text-sm shadow-md shadow-emerald-800/20 transition-all hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed group cursor-pointer mt-2"
+            className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-[#5C6F57] hover:bg-[#485844] active:scale-[0.99] text-white font-semibold text-sm shadow-xs transition-all disabled:opacity-60 disabled:cursor-not-allowed group cursor-pointer mt-2"
           >
             {loading ? (
               <div className="flex items-center gap-2">
@@ -227,14 +226,14 @@ function LoginContent() {
         </form>
 
         {/* Security Footer */}
-        <div className="mt-8 pt-6 border-t border-stone-100 flex items-center justify-center gap-2 text-xs text-slate-400">
-          <ShieldCheck className="w-4 h-4 text-emerald-700" />
+        <div className="mt-8 pt-6 border-t border-stone-100 flex items-center justify-center gap-2 text-xs text-slate-500">
+          <ShieldCheck className="w-4 h-4 text-[#5C6F57]" />
           <span>Autentikasi terenkripsi via Supabase Auth</span>
         </div>
       </div>
 
       {/* Footer Info */}
-      <div className="mt-6 text-center text-xs text-slate-400">
+      <div className="mt-6 text-center text-xs text-slate-500">
         © 2026 Kandang Kang Iky. Hak Cipta Dilindungi.
       </div>
     </div>
@@ -243,10 +242,10 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-[#FDFBF7]">
+    <main className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-[#EBF2E8]">
       <Suspense
         fallback={
-          <div className="w-full max-w-md p-10 bg-white rounded-3xl border border-stone-200 text-center text-sm text-slate-500">
+          <div className="w-full max-w-md p-10 bg-white rounded-3xl border border-[#B1C5AA]/40 text-center text-sm text-slate-500">
             Memuat halaman login...
           </div>
         }

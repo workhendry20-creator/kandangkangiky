@@ -118,7 +118,7 @@ export function NewSheepForm({
     <div className="min-h-screen bg-[#EBF2E8] flex flex-col text-slate-800">
       {/* Top Header Navigation */}
       <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-[#B1C5AA]/40 shadow-xs">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 h-18 flex items-center justify-between gap-4">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between gap-4">
           <Link
             href="/admin/dashboard"
             className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-600 hover:text-[#5C6F57] transition-colors p-2 -ml-2 rounded-xl hover:bg-[#EBF2E8]/60"
@@ -145,7 +145,7 @@ export function NewSheepForm({
       </header>
 
       {/* Main Form Container */}
-      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-8">
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-6">
           {/* Header Title */}
           <div className="space-y-2">

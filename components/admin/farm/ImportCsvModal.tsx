@@ -358,8 +358,8 @@ export function ImportCsvModal({
                 Siap Diimpor
               </span>
             </div>
-            <div className="border border-stone-200 rounded-xl overflow-hidden max-h-48 overflow-y-auto">
-              <table className="w-full text-left text-xs">
+            <div className="border border-stone-200 rounded-xl overflow-hidden max-h-48 overflow-y-auto overflow-x-auto overscroll-x-contain">
+              <table className="w-full text-left text-xs min-w-[500px]">
                 <thead className="bg-[#EBF2E8]/60 text-[#5C6F57] font-bold sticky top-0 border-b border-[#B1C5AA]/30">
                   <tr>
                     <th className="p-2">Tag</th>
