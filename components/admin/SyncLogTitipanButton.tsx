@@ -8,11 +8,13 @@ import { RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react'
 interface SyncLogTitipanButtonProps {
   className?: string
   size?: 'sm' | 'md'
+  iconOnly?: boolean
 }
 
 export function SyncLogTitipanButton({
   className = '',
   size = 'sm',
+  iconOnly = true,
 }: SyncLogTitipanButtonProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -62,17 +64,30 @@ export function SyncLogTitipanButton({
         id="btnSyncLogTitipan"
         onClick={handleSync}
         disabled={isPending}
-        title="Sinkronisasi seluruh riwayat perkembangan domba titipan ke Google Sheets (Log_Titipan)"
-        className={`inline-flex items-center gap-1.5 rounded-xl border border-[#B1C5AA] bg-[#EBF2E8] hover:bg-[#D9E5D6] text-[#5C6F57] font-semibold shadow-xs transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
-          isSmall ? 'px-3 py-2 text-xs' : 'px-3.5 py-2.5 text-xs sm:text-sm'
+        aria-label="Sinkronisasi seluruh log progress ke Google Sheets"
+        title={
+          isPending
+            ? 'Sedang menyinkronkan seluruh log progress...'
+            : 'Sinkronkan seluruh data log perkembangan ke Google Sheets (Log_Titipan)'
+        }
+        className={`inline-flex items-center justify-center rounded-xl border border-[#B1C5AA] bg-[#EBF2E8] hover:bg-[#D9E5D6] active:scale-[0.98] text-[#5C6F57] font-semibold shadow-xs transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
+          iconOnly
+            ? isSmall
+              ? 'w-9 h-9 p-2'
+              : 'w-10 h-10 p-2.5'
+            : isSmall
+            ? 'px-3 py-2 text-xs gap-1.5'
+            : 'px-3.5 py-2.5 text-xs sm:text-sm gap-1.5'
         } ${className}`}
       >
         <RefreshCw
-          className={`${isSmall ? 'w-3.5 h-3.5' : 'w-4 h-4'} text-[#5C6F57] ${
+          className={`${isSmall ? 'w-4 h-4' : 'w-4.5 h-4.5'} text-[#5C6F57] ${
             isPending ? 'animate-spin' : ''
           }`}
         />
-        <span>{isPending ? 'Menyinkronkan...' : '🔄 Sync Log Titipan'}</span>
+        {!iconOnly && (
+          <span>{isPending ? 'Menyinkronkan...' : 'Sync Log'}</span>
+        )}
       </button>
 
       {/* Floating feedback toast */}

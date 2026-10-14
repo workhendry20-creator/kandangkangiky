@@ -115,18 +115,20 @@ export function SheepTable({ initialSheep }: SheepTableProps) {
             </div>
           </div>
 
-          {/* Sync Log Titipan Sheets Action */}
-          <SyncLogTitipanButton size="sm" />
+          {/* Action Group: Tambah Domba & Sync Log Icon Button */}
+          <div className="flex items-center gap-2">
+            <Link
+              href="/admin/sheep/new"
+              id="btnAddNewSheepTop"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#5C6F57] hover:bg-[#485844] active:scale-[0.99] text-white text-xs sm:text-sm font-semibold shadow-xs transition-all"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Tambah Domba</span>
+            </Link>
 
-          {/* Add New Sheep Button */}
-          <Link
-            href="/admin/sheep/new"
-            id="btnAddNewSheepTop"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#5C6F57] hover:bg-[#485844] active:scale-[0.99] text-white text-xs sm:text-sm font-semibold shadow-xs transition-all"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Tambah Domba</span>
-          </Link>
+            {/* Sync Log Titipan Sheets Action (Ikon saja di sebelah Tambah Domba) */}
+            <SyncLogTitipanButton size="sm" iconOnly />
+          </div>
         </div>
       </div>
 
