@@ -3,6 +3,7 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import { requireAdminSession } from '@/lib/auth'
 import { generateTrackingCode } from '@/lib/utils'
+import { getGoogleSheetsWebhookUrl } from '@/lib/google-sheets'
 import { revalidatePath } from 'next/cache'
 import type { Sheep } from '@/types/sheep'
 
@@ -110,15 +111,79 @@ export async function createSheep(
           return { success: false, error: `Gagal menyimpan: ${retry.error.message}` }
         }
 
+        const finalSheep = retry.data as Sheep
+        // Non-blocking Google Sheets sync for new sheep
+        try {
+          const webhookUrl = getGoogleSheetsWebhookUrl()
+          if (webhookUrl) {
+            fetch(webhookUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                sheet_name: 'Master_Titipan',
+                sheet: 'Master_Titipan',
+                type: 'titipan_sheep',
+                action: 'create',
+                tracking_code: finalSheep.tracking_code,
+                code: finalSheep.tracking_code,
+                customer_name: finalSheep.customer_name,
+                customer_phone: finalSheep.customer_phone || '-',
+                breed: finalSheep.breed,
+                gender: finalSheep.gender,
+                initial_weight: finalSheep.initial_weight,
+                current_weight: finalSheep.current_weight,
+                target_weight: finalSheep.target_weight,
+                entry_date: finalSheep.entry_date,
+                status: finalSheep.status,
+              }),
+              redirect: 'follow',
+            }).catch((err) => console.warn('[Sheep Webhook Warning]:', err))
+          }
+        } catch (sheetErr) {
+          console.warn('[Sheep] Sheet sync error:', sheetErr)
+        }
+
         revalidatePath('/admin/dashboard')
         return {
           success: true,
           message: `Domba berhasil ditambahkan dengan kode ${retry.data.tracking_code}`,
-          data: retry.data as Sheep,
+          data: finalSheep,
         }
       }
 
       return { success: false, error: `Gagal menyimpan data: ${error.message}` }
+    }
+
+    const finalSheep = data as Sheep
+    // Non-blocking Google Sheets sync for new sheep
+    try {
+      const webhookUrl = getGoogleSheetsWebhookUrl()
+      if (webhookUrl) {
+        fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sheet_name: 'Master_Titipan',
+            sheet: 'Master_Titipan',
+            type: 'titipan_sheep',
+            action: 'create',
+            tracking_code: finalSheep.tracking_code,
+            code: finalSheep.tracking_code,
+            customer_name: finalSheep.customer_name,
+            customer_phone: finalSheep.customer_phone || '-',
+            breed: finalSheep.breed,
+            gender: finalSheep.gender,
+            initial_weight: finalSheep.initial_weight,
+            current_weight: finalSheep.current_weight,
+            target_weight: finalSheep.target_weight,
+            entry_date: finalSheep.entry_date,
+            status: finalSheep.status,
+          }),
+          redirect: 'follow',
+        }).catch((err) => console.warn('[Sheep Webhook Warning]:', err))
+      }
+    } catch (sheetErr) {
+      console.warn('[Sheep] Sheet sync error:', sheetErr)
     }
 
     // 4. Revalidate cache
@@ -127,7 +192,7 @@ export async function createSheep(
     return {
       success: true,
       message: `Domba berhasil ditambahkan dengan kode ${data.tracking_code}`,
-      data: data as Sheep,
+      data: finalSheep,
     }
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : 'Terjadi kendala tak terduga pada server.'

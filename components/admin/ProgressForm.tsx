@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import imageCompression from 'browser-image-compression'
 import { createProgressLog } from '@/lib/actions/progress'
+import { SyncLogTitipanButton } from './SyncLogTitipanButton'
 import { formatWeight, formatDate } from '@/lib/utils'
 import type { Sheep } from '@/types/sheep'
 import {
@@ -190,7 +191,8 @@ export function ProgressForm({ sheep, lastWeight }: ProgressFormProps) {
             <span>Dashboard</span>
           </Link>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            <SyncLogTitipanButton size="sm" />
             <div className="relative w-7 h-7 rounded-lg overflow-hidden shrink-0 shadow-xs ring-1 ring-[#B1C5AA]/50 bg-white">
               <Image
                 src="/logo.jpg"
@@ -200,7 +202,7 @@ export function ProgressForm({ sheep, lastWeight }: ProgressFormProps) {
                 className="w-full h-full object-cover"
               />
             </div>
-            <span className="font-bold text-sm sm:text-base text-slate-900 tracking-tight">
+            <span className="hidden sm:inline font-bold text-sm sm:text-base text-slate-900 tracking-tight">
               Input Progress Mobile
             </span>
           </div>

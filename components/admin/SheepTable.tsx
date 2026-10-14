@@ -16,6 +16,7 @@ import {
   X,
   Phone,
 } from 'lucide-react'
+import { SyncLogTitipanButton } from './SyncLogTitipanButton'
 
 interface SheepTableProps {
   initialSheep: Sheep[]
@@ -113,6 +114,9 @@ export function SheepTable({ initialSheep }: SheepTableProps) {
               </select>
             </div>
           </div>
+
+          {/* Sync Log Titipan Sheets Action */}
+          <SyncLogTitipanButton size="sm" />
 
           {/* Add New Sheep Button */}
           <Link

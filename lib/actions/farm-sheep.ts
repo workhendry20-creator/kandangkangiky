@@ -5,6 +5,7 @@ import { requireAdminSession } from '@/lib/auth'
 import {
   appendFarmSheepRowToSheet,
   appendFarmEventRowToSheet,
+  getGoogleSheetsWebhookUrl,
 } from '@/lib/google-sheets'
 import { syncAllProgressLogsToSheets } from '@/lib/actions/progress'
 import { revalidatePath } from 'next/cache'
@@ -321,7 +322,7 @@ export async function createFarmSheep(
     // Non-blocking Google Sheets / Apps Script Webhook sync
     let sheetsSynced = false
     try {
-      const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL?.replace(/^hhttps:\/\//, 'https://').trim()
+      const webhookUrl = getGoogleSheetsWebhookUrl()
       if (webhookUrl) {
         const payloadJson = {
           sheet_name: 'Master_Kandang',
@@ -502,7 +503,7 @@ export async function updateFarmSheep(
 
     // Non-blocking sync to Google Sheets
     try {
-      const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL
+      const webhookUrl = getGoogleSheetsWebhookUrl()
       if (webhookUrl) {
         fetch(webhookUrl, {
           method: 'POST',
@@ -569,7 +570,7 @@ export async function deleteFarmSheep(id: string): Promise<FarmActionResult> {
 
     // 3. Non-blocking delete sync to Google Sheets Webhook
     try {
-      const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL?.replace(/^hhttps:\/\//, 'https://').trim()
+      const webhookUrl = getGoogleSheetsWebhookUrl()
       if (webhookUrl && tagId) {
         await fetch(webhookUrl, {
           method: 'POST',
@@ -663,7 +664,7 @@ export async function importFarmSheepBulk(
 
         // Non-blocking sync to Google Sheets for bulk items
         try {
-          const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL
+          const webhookUrl = getGoogleSheetsWebhookUrl()
           if (webhookUrl) {
             fetch(webhookUrl, {
               method: 'POST',
@@ -792,7 +793,7 @@ export async function createFarmEvent(
     // 4. Non-blocking sync to Google Sheets & Apps Script
     let sheetsSynced = false
     try {
-      const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL?.replace(/^hhttps:\/\//, 'https://').trim()
+      const webhookUrl = getGoogleSheetsWebhookUrl()
       if (webhookUrl) {
         const payloadJson = {
           sheet_name: 'Kelahiran_Tindakan',
@@ -900,7 +901,7 @@ export async function deleteFarmEvent(id: string): Promise<FarmActionResult> {
 
     // 3. Non-blocking delete sync to Google Sheets Webhook
     try {
-      const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL?.replace(/^hhttps:\/\//, 'https://').trim()
+      const webhookUrl = getGoogleSheetsWebhookUrl()
       if (webhookUrl && tagId) {
         await fetch(webhookUrl, {
           method: 'POST',
@@ -935,12 +936,12 @@ export async function syncAllFarmDataToSheets(): Promise<{
   error?: string
 }> {
   try {
-    const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL?.replace(/^hhttps:\/\//, 'https://').trim()
+    const webhookUrl = getGoogleSheetsWebhookUrl()
     if (!webhookUrl) {
       return {
         success: false,
-        message: 'URL Google Apps Script belum terkonfigurasi di server (GOOGLE_APPS_SCRIPT_URL).',
-        error: 'GOOGLE_APPS_SCRIPT_URL is not configured',
+        message: 'URL Google Apps Script belum terkonfigurasi di server (GOOGLE_SHEETS_WEB_APP_URL atau GOOGLE_APPS_SCRIPT_URL).',
+        error: 'GOOGLE_SHEETS_WEB_APP_URL is not configured',
       }
     }
 
@@ -1106,12 +1107,12 @@ export async function fullSyncToSheets(): Promise<{
   error?: string
 }> {
   try {
-    const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL?.replace(/^hhttps:\/\//, 'https://').trim()
+    const webhookUrl = getGoogleSheetsWebhookUrl()
     if (!webhookUrl) {
       return {
         success: false,
-        message: 'URL Google Apps Script belum terkonfigurasi di server (GOOGLE_APPS_SCRIPT_URL).',
-        error: 'GOOGLE_APPS_SCRIPT_URL is not configured',
+        message: 'URL Google Apps Script belum terkonfigurasi di server (GOOGLE_SHEETS_WEB_APP_URL atau GOOGLE_APPS_SCRIPT_URL).',
+        error: 'GOOGLE_SHEETS_WEB_APP_URL is not configured',
       }
     }
 

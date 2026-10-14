@@ -98,7 +98,8 @@ Platform ini mengintegrasikan:
    - Input bobot fleksibel berbasis **Delta Penambahan (+kg)** atau **Total Bobot Baru**.
    - **Kompresi Gambar Otomatis**: Integrasi `browser-image-compression` untuk memperkecil ukuran foto dokumentasi hingga ~80% sebelum diunggah ke Supabase Storage, menghemat bandwidth dan mempercepat loading customer.
    - Perekaman status kesehatan (*Sehat*, *Dalam Perawatan*, *Sakit*) dan catatan ransum pakan.
-   - Sinkronisasi otomatis ke Google Sheets tab `Log_Titipan`.
+   - **Sinkronisasi Otomatis Google Sheets (`Log_Titipan`)**: Mengirim payload lengkap (dengan alias `sheet_name`, `sheet`, `tracking_code`, `code`, `tag_id`, `current_weight`, `delta_weight`, dll.) ke URL webhook Google Apps Script (`GOOGLE_SHEETS_WEB_APP_URL` / `GOOGLE_APPS_SCRIPT_URL`) dengan `redirect: 'follow'`.
+   - **Tombol Sync Manual Log Titipan (`components/admin/SyncLogTitipanButton.tsx`)**: Tombol sinkronisasi ringkas di tabel dashboard dan header form input progress untuk sinkronisasi massal seluruh log ke Google Sheets sewaktu-waktu.
 
 ---
 

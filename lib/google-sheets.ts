@@ -94,31 +94,53 @@ export async function appendProgressRowToSheet(
 }
 
 /**
+ * Helper to get Google Sheets / Apps Script Webhook URL
+ * Supports both GOOGLE_SHEETS_WEB_APP_URL and GOOGLE_APPS_SCRIPT_URL
+ */
+export function getGoogleSheetsWebhookUrl(): string | undefined {
+  const rawUrl =
+    process.env.GOOGLE_SHEETS_WEB_APP_URL ||
+    process.env.GOOGLE_APPS_SCRIPT_URL
+  if (!rawUrl) return undefined
+  return rawUrl.replace(/^hhttps:\/\//, 'https://').trim()
+}
+
+/**
  * Send POST request to Google Apps Script Webhook URL
- * (Non-blocking fallback when GOOGLE_APPS_SCRIPT_URL is provided)
+ * (Non-blocking fallback when GOOGLE_SHEETS_WEB_APP_URL or GOOGLE_APPS_SCRIPT_URL is provided)
  */
 export async function syncProgressToAppsScriptWebhook(
   payload: WebhookProgressPayload
 ): Promise<{ success: boolean; message?: string; error?: string }> {
   try {
-    const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL?.replace(/^hhttps:\/\//, 'https://').trim()
+    const webhookUrl = getGoogleSheetsWebhookUrl()
     if (!webhookUrl) {
       return {
         success: false,
-        error: 'GOOGLE_APPS_SCRIPT_URL not configured',
+        error: 'GOOGLE_SHEETS_WEB_APP_URL / GOOGLE_APPS_SCRIPT_URL not configured',
       }
     }
 
     const bodyPayload = {
       sheet_name: payload.sheet_name || 'Log_Titipan',
+      sheet: payload.sheet_name || 'Log_Titipan',
+      action: 'insert',
       type: payload.type || 'titipan_log',
       tracking_code: payload.tracking_code,
+      code: payload.tracking_code,
+      tag_id: payload.tracking_code,
       customer_name: payload.customer_name,
+      name: payload.customer_name,
       record_date: payload.record_date,
-      weight: payload.weight ?? payload.current_weight ?? 0,
+      date: payload.record_date,
+      weight: Number(payload.weight ?? payload.current_weight ?? 0),
+      current_weight: Number(payload.weight ?? payload.current_weight ?? 0),
       health_status: payload.health_status,
-      notes: payload.notes || '-',
+      status: payload.health_status,
+      notes: payload.notes ? payload.notes.trim() : '-',
+      keterangan: payload.notes ? payload.notes.trim() : '-',
       photo_url: payload.photo_url || payload.media_url || '',
+      media_url: payload.photo_url || payload.media_url || '',
     }
 
     const response = await fetch(webhookUrl, {
@@ -127,6 +149,7 @@ export async function syncProgressToAppsScriptWebhook(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(bodyPayload),
+      redirect: 'follow',
     })
 
     if (!response.ok) {
@@ -240,9 +263,9 @@ export async function syncFarmSheepToAppsScriptWebhook(
   payload: WebhookFarmSheepPayload
 ): Promise<{ success: boolean; message?: string; error?: string }> {
   try {
-    const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL
+    const webhookUrl = getGoogleSheetsWebhookUrl()
     if (!webhookUrl) {
-      return { success: false, error: 'GOOGLE_APPS_SCRIPT_URL not configured' }
+      return { success: false, error: 'GOOGLE_SHEETS_WEB_APP_URL / GOOGLE_APPS_SCRIPT_URL not configured' }
     }
 
     const response = await fetch(webhookUrl, {
@@ -253,6 +276,7 @@ export async function syncFarmSheepToAppsScriptWebhook(
         action: payload.action || 'UPSERT_FARM_SHEEP',
         ...payload,
       }),
+      redirect: 'follow',
     })
 
     if (!response.ok) {
@@ -329,9 +353,9 @@ export async function syncFarmEventToAppsScriptWebhook(
   payload: WebhookFarmEventPayload
 ): Promise<{ success: boolean; message?: string; error?: string }> {
   try {
-    const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL
+    const webhookUrl = getGoogleSheetsWebhookUrl()
     if (!webhookUrl) {
-      return { success: false, error: 'GOOGLE_APPS_SCRIPT_URL not configured' }
+      return { success: false, error: 'GOOGLE_SHEETS_WEB_APP_URL / GOOGLE_APPS_SCRIPT_URL not configured' }
     }
 
     const response = await fetch(webhookUrl, {
@@ -342,6 +366,7 @@ export async function syncFarmEventToAppsScriptWebhook(
         action: payload.action || 'RECORD_FARM_EVENT',
         ...payload,
       }),
+      redirect: 'follow',
     })
 
     if (!response.ok) {

@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/server'
 import { requireAdminSession } from '@/lib/auth'
 import {
   appendProgressRowToSheet,
+  getGoogleSheetsWebhookUrl,
 } from '@/lib/google-sheets'
 import { revalidatePath } from 'next/cache'
 import type { ProgressLog } from '@/types/sheep'
@@ -176,18 +177,31 @@ export async function createProgressLog(
     // 5. POST ke Google Apps Script Webhook (Sheet: Log_Titipan) secara non-blocking
     let sheetsSynced = false
     try {
-      const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL?.replace(/^hhttps:\/\//, 'https://').trim()
+      const webhookUrl = getGoogleSheetsWebhookUrl()
       if (webhookUrl) {
         const payloadJson = {
           sheet_name: 'Log_Titipan',
+          sheet: 'Log_Titipan',
           type: 'titipan_log',
+          action: 'insert',
           tracking_code: sheep.tracking_code,
+          code: sheep.tracking_code,
+          tag_id: sheep.tracking_code,
           customer_name: sheep.customer_name,
+          name: sheep.customer_name,
           record_date: recordDate,
-          weight: weightToSave,
+          date: recordDate,
+          update_type: updateType,
+          weight: Number(weightToSave),
+          current_weight: Number(weightToSave),
+          delta_weight: Number(deltaInput),
+          weight_gain: Number(deltaInput),
           health_status: healthStatus,
-          notes: notes,
+          status: healthStatus,
+          notes: notes ? notes.trim() : '-',
+          keterangan: notes ? notes.trim() : '-',
           photo_url: mediaUrl || '',
+          media_url: mediaUrl || '',
         }
 
         const res = await fetch(webhookUrl, {
@@ -196,33 +210,39 @@ export async function createProgressLog(
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(payloadJson),
+          redirect: 'follow',
         })
 
         if (res.ok) {
           sheetsSynced = true
         } else {
-          console.warn('[Progress Webhook Warning]:', res.statusText || `HTTP ${res.status}`)
+          const resText = await res.text().catch(() => '')
+          console.warn('[Progress Webhook Warning]:', res.status, resText || res.statusText)
         }
+      } else {
+        console.warn('[Progress] Google Sheets Webhook URL belum terkonfigurasi (GOOGLE_SHEETS_WEB_APP_URL atau GOOGLE_APPS_SCRIPT_URL)')
       }
     } catch (sheetErr) {
       console.warn('[Progress] Apps Script sync non-blocking error:', sheetErr)
     }
 
     // Direct Google Sheets API v4 fallback (non-blocking)
-    try {
-      const sheetRes = await appendProgressRowToSheet({
-        trackingCode: sheep.tracking_code,
-        customerName: sheep.customer_name,
-        recordDate: recordDate,
-        updateType: updateType,
-        currentWeight: weightToSave,
-        healthStatus: healthStatus,
-        notes: notes,
-        mediaUrl: mediaUrl,
-      })
-      if (sheetRes.success) sheetsSynced = true
-    } catch (sheetCatchErr) {
-      console.warn('[Sync Sheets Warning] Failed to sync progress to Google Sheets:', sheetCatchErr)
+    if (!sheetsSynced) {
+      try {
+        const sheetRes = await appendProgressRowToSheet({
+          trackingCode: sheep.tracking_code,
+          customerName: sheep.customer_name,
+          recordDate: recordDate,
+          updateType: updateType,
+          currentWeight: weightToSave,
+          healthStatus: healthStatus,
+          notes: notes,
+          mediaUrl: mediaUrl,
+        })
+        if (sheetRes.success) sheetsSynced = true
+      } catch (sheetCatchErr) {
+        console.warn('[Sync Sheets Warning] Failed to sync progress to Google Sheets:', sheetCatchErr)
+      }
     }
 
     // 6. Revalidate relevant paths
@@ -254,12 +274,12 @@ export async function syncAllProgressLogsToSheets(): Promise<{
   error?: string
 }> {
   try {
-    const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL?.replace(/^hhttps:\/\//, 'https://').trim()
+    const webhookUrl = getGoogleSheetsWebhookUrl()
     if (!webhookUrl) {
       return {
         success: false,
-        message: 'URL Google Apps Script belum terkonfigurasi di server (GOOGLE_APPS_SCRIPT_URL).',
-        error: 'GOOGLE_APPS_SCRIPT_URL not configured',
+        message: 'URL Google Apps Script belum terkonfigurasi di server (GOOGLE_SHEETS_WEB_APP_URL atau GOOGLE_APPS_SCRIPT_URL).',
+        error: 'GOOGLE_SHEETS_WEB_APP_URL not configured',
       }
     }
 
@@ -280,6 +300,7 @@ export async function syncAllProgressLogsToSheets(): Promise<{
       .select(`
         id,
         record_date,
+        update_type,
         current_weight,
         health_status,
         notes,
@@ -306,18 +327,33 @@ export async function syncAllProgressLogsToSheets(): Promise<{
       const sheepInfo = Array.isArray(log.sheep) ? log.sheep[0] : log.sheep
       const trackingCode = (sheepInfo as { tracking_code?: string })?.tracking_code || '-'
       const customerName = (sheepInfo as { customer_name?: string })?.customer_name || '-'
+      const initialWeight = Number((sheepInfo as { initial_weight?: number })?.initial_weight) || 0
       const weightVal = Number(log.current_weight) || 0
+      const deltaVal = Math.round((weightVal - initialWeight) * 10) / 10
 
       const payload = {
         sheet_name: 'Log_Titipan',
+        sheet: 'Log_Titipan',
         type: 'titipan_log',
+        action: 'insert',
         tracking_code: trackingCode,
+        code: trackingCode,
+        tag_id: trackingCode,
         customer_name: customerName,
+        name: customerName,
         record_date: log.record_date,
+        date: log.record_date,
+        update_type: (log as { update_type?: string })?.update_type || 'Mingguan',
         weight: weightVal,
+        current_weight: weightVal,
+        delta_weight: deltaVal,
+        weight_gain: deltaVal,
         health_status: log.health_status,
-        notes: log.notes || '',
+        status: log.health_status,
+        notes: log.notes ? log.notes.trim() : '-',
+        keterangan: log.notes ? log.notes.trim() : '-',
         photo_url: log.media_url || '',
+        media_url: log.media_url || '',
       }
 
       try {
@@ -325,6 +361,7 @@ export async function syncAllProgressLogsToSheets(): Promise<{
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
+          redirect: 'follow',
         })
         if (res.ok) {
           syncedCount++
