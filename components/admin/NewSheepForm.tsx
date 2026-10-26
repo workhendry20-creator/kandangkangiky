@@ -21,14 +21,11 @@ import {
 } from 'lucide-react'
 
 const BREED_OPTIONS = [
-  'Garut Super',
-  'Garut Adu',
-  'Merino Silang',
-  'Merino Murni',
-  'Dorper F1',
-  'Texel',
+  'Garut',
   'Priangan',
-  'Domba Ekor Gemuk (DEG)',
+  'Merino',
+  'Dorper',
+  'Cross Texel',
   'Lainnya',
 ]
 
@@ -69,7 +66,15 @@ export function NewSheepForm({
     setErrorMsg(null)
     setSuccessMsg(null)
 
-    const finalBreed = breed === 'Lainnya' ? (customBreed.trim() || 'Lainnya') : breed
+    if (breed === 'Lainnya') {
+      const trimmedCustom = customBreed.trim()
+      if (!trimmedCustom) {
+        setErrorMsg('Jenis domba wajib diisi jika memilih opsi Lainnya.')
+        return
+      }
+    }
+
+    const finalBreed = breed === 'Lainnya' ? customBreed.trim() : breed
 
     const initialNum = parseFloat(initialWeight)
     const targetNum = parseFloat(targetWeight)
@@ -293,7 +298,7 @@ export function NewSheepForm({
                     htmlFor="breedSelect"
                     className="block text-xs font-semibold text-slate-700"
                   >
-                    Ras Domba <span className="text-rose-500">*</span>
+                    Jenis / Ras Domba <span className="text-rose-500">*</span>
                   </label>
                   <select
                     id="breedSelect"
@@ -308,14 +313,19 @@ export function NewSheepForm({
                     ))}
                   </select>
                   {breed === 'Lainnya' && (
-                    <input
-                      type="text"
-                      value={customBreed}
-                      onChange={(e) => setCustomBreed(e.target.value)}
-                      placeholder="Ketik nama ras..."
-                      required
-                      className="mt-2 w-full px-3.5 py-2 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#89A482]"
-                    />
+                    <div className="mt-2 space-y-1">
+                      <input
+                        type="text"
+                        value={customBreed}
+                        onChange={(e) => setCustomBreed(e.target.value)}
+                        placeholder="Masukkan jenis domba..."
+                        required
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#89A482] shadow-xs"
+                      />
+                      <p className="text-[11px] text-slate-500">
+                        Ketik nama jenis domba secara spesifik.
+                      </p>
+                    </div>
                   )}
                 </div>
 

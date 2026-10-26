@@ -22,6 +22,15 @@ interface EditFarmSheepModalProps {
   onSuccess?: () => void
 }
 
+const BREED_OPTIONS = [
+  'Garut',
+  'Priangan',
+  'Merino',
+  'Dorper',
+  'Cross Texel',
+  'Lainnya',
+]
+
 function EditFarmSheepFormContent({
   sheep,
   onClose,
@@ -34,6 +43,9 @@ function EditFarmSheepFormContent({
   const [isPending, startTransition] = useTransition()
 
   const [name, setName] = useState(sheep.name)
+  const isDefaultBreed = ['Garut', 'Priangan', 'Merino', 'Dorper', 'Cross Texel'].includes(sheep.breed)
+  const [breed, setBreed] = useState(isDefaultBreed ? sheep.breed : 'Lainnya')
+  const [customBreed, setCustomBreed] = useState(isDefaultBreed ? '' : sheep.breed)
   const [status, setStatus] = useState<FarmSheepStatus>(sheep.status)
   const [sheepType, setSheepType] = useState<FarmSheepType>(sheep.sheep_type)
   const [currentWeight, setCurrentWeight] = useState(
@@ -57,9 +69,20 @@ function EditFarmSheepFormContent({
       return
     }
 
+    if (breed === 'Lainnya') {
+      const trimmedCustom = customBreed.trim()
+      if (!trimmedCustom) {
+        setErrorMsg('Jenis domba wajib diisi jika memilih opsi Lainnya.')
+        return
+      }
+    }
+
+    const finalBreed = breed === 'Lainnya' ? customBreed.trim() : breed
+
     startTransition(async () => {
       const res = await updateFarmSheep(sheep.id, {
         name: name.trim(),
+        breed: finalBreed,
         status,
         sheep_type: sheepType,
         current_weight: weightNum,
@@ -129,6 +152,42 @@ function EditFarmSheepFormContent({
               onChange={(e) => setName(e.target.value)}
               className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57]"
             />
+          </div>
+
+          <div>
+            <label
+              htmlFor="editBreedSelect"
+              className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5"
+            >
+              Jenis / Ras Domba <span className="text-rose-500">*</span>
+            </label>
+            <select
+              id="editBreedSelect"
+              value={breed}
+              onChange={(e) => setBreed(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57]"
+            >
+              {BREED_OPTIONS.map((b) => (
+                <option key={b} value={b}>
+                  {b}
+                </option>
+              ))}
+            </select>
+            {breed === 'Lainnya' && (
+              <div className="mt-2 space-y-1">
+                <input
+                  type="text"
+                  required
+                  placeholder="Masukkan jenis domba..."
+                  value={customBreed}
+                  onChange={(e) => setCustomBreed(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57] shadow-xs"
+                />
+                <p className="text-[11px] text-slate-500">
+                  Ketik nama jenis domba secara spesifik.
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-3">

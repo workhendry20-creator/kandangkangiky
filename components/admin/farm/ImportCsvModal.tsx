@@ -22,11 +22,11 @@ import {
 } from 'lucide-react'
 
 const SAMPLE_CSV = `tag_code,name,gender,breed,origin,entry_date,initial_weight,status,sheep_type,notes
-DK-001,Si Cantik,Betina,Garut Super,Beli,2026-01-15,35.5,Hamil,Indukan,Sekat A1
+DK-001,Si Cantik,Betina,Garut,Beli,2026-01-15,35.5,Hamil,Indukan,Sekat A1
 DK-002,Bidadari,Betina,Priangan,Beli,2026-01-15,32.0,Kosongan,Indukan,Sekat A2
-DK-003,Rambo,Jantan,Dorper F1,Beli,2026-02-01,55.0,Pemacek,Pejantan,Pejantan Utama
-DK-004,Gondrong,Jantan,Garut Adu,Beli,2026-02-10,48.5,Pemacek,Pejantan,Sekat B1
-DK-005,Mawar,Betina,Texel,Beranak,2026-02-20,28.0,Siap Kawin,Indukan,Hasil Breeding Sendiri`
+DK-003,Rambo,Jantan,Dorper,Beli,2026-02-01,55.0,Pemacek,Pejantan,Pejantan Utama
+DK-004,Gondrong,Jantan,Cross Texel,Beli,2026-02-10,48.5,Pemacek,Pejantan,Sekat B1
+DK-005,Mawar,Betina,Merino,Beranak,2026-02-20,28.0,Siap Kawin,Indukan,Hasil Breeding Sendiri`
 
 interface ImportCsvModalProps {
   isOpen: boolean

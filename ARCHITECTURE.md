@@ -130,7 +130,7 @@ kandangkangiky/
 ├──────────────────────────────────────┤       ├──────────────────────────────────────┤
 │ id (PK)                 : UUID       │   ┌───< sheep_id (FK)            : UUID       │
 │ tracking_code (Unique)  : VARCHAR(20)│   │   │ id (PK)                  : UUID       │
-│ customer_name           : VARCHAR(100│   │   │ update_type              : VARCHAR(15)│
+│ customer_name           : VARCHAR(100)│   │   │ update_type              : VARCHAR(15)│
 │ customer_phone          : VARCHAR(20)│   │   │ record_date              : DATE       │
 │ breed                   : VARCHAR(50)│   │   │ current_weight           : NUMERIC    │
 │ gender                  : VARCHAR(10)│   │   │ health_status            : VARCHAR(50)│
