@@ -9,6 +9,7 @@ import {
 } from '@/lib/google-sheets'
 import { syncAllProgressLogsToSheets } from '@/lib/actions/progress'
 import { revalidatePath } from 'next/cache'
+import { buildBirthDescription } from '@/lib/utils'
 import type {
   FarmSheep,
   FarmEvent,
@@ -737,6 +738,7 @@ export async function createFarmEvent(
       if (isNaN(lambCount) || lambCount <= 0) {
         return { success: false, error: 'Jumlah anak harus berupa angka minimal 1.' }
       }
+      actionName = input.action_name?.trim() || `Kelahiran (${lambCount} Ekor)`
     } else {
       actionName = input.action_name?.trim() || null
       if (!actionName) {
@@ -758,6 +760,22 @@ export async function createFarmEvent(
     const sheepTag = String(rawSheep.tag_id || rawSheep.tag_code || '')
     const sheepName = String(rawSheep.name || '')
 
+    // Format structured notes / description if Kelahiran
+    let finalDescription = input.notes?.trim() || null
+    if (
+      input.event_type === 'Kelahiran' &&
+      (input.sire_tag || input.sire_name || (input.lambs && input.lambs.length > 0))
+    ) {
+      if (!finalDescription || (!finalDescription.includes('Bapak:') && !finalDescription.includes('Anakan:'))) {
+        finalDescription = buildBirthDescription({
+          sireTag: input.sire_tag,
+          sireName: input.sire_name,
+          lambs: input.lambs || [],
+          userNotes: input.notes,
+        })
+      }
+    }
+
     // 2. Insert into farm_events with column resilience
     const eventPayload: Record<string, unknown> = {
       farm_sheep_id: input.sheep_id,
@@ -765,7 +783,7 @@ export async function createFarmEvent(
       event_date: eventDate,
       child_count: lambCount,
       action_name: actionName,
-      description: input.notes?.trim() || null,
+      description: finalDescription,
     }
 
     const { data: eventData, error: eventInsertError } = await resilientInsert(
@@ -788,6 +806,58 @@ export async function createFarmEvent(
       if (updateIndukError) {
         console.warn('[FarmEvent] Gagal update status induk otomatis:', updateIndukError.message)
       }
+
+      // Auto-register lambs into farm_sheep if requested
+      if (
+        input.auto_register_lambs !== false &&
+        Array.isArray(input.lambs) &&
+        input.lambs.length > 0
+      ) {
+        for (let idx = 0; idx < input.lambs.length; idx++) {
+          const lamb = input.lambs[idx]
+          const cleanTag = (sheepTag || 'DK').replace(/[^a-zA-Z0-9]/g, '')
+          const defaultTag = `CMP-${cleanTag}-${Date.now().toString().slice(-4)}${idx + 1}`
+          const lambTagCode = lamb.tag_code?.trim() || defaultTag
+          const lambName =
+            lamb.name?.trim() || `Cempe ${sheepName || 'Induk'} #${idx + 1}`.trim()
+          const lambGender = lamb.gender === 'Betina' ? 'Betina' : 'Jantan'
+          const parsedWeight = Number(lamb.weight)
+          const lambWeight = !isNaN(parsedWeight) && parsedWeight > 0 ? parsedWeight : 3.0
+
+          const sireInfo = [
+            input.sire_tag?.trim() ? `[${input.sire_tag.trim()}]` : '',
+            input.sire_name?.trim() || '',
+          ]
+            .filter(Boolean)
+            .join(' ')
+
+          const lambNotes = [
+            `Anakan dari Induk: [${sheepTag}] ${sheepName}`,
+            sireInfo ? `Bapak: ${sireInfo}` : '',
+            `Lahir: ${eventDate}`,
+          ]
+            .filter(Boolean)
+            .join(' | ')
+
+          try {
+            await createFarmSheep({
+              tag_code: lambTagCode,
+              name: lambName,
+              gender: lambGender,
+              breed: rawSheep.breed || 'Garut',
+              origin: 'Beranak',
+              entry_date: eventDate,
+              initial_weight: lambWeight,
+              current_weight: lambWeight,
+              status: 'Sehat',
+              sheep_type: 'Anakan',
+              notes: lambNotes,
+            })
+          } catch (lambErr) {
+            console.warn(`[FarmEvent] Auto-register lamb #${idx + 1} error:`, lambErr)
+          }
+        }
+      }
     }
 
     // 4. Non-blocking sync to Google Sheets & Apps Script
@@ -803,7 +873,10 @@ export async function createFarmEvent(
           event_date: eventDate,
           child_count: lambCount,
           action_name: actionName,
-          description: input.notes?.trim() || null,
+          description: finalDescription,
+          sire_tag: input.sire_tag || null,
+          sire_name: input.sire_name || null,
+          lambs: input.lambs || null,
         }
 
         const res = await fetch(webhookUrl, {
@@ -826,7 +899,7 @@ export async function createFarmEvent(
         event_date: eventDate,
         lamb_count: lambCount,
         action_name: actionName,
-        notes: input.notes?.trim() || null,
+        notes: finalDescription,
       })
       if (appendRes.success) sheetsSynced = true
     } catch {
@@ -1048,7 +1121,9 @@ export async function syncAllFarmDataToSheets(): Promise<{
         event_type: String(e.event_type || 'Tindakan'),
         event_date: String(e.event_date || e.created_at || '').split('T')[0],
         child_count: lambCount,
-        action_name: e.action_name || null,
+        action_name:
+          e.action_name ||
+          (e.event_type === 'Kelahiran' ? `Kelahiran (${lambCount || 1} Ekor)` : null),
         description: e.description || e.notes || null,
       }
 
@@ -1247,7 +1322,9 @@ export async function fullSyncToSheets(): Promise<{
         event_type: String(e.event_type || 'Tindakan'),
         event_date: String(e.event_date || e.created_at || '').split('T')[0],
         child_count: lambCount,
-        action_name: e.action_name || null,
+        action_name:
+          e.action_name ||
+          (e.event_type === 'Kelahiran' ? `Kelahiran (${lambCount || 1} Ekor)` : null),
         description: e.description || e.notes || null,
       }
 

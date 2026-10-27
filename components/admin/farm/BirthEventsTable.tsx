@@ -185,7 +185,7 @@ export function BirthEventsTable({
                     </td>
 
                     {/* Keterangan */}
-                    <td className="py-3.5 px-4 text-xs text-slate-600 max-w-xs">
+                    <td className="py-3.5 px-4 text-xs text-slate-600 max-w-sm whitespace-pre-line leading-relaxed">
                       {event.notes || '-'}
                     </td>
 

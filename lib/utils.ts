@@ -144,3 +144,65 @@ export function calculateRealtimeAge(
     ageInMonthsText: `${months} Bulan ${remainingDays} Hari`,
   }
 }
+
+export interface BirthDescriptionParams {
+  sireTag?: string | null
+  sireName?: string | null
+  lambs?: Array<{
+    tag_code?: string
+    name?: string
+    gender?: string
+    weight?: number | string | null
+  }>
+  userNotes?: string | null
+}
+
+/**
+ * Format structured birth description with Sire and Lamb details for events and Google Sheets
+ */
+export function buildBirthDescription({
+  sireTag,
+  sireName,
+  lambs,
+  userNotes,
+}: BirthDescriptionParams): string {
+  const parts: string[] = []
+
+  // 1. Sire info
+  const tag = sireTag?.trim()
+  const name = sireName?.trim()
+  if (tag && name) {
+    parts.push(`Bapak: [${tag}] ${name}`)
+  } else if (tag) {
+    parts.push(`Bapak: [${tag}]`)
+  } else if (name) {
+    parts.push(`Bapak: ${name}`)
+  } else {
+    parts.push('Bapak: -')
+  }
+
+  // 2. Lambs info
+  if (lambs && lambs.length > 0) {
+    const lambLines = lambs.map((lamb, idx) => {
+      const lTag = lamb.tag_code?.trim() ? `[${lamb.tag_code.trim()}] ` : ''
+      const lName = lamb.name?.trim() || `Cempe #${idx + 1}`
+      const lGender = lamb.gender || 'Jantan'
+      const lWeight =
+        lamb.weight !== null &&
+        lamb.weight !== undefined &&
+        String(lamb.weight).trim() !== ''
+          ? `${lamb.weight} kg`
+          : '-'
+      return `${idx + 1}. ${lTag}${lName} (${lGender}, BB: ${lWeight})`
+    })
+    parts.push(`Anakan (${lambs.length} Ekor):\n${lambLines.join('\n')}`)
+  }
+
+  // 3. User custom notes
+  const notes = userNotes?.trim()
+  if (notes) {
+    parts.push(`Catatan: ${notes}`)
+  }
+
+  return parts.join('\n\n')
+}

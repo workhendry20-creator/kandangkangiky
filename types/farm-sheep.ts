@@ -70,6 +70,13 @@ export interface UpdateFarmSheepInput {
   notes?: string | null
 }
 
+export interface LambInputData {
+  tag_code?: string
+  name?: string
+  gender: FarmSheepGender
+  weight?: number | string | null
+}
+
 export interface CreateFarmEventInput {
   sheep_id: string
   event_type: FarmEventType
@@ -77,6 +84,10 @@ export interface CreateFarmEventInput {
   lamb_count?: number | null
   action_name?: string | null
   notes?: string | null
+  sire_tag?: string | null
+  sire_name?: string | null
+  lambs?: LambInputData[]
+  auto_register_lambs?: boolean
 }
 
 export interface FarmActionResult<T = unknown> {
