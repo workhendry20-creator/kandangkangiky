@@ -6,7 +6,6 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import imageCompression from 'browser-image-compression'
 import { createProgressLog } from '@/lib/actions/progress'
-import { SyncLogTitipanButton } from './SyncLogTitipanButton'
 import { formatWeight, formatDate } from '@/lib/utils'
 import type { Sheep } from '@/types/sheep'
 import {
@@ -61,6 +60,8 @@ export function ProgressForm({ sheep, lastWeight }: ProgressFormProps) {
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
   const [sheetsSyncNote, setSheetsSyncNote] = useState<string | null>(null)
+  const [showSoldModal, setShowSoldModal] = useState(false)
+  const [isMarkingSold, setIsMarkingSold] = useState(false)
 
   // Handle Quick Weight Adjustments (menambah/mengurangi dari nilai delta)
   const adjustDelta = (amount: number) => {
@@ -126,8 +127,7 @@ export function ProgressForm({ sheep, lastWeight }: ProgressFormProps) {
     }
   }
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault()
+  const submitProgress = (markSold = false) => {
     setErrorMsg(null)
     setSuccessMsg(null)
     setSheetsSyncNote(null)
@@ -143,39 +143,69 @@ export function ProgressForm({ sheep, lastWeight }: ProgressFormProps) {
       return
     }
 
+    if (markSold) {
+      setIsMarkingSold(true)
+    }
+
     startTransition(async () => {
-      const formData = new FormData()
-      formData.append('sheep_id', sheep.id)
-      formData.append('record_date', recordDate)
-      formData.append('update_type', updateType)
-      formData.append('penambahan_bobot', deltaWeight)
-      formData.append('weight_gain', deltaWeight)
-      formData.append('delta_input', deltaWeight)
-      formData.append('delta_weight', deltaWeight)
-      formData.append('current_weight', calculatedNewWeight.toString())
-      formData.append('health_status', healthStatus)
-      if (notes.trim()) {
-        formData.append('notes', notes.trim())
-      }
-      if (selectedFile) {
-        formData.append('media', selectedFile)
-      }
-
-      const res = await createProgressLog(formData)
-
-      if (!res.success) {
-        setErrorMsg(res.error || 'Gagal menyimpan catatan progress.')
-      } else {
-        setSuccessMsg(res.message || 'Catatan progress berhasil disimpan!')
-        if (res.sheetsSynced) {
-          setSheetsSyncNote('Tersinkronisasi otomatis ke Google Sheets.')
+      try {
+        const formData = new FormData()
+        formData.append('sheep_id', sheep.id)
+        formData.append('record_date', recordDate)
+        formData.append('update_type', updateType)
+        formData.append('penambahan_bobot', deltaWeight)
+        formData.append('weight_gain', deltaWeight)
+        formData.append('delta_input', deltaWeight)
+        formData.append('delta_weight', deltaWeight)
+        formData.append('current_weight', calculatedNewWeight.toString())
+        formData.append('health_status', healthStatus)
+        if (notes.trim()) {
+          formData.append('notes', notes.trim())
         }
-        setTimeout(() => {
-          router.push('/admin/dashboard')
-          router.refresh()
-        }, 1200)
+        if (selectedFile) {
+          formData.append('media', selectedFile)
+        }
+        if (markSold) {
+          formData.append('mark_sold', 'true')
+          formData.append('status', 'Terjual')
+        }
+
+        const res = await createProgressLog(formData)
+
+        if (!res.success) {
+          setErrorMsg(res.error || 'Gagal menyimpan catatan progress.')
+        } else {
+          setSuccessMsg(
+            markSold
+              ? 'Masa penitipan selesai! Status domba berhasil diubah menjadi Terjual.'
+              : res.message || 'Catatan progress berhasil disimpan!'
+          )
+          if (res.sheetsSynced) {
+            setSheetsSyncNote('Tersinkronisasi otomatis ke Google Sheets.')
+          }
+          setTimeout(() => {
+            if (markSold) {
+              router.push('/admin/dashboard?tab=completed')
+            } else {
+              router.push('/admin/dashboard')
+            }
+            router.refresh()
+          }, 1200)
+        }
+      } finally {
+        setIsMarkingSold(false)
       }
     })
+  }
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault()
+    submitProgress(false)
+  }
+
+  const handleConfirmMarkSold = () => {
+    setShowSoldModal(false)
+    submitProgress(true)
   }
 
   const totalGain = Math.round((lastWeight - sheep.initial_weight) * 100) / 100
@@ -194,7 +224,6 @@ export function ProgressForm({ sheep, lastWeight }: ProgressFormProps) {
           </Link>
 
           <div className="flex items-center gap-2 sm:gap-2.5">
-            <SyncLogTitipanButton size="sm" />
             <div className="relative w-7 h-7 rounded-lg overflow-hidden shrink-0 shadow-xs ring-1 ring-[#B1C5AA]/50 bg-white">
               <Image
                 src="/logo.jpg"
@@ -541,35 +570,108 @@ export function ProgressForm({ sheep, lastWeight }: ProgressFormProps) {
             </div>
 
             {/* 6. Action Submit Buttons */}
-            <div className="pt-4 border-t border-[#B1C5AA]/40 flex flex-col sm:flex-row items-center justify-end gap-3">
-              <Link
-                href="/admin/dashboard"
-                className="w-full sm:w-auto px-5 py-3 rounded-xl border border-stone-300 bg-white hover:bg-stone-50 text-slate-700 text-sm font-semibold transition-colors text-center"
-              >
-                Batal
-              </Link>
-              <button
-                type="submit"
-                id="btnSubmitProgressLog"
-                disabled={isPending || isCompressing}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#5C6F57] hover:bg-[#485844] active:scale-[0.99] text-white text-sm font-semibold shadow-xs transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                {isPending ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Menyimpan & Sync Sheets...</span>
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4" />
-                    <span>Simpan & Sync ke Google Sheets</span>
-                  </>
-                )}
-              </button>
+            <div className="pt-4 border-t border-[#B1C5AA]/40 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              <div>
+                {/* Red safety button: Selesaikan Masa Penitipan / Terjual */}
+                <button
+                  type="button"
+                  id="btnMarkSoldModal"
+                  disabled={isPending || isCompressing}
+                  onClick={() => setShowSoldModal(true)}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-rose-600 hover:bg-rose-700 active:scale-[0.99] text-white text-sm font-semibold shadow-xs transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Selesaikan Masa Penitipan / Terjual</span>
+                </button>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center gap-3">
+                <Link
+                  href="/admin/dashboard"
+                  className="w-full sm:w-auto px-5 py-3 rounded-xl border border-stone-300 bg-white hover:bg-stone-50 text-slate-700 text-sm font-semibold transition-colors text-center"
+                >
+                  Batal
+                </Link>
+                <button
+                  type="submit"
+                  id="btnSubmitProgressLog"
+                  disabled={isPending || isCompressing}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#5C6F57] hover:bg-[#485844] active:scale-[0.99] text-white text-sm font-semibold shadow-xs transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {isPending && !isMarkingSold ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Menyimpan...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4" />
+                      <span>Simpan Perkembangan</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </form>
         </div>
       </main>
+
+      {/* Confirmation Modal: Selesaikan Masa Penitipan / Terjual */}
+      {showSoldModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-stone-200 space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+              <AlertCircle className="w-6 h-6" />
+            </div>
+
+            <div className="text-center space-y-2">
+              <h3 className="text-lg font-bold text-slate-900">
+                Selesaikan Masa Penitipan?
+              </h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Apakah Anda yakin ingin menyelesaikan masa penitipan domba ini? Status domba akan diubah menjadi <strong className="text-rose-600 font-semibold">Terjual</strong>.
+              </p>
+              <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 text-xs text-slate-600 text-left space-y-1">
+                <div>
+                  <span className="font-semibold text-slate-700">Kode Tracking:</span> {sheep.tracking_code}
+                </div>
+                <div>
+                  <span className="font-semibold text-slate-700">Pemilik:</span> {sheep.customer_name}
+                </div>
+                <div>
+                  <span className="font-semibold text-slate-700">Bobot Akhir:</span> {calculatedNewWeight} kg
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowSoldModal(false)}
+                disabled={isPending}
+                className="flex-1 px-4 py-2.5 rounded-xl border border-stone-300 text-slate-700 hover:bg-stone-50 font-semibold text-sm transition-colors cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmMarkSold}
+                disabled={isPending || isCompressing}
+                className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm transition-colors cursor-pointer disabled:opacity-60"
+              >
+                {isPending && isMarkingSold ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Memproses...</span>
+                  </>
+                ) : (
+                  <span>Ya, Selesaikan & Terjual</span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

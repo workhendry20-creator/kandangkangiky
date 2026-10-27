@@ -22,7 +22,7 @@ export interface Sheep {
   target_weight: number
   entry_date: string
   arrival_date?: string | null
-  status: 'Penitipan' | 'Selesai/Terkirim' | 'Terjual'
+  status: 'Penitipan' | 'Selesai/Terkirim' | 'Terjual' | 'Selesai'
   created_at: string
   progress_logs?: Array<Pick<ProgressLog, 'current_weight' | 'record_date' | 'created_at'>>
   current_weight?: number

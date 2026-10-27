@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import { formatWeight, formatDate } from '@/lib/utils'
 import type { Sheep } from '@/types/sheep'
@@ -16,16 +16,27 @@ import {
   X,
   Phone,
 } from 'lucide-react'
-import { SyncLogTitipanButton } from './SyncLogTitipanButton'
 
 interface SheepTableProps {
   initialSheep: Sheep[]
 }
 
 export function SheepTable({ initialSheep }: SheepTableProps) {
+  const [activeTab, setActiveTab] = useState<'active' | 'completed'>('active')
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'Penitipan' | 'Selesai/Terkirim' | 'Terjual'>('ALL')
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
+
+  // Listen to URL parameter e.g. ?tab=completed
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const tab = params.get('tab')
+      if (tab === 'completed' || tab === 'terjual' || tab === 'selesai') {
+        setActiveTab('completed')
+      }
+    }
+  }, [])
 
   const handleCopyCode = (code: string) => {
     navigator.clipboard.writeText(code)
@@ -35,37 +46,123 @@ export function SheepTable({ initialSheep }: SheepTableProps) {
     }, 1500)
   }
 
-  // Filter sheep list based on search query (tracking_code / customer_name) and status
+  // Count metrics for tabs
+  const activeCount = useMemo(() => {
+    return initialSheep.filter((s) => s.status === 'Penitipan').length
+  }, [initialSheep])
+
+  const completedCount = useMemo(() => {
+    return initialSheep.filter(
+      (s) => s.status === 'Terjual' || s.status === 'Selesai/Terkirim' || s.status === 'Selesai'
+    ).length
+  }, [initialSheep])
+
+  // Base list separated by tab
+  const baseSheepList = useMemo(() => {
+    if (activeTab === 'active') {
+      return initialSheep.filter((s) => s.status === 'Penitipan')
+    } else {
+      return initialSheep.filter(
+        (s) => s.status === 'Terjual' || s.status === 'Selesai/Terkirim' || s.status === 'Selesai'
+      )
+    }
+  }, [initialSheep, activeTab])
+
+  // Filter sheep list based on search query (tracking_code / customer_name / breed / phone) and status
   const filteredSheep = useMemo(() => {
-    return initialSheep.filter((item) => {
+    return baseSheepList.filter((item) => {
       const q = searchQuery.trim().toLowerCase()
       const matchSearch =
         !q ||
         item.tracking_code.toLowerCase().includes(q) ||
         item.customer_name.toLowerCase().includes(q) ||
-        item.breed.toLowerCase().includes(q)
+        item.breed.toLowerCase().includes(q) ||
+        (item.customer_phone && item.customer_phone.includes(q))
 
       const matchStatus = statusFilter === 'ALL' || item.status === statusFilter
 
       return matchSearch && matchStatus
     })
-  }, [initialSheep, searchQuery, statusFilter])
+  }, [baseSheepList, searchQuery, statusFilter])
 
   return (
     <div className="rounded-3xl bg-white border border-[#B1C5AA]/40 shadow-xs overflow-hidden">
+      {/* 2 Navigation Tabs */}
+      <div className="flex border-b border-[#B1C5AA]/40 bg-[#EBF2E8]/40 px-4 sm:px-6 pt-3 gap-2">
+        <button
+          type="button"
+          id="tabMasterTitipan"
+          onClick={() => {
+            setActiveTab('active')
+            setStatusFilter('ALL')
+          }}
+          className={`flex items-center gap-2 py-3 px-4 border-b-2 font-semibold text-xs sm:text-sm transition-all cursor-pointer ${
+            activeTab === 'active'
+              ? 'border-[#5C6F57] text-[#5C6F57] bg-white rounded-t-xl shadow-2xs font-bold'
+              : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-white/50 rounded-t-xl'
+          }`}
+        >
+          <span>🐑 Master Domba Titipan</span>
+          <span
+            className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
+              activeTab === 'active'
+                ? 'bg-[#EBF2E8] text-[#5C6F57]'
+                : 'bg-stone-200 text-slate-600'
+            }`}
+          >
+            {activeCount}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          id="tabDombaTerjual"
+          onClick={() => {
+            setActiveTab('completed')
+            setStatusFilter('ALL')
+          }}
+          className={`flex items-center gap-2 py-3 px-4 border-b-2 font-semibold text-xs sm:text-sm transition-all cursor-pointer ${
+            activeTab === 'completed'
+              ? 'border-amber-600 text-amber-800 bg-white rounded-t-xl shadow-2xs font-bold'
+              : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-white/50 rounded-t-xl'
+          }`}
+        >
+          <span>✓ Domba Terjual / Selesai</span>
+          <span
+            className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
+              activeTab === 'completed'
+                ? 'bg-amber-100 text-amber-800'
+                : 'bg-stone-200 text-slate-600'
+            }`}
+          >
+            {completedCount}
+          </span>
+        </button>
+      </div>
+
       {/* Table Header Controls */}
       <div className="p-5 sm:p-6 border-b border-[#B1C5AA]/40 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-bold text-slate-900">
-              Master Data Domba Titipan
+              {activeTab === 'active'
+                ? 'Master Data Domba Titipan'
+                : 'Domba Terjual / Selesai Masa Penitipan'}
             </h2>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#D9E5D6] text-[#5C6F57] border border-[#B1C5AA]/40">
+            <span
+              className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
+                activeTab === 'active'
+                  ? 'bg-[#D9E5D6] text-[#5C6F57] border-[#B1C5AA]/40'
+                  : 'bg-amber-50 text-amber-800 border-amber-200'
+              }`}
+            >
               {filteredSheep.length} Ekor
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Daftar ternak mitra dalam masa penggemukan dan perawatan Iduladha.
+            {activeTab === 'active'
+              ? 'Daftar ternak mitra dalam masa penggemukan dan perawatan aktif.'
+              : 'Daftar domba yang telah selesai masa penitipan atau telah lunas terjual.'}
           </p>
         </div>
 
@@ -93,30 +190,31 @@ export function SheepTable({ initialSheep }: SheepTableProps) {
             )}
           </div>
 
-          {/* Status Filter Dropdown */}
-          <div className="relative">
-            <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-stone-300 bg-white text-xs text-slate-700 shadow-xs">
-              <Filter className="w-3.5 h-3.5 text-slate-500" />
-              <select
-                id="statusFilterSelect"
-                value={statusFilter}
-                onChange={(e) =>
-                  setStatusFilter(
-                    e.target.value as 'ALL' | 'Penitipan' | 'Selesai/Terkirim' | 'Terjual'
-                  )
-                }
-                className="bg-transparent focus:outline-none text-xs font-semibold text-slate-700 cursor-pointer pr-1"
-              >
-                <option value="ALL">Semua Status</option>
-                <option value="Penitipan">Penitipan</option>
-                <option value="Selesai/Terkirim">Selesai/Terkirim</option>
-                <option value="Terjual">Terjual</option>
-              </select>
+          {/* Status Filter Dropdown (Optional for Tab 2) */}
+          {activeTab === 'completed' && (
+            <div className="relative">
+              <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-stone-300 bg-white text-xs text-slate-700 shadow-xs">
+                <Filter className="w-3.5 h-3.5 text-slate-500" />
+                <select
+                  id="statusFilterSelect"
+                  value={statusFilter}
+                  onChange={(e) =>
+                    setStatusFilter(
+                      e.target.value as 'ALL' | 'Penitipan' | 'Selesai/Terkirim' | 'Terjual'
+                    )
+                  }
+                  className="bg-transparent focus:outline-none text-xs font-semibold text-slate-700 cursor-pointer pr-1"
+                >
+                  <option value="ALL">Semua Status Selesai</option>
+                  <option value="Terjual">Terjual</option>
+                  <option value="Selesai/Terkirim">Selesai/Terkirim</option>
+                </select>
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Action Group: Tambah Domba & Sync Log Icon Button */}
-          <div className="flex items-center gap-2">
+          {/* Add New Sheep Button (Active in Tab 1) */}
+          {activeTab === 'active' && (
             <Link
               href="/admin/sheep/new"
               id="btnAddNewSheepTop"
@@ -125,35 +223,38 @@ export function SheepTable({ initialSheep }: SheepTableProps) {
               <Plus className="w-4 h-4" />
               <span>Tambah Domba</span>
             </Link>
-
-            {/* Sync Log Titipan Sheets Action (Ikon saja di sebelah Tambah Domba) */}
-            <SyncLogTitipanButton size="sm" iconOnly />
-          </div>
+          )}
         </div>
       </div>
 
       {/* Table Data or Empty State */}
-      {initialSheep.length === 0 ? (
-        /* Empty Database State */
+      {baseSheepList.length === 0 ? (
+        /* Empty Database State for Active Tab */
         <div className="p-12 text-center space-y-4">
           <div className="w-16 h-16 rounded-3xl bg-[#D9E5D6] text-[#5C6F57] text-3xl flex items-center justify-center mx-auto border border-[#B1C5AA]/40">
-            🐑
+            {activeTab === 'active' ? '🐑' : '✓'}
           </div>
           <div className="space-y-1 max-w-md mx-auto">
             <h3 className="text-base font-bold text-slate-900">
-              Belum Ada Domba Terdaftar
+              {activeTab === 'active'
+                ? 'Belum Ada Domba Titipan Aktif'
+                : 'Belum Ada Domba Terjual / Selesai'}
             </h3>
             <p className="text-xs text-slate-500">
-              Database kandang masih kosong. Daftarkan domba titipan pertama Anda untuk mulai mencatat pertumbuhan berat badan.
+              {activeTab === 'active'
+                ? 'Database domba penitipan aktif masih kosong. Daftarkan domba titipan baru untuk mulai memantau perkembangan bobot.'
+                : 'Domba yang telah menyelesaikan masa penitipan atau telah terjual akan otomatis terarsip dan tampil di sini.'}
             </p>
           </div>
-          <Link
-            href="/admin/sheep/new"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#5C6F57] hover:bg-[#485844] text-white text-sm font-semibold shadow-xs transition-all"
-          >
-            <Plus className="w-4 h-4" />
-            <span>+ Daftarkan Domba Pertama</span>
-          </Link>
+          {activeTab === 'active' && (
+            <Link
+              href="/admin/sheep/new"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#5C6F57] hover:bg-[#485844] text-white text-sm font-semibold shadow-xs transition-all"
+            >
+              <Plus className="w-4 h-4" />
+              <span>+ Daftarkan Domba Pertama</span>
+            </Link>
+          )}
         </div>
       ) : filteredSheep.length === 0 ? (
         /* Empty Search Results State */
@@ -166,7 +267,7 @@ export function SheepTable({ initialSheep }: SheepTableProps) {
               Tidak Ada Domba yang Cocok
             </h3>
             <p className="text-xs text-slate-500">
-              Pencarian untuk &ldquo;{searchQuery}&rdquo; tidak menemukan hasil.
+              Pencarian untuk &ldquo;{searchQuery}&rdquo; tidak menemukan hasil di tab ini.
             </p>
           </div>
           <button
@@ -175,9 +276,9 @@ export function SheepTable({ initialSheep }: SheepTableProps) {
               setSearchQuery('')
               setStatusFilter('ALL')
             }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-semibold text-slate-700 hover:bg-stone-50"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-semibold text-slate-700 hover:bg-stone-50 cursor-pointer"
           >
-            Reset Filter
+            Reset Pencarian
           </button>
         </div>
       ) : (
@@ -190,7 +291,9 @@ export function SheepTable({ initialSheep }: SheepTableProps) {
                 <th className="py-3.5 px-4 sm:px-6">Nama Customer</th>
                 <th className="py-3.5 px-4 sm:px-6">Ras & Gender</th>
                 <th className="py-3.5 px-4 sm:px-6 text-right">BB Awal</th>
-                <th className="py-3.5 px-4 sm:px-6 text-right">BB Saat Ini</th>
+                <th className="py-3.5 px-4 sm:px-6 text-right">
+                  {activeTab === 'active' ? 'BB Saat Ini' : 'BB Akhir'}
+                </th>
                 <th className="py-3.5 px-4 sm:px-6 text-right">Target BB</th>
                 <th className="py-3.5 px-4 sm:px-6 text-center">Status</th>
                 <th className="py-3.5 px-4 sm:px-6 text-center">Aksi</th>
@@ -220,7 +323,7 @@ export function SheepTable({ initialSheep }: SheepTableProps) {
                         <button
                           type="button"
                           onClick={() => handleCopyCode(sheep.tracking_code)}
-                          className="text-slate-400 hover:text-slate-700 p-1 rounded-md hover:bg-stone-100 transition-colors"
+                          className="text-slate-400 hover:text-slate-700 p-1 rounded-md hover:bg-stone-100 transition-colors cursor-pointer"
                           title="Salin kode tracking"
                         >
                           {copiedCode === sheep.tracking_code ? (
@@ -280,7 +383,7 @@ export function SheepTable({ initialSheep }: SheepTableProps) {
                       {formatWeight(sheep.initial_weight)}
                     </td>
 
-                    {/* BB Saat Ini */}
+                    {/* BB Saat Ini / BB Akhir */}
                     <td className="py-4 px-4 sm:px-6 text-right">
                       <div className="font-mono font-bold text-xs sm:text-sm text-[#5C6F57]">
                         {formatWeight(currentWeight)}
@@ -312,37 +415,52 @@ export function SheepTable({ initialSheep }: SheepTableProps) {
                             ? 'bg-[#D9E5D6] text-[#5C6F57] border-[#B1C5AA]/60'
                             : sheep.status === 'Selesai/Terkirim'
                             ? 'bg-blue-50 text-blue-800 border-blue-200'
-                            : 'bg-amber-50 text-amber-800 border-amber-200'
+                            : 'bg-amber-100 text-amber-800 border-amber-300'
                         }`}
                       >
                         {sheep.status}
                       </span>
                     </td>
 
-                    {/* Aksi (+ Log Progress & Detail) */}
+                    {/* Aksi */}
                     <td className="py-4 px-4 sm:px-6 text-center">
                       <div className="flex items-center justify-center gap-1.5">
-                        {/* + Log Progress Button */}
-                        <Link
-                          href={`/admin/sheep/${sheep.id}/progress`}
-                          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#EBF2E8] hover:bg-[#D9E5D6] text-[#5C6F57] text-xs font-semibold border border-[#B1C5AA]/50 transition-colors"
-                          title="Input log progress berkala"
-                        >
-                          <ClipboardList className="w-3.5 h-3.5" />
-                          <span className="hidden sm:inline">+ Log Progress</span>
-                          <span className="sm:hidden">+ Log</span>
-                        </Link>
+                        {activeTab === 'active' ? (
+                          <>
+                            {/* + Log Progress Button */}
+                            <Link
+                              href={`/admin/sheep/${sheep.id}/progress`}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#EBF2E8] hover:bg-[#D9E5D6] text-[#5C6F57] text-xs font-semibold border border-[#B1C5AA]/50 transition-colors"
+                              title="Input log progress berkala"
+                            >
+                              <ClipboardList className="w-3.5 h-3.5" />
+                              <span className="hidden sm:inline">+ Log Progress</span>
+                              <span className="sm:hidden">+ Log</span>
+                            </Link>
 
-                        {/* Detail / Public Link Button */}
-                        <Link
-                          href={`/track/${sheep.tracking_code}`}
-                          target="_blank"
-                          className="inline-flex items-center gap-1 px-2 py-1.5 rounded-lg border border-stone-200 bg-white hover:bg-stone-50 text-slate-600 text-xs font-medium transition-colors"
-                          title="Buka tampilan lacak publik customer"
-                        >
-                          <ExternalLink className="w-3.5 h-3.5" />
-                          <span className="hidden md:inline">Detail</span>
-                        </Link>
+                            {/* Detail / Public Link Button */}
+                            <Link
+                              href={`/track/${sheep.tracking_code}`}
+                              target="_blank"
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-stone-200 bg-white hover:bg-stone-50 text-slate-600 text-xs font-medium transition-colors"
+                              title="Buka tampilan lacak publik customer"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5" />
+                              <span className="hidden md:inline">Detail</span>
+                            </Link>
+                          </>
+                        ) : (
+                          /* Tab 2: Domba Terjual -> Tombol Detail Riwayat Historis */
+                          <Link
+                            href={`/track/${sheep.tracking_code}`}
+                            target="_blank"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-semibold border border-amber-200 transition-colors shadow-2xs"
+                            title="Buka riwayat log perkembangan domba yang telah selesai/terjual"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5 text-amber-700" />
+                            <span>Detail Riwayat</span>
+                          </Link>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -356,11 +474,11 @@ export function SheepTable({ initialSheep }: SheepTableProps) {
       {/* Table Footer Summary */}
       <div className="p-4 bg-[#EBF2E8]/40 border-t border-[#B1C5AA]/40 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
         <div>
-          Menampilkan <span className="font-semibold text-slate-700">{filteredSheep.length}</span> dari{' '}
-          <span className="font-semibold text-slate-700">{initialSheep.length}</span> domba terdaftar.
+          Menampilkan <span className="font-semibold text-slate-700">{filteredSheep.length}</span> domba pada tab ini (dari total{' '}
+          <span className="font-semibold text-slate-700">{initialSheep.length}</span> domba terdaftar).
         </div>
         <div className="flex items-center gap-2 text-[11px] text-slate-400">
-          <span>* Klik kode tracking atau &lsquo;Detail&rsquo; untuk melihat kartu lacak publik</span>
+          <span>* Klik kode tracking atau tombol &lsquo;Detail&rsquo; untuk melihat riwayat perkembangan lengkap</span>
         </div>
       </div>
     </div>

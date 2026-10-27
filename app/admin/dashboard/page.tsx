@@ -92,10 +92,21 @@ async function DashboardContent() {
     sheepList.map((s) => s.customer_name.trim().toLowerCase())
   ).size
   const penitipanCount = sheepList.filter((s) => s.status === 'Penitipan').length
-  const completedCount = sheepList.filter((s) => s.status === 'Selesai/Terkirim').length
+  const completedCount = sheepList.filter(
+    (s) => s.status === 'Terjual' || s.status === 'Selesai/Terkirim' || s.status === 'Selesai'
+  ).length
 
   const avgWeight =
-    totalSheep > 0
+    penitipanCount > 0
+      ? (
+          sheepList
+            .filter((s) => s.status === 'Penitipan')
+            .reduce(
+              (acc, s) => acc + (s.current_weight ?? s.initial_weight),
+              0
+            ) / penitipanCount
+        ).toFixed(1)
+      : totalSheep > 0
       ? (
           sheepList.reduce(
             (acc, s) => acc + (s.current_weight ?? s.initial_weight),
@@ -129,7 +140,7 @@ async function DashboardContent() {
 
         {/* KPI Stat Cards (3 Required + 1 Avg Weight) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Card 1: Total Ternak */}
+          {/* Card 1: Total Ternak Aktif */}
           <div className="bg-white rounded-2xl p-5 border border-[#B1C5AA]/40 shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
@@ -141,18 +152,18 @@ async function DashboardContent() {
             </div>
             <div>
               <div className="flex items-baseline gap-1.5">
-                <span className="text-3xl font-bold text-slate-900">{totalSheep}</span>
+                <span className="text-3xl font-bold text-slate-900">{penitipanCount}</span>
                 <span className="text-sm text-slate-500">ekor</span>
               </div>
               <div className="mt-2 flex items-center gap-1.5 text-xs text-[#5C6F57] font-semibold">
                 <TrendingUp className="w-3.5 h-3.5" />
-                <span>Master Data Aktif</span>
+                <span>Domba Aktif Penitipan</span>
               </div>
             </div>
             <div className="mt-4 pt-3 border-t border-stone-100 flex justify-between text-[11px] text-slate-500">
-              <span>{penitipanCount} Penitipan</span>
+              <span className="font-semibold text-[#5C6F57]">{penitipanCount} Aktif</span>
               <span>•</span>
-              <span>{completedCount} Selesai</span>
+              <span className="font-semibold text-amber-700">{completedCount} Selesai / Terjual</span>
             </div>
           </div>
 
@@ -182,29 +193,29 @@ async function DashboardContent() {
             </div>
           </div>
 
-          {/* Card 3: Status Penitipan */}
+          {/* Card 3: Domba Terjual / Selesai */}
           <div className="bg-white rounded-2xl p-5 border border-[#B1C5AA]/40 shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Status Penitipan
+                Domba Terjual
               </span>
-              <div className="w-9 h-9 rounded-xl bg-[#EBF2E8] text-[#5C6F57] flex items-center justify-center font-bold">
-                <Activity className="w-4 h-4 text-[#5C6F57]" />
+              <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold">
+                <CheckCircle2 className="w-4 h-4 text-amber-700" />
               </div>
             </div>
             <div>
               <div className="flex items-baseline gap-1.5">
-                <span className="text-3xl font-bold text-[#5C6F57]">{penitipanCount}</span>
-                <span className="text-sm text-slate-500">ekor aktif</span>
+                <span className="text-3xl font-bold text-amber-800">{completedCount}</span>
+                <span className="text-sm text-slate-500">ekor</span>
               </div>
-              <div className="mt-2 flex items-center gap-1.5 text-xs text-[#5C6F57] font-semibold">
+              <div className="mt-2 flex items-center gap-1.5 text-xs text-amber-700 font-semibold">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Sedang Dalam Perawatan</span>
+                <span>Telah Selesai Masa Penitipan</span>
               </div>
             </div>
             <div className="mt-4 pt-3 border-t border-stone-100 flex justify-between text-[11px] text-slate-500">
-              <span>Target Iduladha 1447H</span>
-              <span className="text-[#5C6F57] font-medium">Parung, Bogor</span>
+              <span>Masa Penitipan Selesai</span>
+              <span className="text-[#5C6F57] font-medium">Siap Kirim / Diserahkan</span>
             </div>
           </div>
 

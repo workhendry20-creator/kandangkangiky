@@ -200,14 +200,34 @@ export async function createProgressLog(
       }
     }
 
-    // 4b. Update kolom current_weight pada tabel sheep dengan weight_to_save
+    // 4b. Check if this log completes the care period / marks as Terjual
+    const markSold = formData.get('mark_sold') === 'true' || formData.get('status') === 'Terjual'
+    const newStatus = markSold ? 'Terjual' : undefined
+
+    const sheepUpdatePayload: Record<string, unknown> = { current_weight: weightToSave }
+    if (newStatus) {
+      sheepUpdatePayload.status = newStatus
+    }
+
     const { error: updateSheepError } = await supabase
       .from('sheep')
-      .update({ current_weight: weightToSave })
+      .update(sheepUpdatePayload)
       .eq('id', sheepId)
 
     if (updateSheepError) {
-      console.warn('Gagal memperbarui current_weight pada tabel sheep:', updateSheepError.message)
+      console.warn('Gagal memperbarui tabel sheep:', updateSheepError.message)
+    }
+
+    // Update tabel farm_sheep jika ada (sinkronisasi dua arah database)
+    if (newStatus) {
+      try {
+        await supabase
+          .from('farm_sheep')
+          .update({ current_weight: weightToSave, status: 'Terjual' })
+          .or(`id.eq.${sheepId},tag_code.eq.${sheep.tracking_code}`)
+      } catch (fErr) {
+        console.warn('[FarmSheep Sync Warning]:', fErr)
+      }
     }
 
     // 5. POST ke Google Sheets Web App API (Sheet: Log_Titipan) secara asynchronous
@@ -216,7 +236,8 @@ export async function createProgressLog(
 
     if (sheetUrl) {
       try {
-        await fetch(sheetUrl.replace(/^hhttps:\/\//, 'https://').trim(), {
+        const cleanWebhookUrl = sheetUrl.replace(/^hhttps:\/\//, 'https://').trim()
+        await fetch(cleanWebhookUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -228,7 +249,7 @@ export async function createProgressLog(
             bobot: Number(weightToSave),             // Total bobot terbaru
             penambahan_bobot: Number(weightGain),    // Angka penambahan murni
             kesehatan: healthStatus,
-            catatan: notes ? notes.trim() : '-',
+            catatan: notes ? notes.trim() : (markSold ? 'Masa penitipan selesai / Terjual' : '-'),
             url_photo: mediaUrl || '',
             // Compatibility aliases
             sheet: 'Log_Titipan',
@@ -242,12 +263,49 @@ export async function createProgressLog(
             delta_weight: Number(weightGain),
             weight_gain: Number(weightGain),
             health_status: healthStatus,
-            notes: notes ? notes.trim() : '-',
+            notes: notes ? notes.trim() : (markSold ? 'Masa penitipan selesai / Terjual' : '-'),
             photo_url: mediaUrl || '',
           }),
           redirect: 'follow',
         })
         sheetsSynced = true
+
+        // Jika markSold, kirim update status real-time ke Master_Titipan dan Master_Kandang
+        if (markSold) {
+          // 1. Update status pada Master_Titipan
+          fetch(cleanWebhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'UPDATE_STATUS',
+              sheet_name: 'Master_Titipan',
+              sheet: 'Master_Titipan',
+              type: 'titipan_sheep',
+              tracking_code: sheep.tracking_code,
+              code: sheep.tracking_code,
+              customer_name: sheep.customer_name,
+              current_weight: Number(weightToSave),
+              status: 'Terjual',
+            }),
+            redirect: 'follow',
+          }).catch((err) => console.warn('[Webhook Master_Titipan Update Warning]:', err))
+
+          // 2. Update status pada Master_Kandang
+          fetch(cleanWebhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'UPSERT_FARM_SHEEP',
+              sheet_name: 'Master_Kandang',
+              sheet: 'Master_Kandang',
+              tag_code: sheep.tracking_code,
+              code: sheep.tracking_code,
+              status: 'Terjual',
+              current_weight: Number(weightToSave),
+            }),
+            redirect: 'follow',
+          }).catch((err) => console.warn('[Webhook Master_Kandang Update Warning]:', err))
+        }
       } catch (err) {
         console.error('Gagal sync log harian ke Google Sheets:', err)
       }
@@ -279,7 +337,9 @@ export async function createProgressLog(
 
     return {
       success: true,
-      message: 'Catatan perkembangan berhasil disimpan!',
+      message: markSold
+        ? 'Masa penitipan selesai! Status domba berhasil diubah menjadi Terjual.'
+        : 'Catatan perkembangan berhasil disimpan!',
       data: logData as ProgressLog,
       sheetsSynced,
       mediaUrl,
