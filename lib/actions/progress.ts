@@ -236,22 +236,39 @@ export async function createProgressLog(
         }
       }
 
-      // 2. Hapus baris domba tersebut dari tabel sheep di Supabase
+      // 2. Lakukan delete baris domba dari tabel sheep dan pastikan await berjalan hingga selesai
       const { error: deleteSheepError } = await supabase
         .from('sheep')
         .delete()
         .eq('id', sheepId)
 
       if (deleteSheepError) {
-        console.warn('[Progress] Warning deleting sheep:', deleteSheepError.message)
+        console.error('[Progress] Error deleting sheep by ID:', deleteSheepError.message)
       }
+
+      // Hapus juga berdasarkan tracking_code
+      await supabase
+        .from('sheep')
+        .delete()
+        .eq('tracking_code', sheep.tracking_code)
+
+      // Fallback update status menjadi Terjual
+      await supabase
+        .from('sheep')
+        .update({ status: 'Terjual' })
+        .eq('id', sheepId)
 
       // 3. Hapus juga dari tabel farm_sheep jika ada
       try {
         await supabase
           .from('farm_sheep')
           .delete()
-          .or(`id.eq.${sheepId},tag_code.eq.${sheep.tracking_code}`)
+          .eq('tag_id', sheep.tracking_code)
+
+        await supabase
+          .from('farm_sheep')
+          .delete()
+          .eq('id', sheepId)
       } catch (fErr) {
         console.warn('[Progress] Warning deleting from farm_sheep:', fErr)
       }
@@ -334,6 +351,8 @@ export async function createProgressLog(
 
     // 6. Revalidate relevant paths
     revalidatePath('/admin/dashboard')
+    revalidatePath('/admin/dashboard', 'page')
+    revalidatePath('/', 'layout')
     revalidatePath(`/admin/sheep/${sheepId}/progress`)
     revalidatePath(`/track/${sheep.tracking_code}`)
 

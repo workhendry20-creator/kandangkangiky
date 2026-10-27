@@ -18,70 +18,7 @@ import {
 async function DashboardContent() {
   const db = createAdminClient()
 
-  // 1. Fetch active sheep (Tab 1)
-  let sheepList: Sheep[] = []
-  try {
-    const { data, error } = await db
-      .from('sheep')
-      .select(`
-        *,
-        progress_logs (
-          current_weight,
-          record_date,
-          created_at
-        )
-      `)
-      .order('created_at', { ascending: false })
-      .order('record_date', { referencedTable: 'progress_logs', ascending: false })
-      .order('created_at', { referencedTable: 'progress_logs', ascending: false })
-
-    if (error) {
-      console.error('[Dashboard] Error fetching sheep from Supabase:', error)
-      const fallback = await db
-        .from('sheep')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (fallback.data) {
-        sheepList = (fallback.data as unknown as Sheep[]).map((item) => ({
-          ...item,
-          current_weight: item.current_weight ?? item.initial_weight,
-        }))
-      }
-    } else if (data) {
-      sheepList = (data as unknown as Sheep[]).map((item) => {
-        const initialWeight = Number(item.initial_weight) || 0
-        let calculatedWeight =
-          item.current_weight !== undefined && item.current_weight !== null
-            ? Number(item.current_weight)
-            : initialWeight
-
-        if (item.progress_logs && Array.isArray(item.progress_logs) && item.progress_logs.length > 0) {
-          const sortedLogs = [...item.progress_logs].sort((a, b) => {
-            const dateDiff = new Date(b.record_date).getTime() - new Date(a.record_date).getTime()
-            if (dateDiff !== 0) return dateDiff
-            const aCreated = a.created_at ? new Date(a.created_at).getTime() : 0
-            const bCreated = b.created_at ? new Date(b.created_at).getTime() : 0
-            return bCreated - aCreated
-          })
-
-          const latestLogWeight = Number(sortedLogs[0].current_weight)
-          if (!isNaN(latestLogWeight) && latestLogWeight > 0) {
-            calculatedWeight = latestLogWeight
-          }
-        }
-
-        return {
-          ...item,
-          current_weight: calculatedWeight,
-        }
-      })
-    }
-  } catch (err) {
-    console.error('[Dashboard] Unexpected error fetching master data domba:', err)
-  }
-
-  // 2. Fetch sold sheep (Tab 2: sheep_sold)
+  // 1. Fetch sold sheep first (Tab 2: Domba Terjual / Selesai)
   let soldList: SheepSold[] = []
   try {
     const { data: soldData, error: soldError } = await db
@@ -97,6 +34,104 @@ async function DashboardContent() {
     }
   } catch (err) {
     console.warn('[Dashboard] Unexpected error fetching sheep_sold:', err)
+  }
+
+  // Kumpulkan list tracking_code dan original_sheep_id dari domba yang sudah terjual
+  const soldTrackingCodes = soldList.map((s) => s.tracking_code).filter(Boolean)
+  const soldOriginalSheepIds = new Set(soldList.map((s) => s.original_sheep_id).filter(Boolean))
+  const soldCodesSet = new Set(soldTrackingCodes)
+
+  // 2. Fetch data aktif Tab 1 ("Master Domba Titipan") dari tabel sheep
+  // Filter kueri Tab 1 agar membuang domba yang ID/tracking_code nya ada di dalam list sheep_sold
+  let sheepList: Sheep[] = []
+  try {
+    let sheepQuery = db
+      .from('sheep')
+      .select(`
+        *,
+        progress_logs (
+          current_weight,
+          record_date,
+          created_at
+        )
+      `)
+      .order('created_at', { ascending: false })
+      .order('record_date', { referencedTable: 'progress_logs', ascending: false })
+      .order('created_at', { referencedTable: 'progress_logs', ascending: false })
+
+    if (soldTrackingCodes.length > 0) {
+      sheepQuery = sheepQuery.not('tracking_code', 'in', `(${soldTrackingCodes.join(',')})`)
+    }
+
+    const { data, error } = await sheepQuery
+
+    if (error) {
+      console.error('[Dashboard] Error fetching sheep from Supabase:', error)
+      let fallbackQuery = db
+        .from('sheep')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (soldTrackingCodes.length > 0) {
+        fallbackQuery = fallbackQuery.not('tracking_code', 'in', `(${soldTrackingCodes.join(',')})`)
+      }
+
+      const fallback = await fallbackQuery
+
+      if (fallback.data) {
+        sheepList = (fallback.data as unknown as Sheep[])
+          .filter(
+            (item) =>
+              !soldCodesSet.has(item.tracking_code) &&
+              !soldOriginalSheepIds.has(item.id) &&
+              item.status !== 'Terjual' &&
+              item.status !== 'Selesai'
+          )
+          .map((item) => ({
+            ...item,
+            current_weight: item.current_weight ?? item.initial_weight,
+          }))
+      }
+    } else if (data) {
+      sheepList = (data as unknown as Sheep[])
+        // Filter ganda memastikan domba terjual 100% tidak muncul di Tab 1
+        .filter(
+          (item) =>
+            !soldCodesSet.has(item.tracking_code) &&
+            !soldOriginalSheepIds.has(item.id) &&
+            item.status !== 'Terjual' &&
+            item.status !== 'Selesai'
+        )
+        .map((item) => {
+          const initialWeight = Number(item.initial_weight) || 0
+          let calculatedWeight =
+            item.current_weight !== undefined && item.current_weight !== null
+              ? Number(item.current_weight)
+              : initialWeight
+
+          if (item.progress_logs && Array.isArray(item.progress_logs) && item.progress_logs.length > 0) {
+            const sortedLogs = [...item.progress_logs].sort((a, b) => {
+              const dateDiff = new Date(b.record_date).getTime() - new Date(a.record_date).getTime()
+              if (dateDiff !== 0) return dateDiff
+              const aCreated = a.created_at ? new Date(a.created_at).getTime() : 0
+              const bCreated = b.created_at ? new Date(b.created_at).getTime() : 0
+              return bCreated - aCreated
+            })
+
+            const latestLogWeight = Number(sortedLogs[0].current_weight)
+            if (!isNaN(latestLogWeight) && latestLogWeight > 0) {
+              calculatedWeight = latestLogWeight
+            }
+          }
+
+          return {
+            ...item,
+            current_weight: calculatedWeight,
+          }
+        })
+    }
+  } catch (err) {
+    console.error('[Dashboard] Unexpected error fetching master data domba:', err)
   }
 
   // Calculate Dashboard Metrics

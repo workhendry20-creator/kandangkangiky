@@ -45,16 +45,36 @@ export function SheepTable({ initialSheep, soldSheep = [] }: SheepTableProps) {
     }, 1500)
   }
 
+  // Set of sold tracking codes and IDs to strictly guarantee sold sheep never leak into Tab 1
+  const soldCodesSet = useMemo(() => {
+    return new Set(soldSheep.map((s) => s.tracking_code))
+  }, [soldSheep])
+
+  const soldIdsSet = useMemo(() => {
+    return new Set(soldSheep.map((s) => s.original_sheep_id))
+  }, [soldSheep])
+
+  // Active sheep list with sold exclusion
+  const activeSheepList = useMemo(() => {
+    return initialSheep.filter(
+      (s) =>
+        !soldCodesSet.has(s.tracking_code) &&
+        !soldIdsSet.has(s.id) &&
+        s.status !== 'Terjual' &&
+        s.status !== 'Selesai'
+    )
+  }, [initialSheep, soldCodesSet, soldIdsSet])
+
   // Count metrics for tabs
-  const activeCount = initialSheep.length
+  const activeCount = activeSheepList.length
   const completedCount = soldSheep.length
 
   // Filter active sheep based on search query
   const filteredActiveSheep = useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
-    if (!q) return initialSheep
+    if (!q) return activeSheepList
 
-    return initialSheep.filter((item) => {
+    return activeSheepList.filter((item) => {
       return (
         item.tracking_code.toLowerCase().includes(q) ||
         item.customer_name.toLowerCase().includes(q) ||
@@ -62,7 +82,7 @@ export function SheepTable({ initialSheep, soldSheep = [] }: SheepTableProps) {
         (item.customer_phone && item.customer_phone.includes(q))
       )
     })
-  }, [initialSheep, searchQuery])
+  }, [activeSheepList, searchQuery])
 
   // Filter sold sheep based on search query
   const filteredSoldSheep = useMemo(() => {
@@ -82,7 +102,7 @@ export function SheepTable({ initialSheep, soldSheep = [] }: SheepTableProps) {
   const currentListLength =
     activeTab === 'active' ? filteredActiveSheep.length : filteredSoldSheep.length
   const baseListLength =
-    activeTab === 'active' ? initialSheep.length : soldSheep.length
+    activeTab === 'active' ? activeSheepList.length : soldSheep.length
 
   return (
     <div className="rounded-3xl bg-white border border-[#B1C5AA]/40 shadow-xs overflow-hidden">
@@ -569,7 +589,7 @@ export function SheepTable({ initialSheep, soldSheep = [] }: SheepTableProps) {
           {activeTab === 'active' ? (
             <>
               Menampilkan <span className="font-semibold text-slate-700">{filteredActiveSheep.length}</span> domba aktif pada tab ini (dari total{' '}
-              <span className="font-semibold text-slate-700">{initialSheep.length}</span> domba penitipan).
+              <span className="font-semibold text-slate-700">{activeSheepList.length}</span> domba penitipan).
             </>
           ) : (
             <>

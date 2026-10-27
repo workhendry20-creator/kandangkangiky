@@ -175,6 +175,11 @@ export function ProgressForm({ sheep, lastWeight }: ProgressFormProps) {
         if (!res.success) {
           setErrorMsg(res.error || 'Gagal menyimpan catatan progress.')
         } else {
+          // Kosongkan state form
+          setDeltaWeight('')
+          setNotes('')
+          handleRemoveImage()
+
           setSuccessMsg(
             markSold
               ? 'Masa penitipan selesai! Status domba berhasil diubah menjadi Terjual.'
@@ -183,14 +188,18 @@ export function ProgressForm({ sheep, lastWeight }: ProgressFormProps) {
           if (res.sheetsSynced) {
             setSheetsSyncNote('Tersinkronisasi otomatis ke Google Sheets.')
           }
+
+          // Trigger revalidate data halaman
+          router.refresh()
+
           setTimeout(() => {
+            router.refresh()
             if (markSold) {
               router.push('/admin/dashboard?tab=completed')
             } else {
               router.push('/admin/dashboard')
             }
-            router.refresh()
-          }, 1200)
+          }, 1000)
         }
       } finally {
         setIsMarkingSold(false)
