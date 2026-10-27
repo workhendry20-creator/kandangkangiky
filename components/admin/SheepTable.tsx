@@ -3,10 +3,9 @@
 import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import { formatWeight, formatDate } from '@/lib/utils'
-import type { Sheep } from '@/types/sheep'
+import type { Sheep, SheepSold } from '@/types/sheep'
 import {
   Search,
-  Filter,
   Plus,
   ExternalLink,
   ClipboardList,
@@ -19,12 +18,12 @@ import {
 
 interface SheepTableProps {
   initialSheep: Sheep[]
+  soldSheep?: SheepSold[]
 }
 
-export function SheepTable({ initialSheep }: SheepTableProps) {
+export function SheepTable({ initialSheep, soldSheep = [] }: SheepTableProps) {
   const [activeTab, setActiveTab] = useState<'active' | 'completed'>('active')
   const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState<'ALL' | 'Penitipan' | 'Selesai/Terkirim' | 'Terjual'>('ALL')
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
 
   // Listen to URL parameter e.g. ?tab=completed
@@ -47,43 +46,43 @@ export function SheepTable({ initialSheep }: SheepTableProps) {
   }
 
   // Count metrics for tabs
-  const activeCount = useMemo(() => {
-    return initialSheep.filter((s) => s.status === 'Penitipan').length
-  }, [initialSheep])
+  const activeCount = initialSheep.length
+  const completedCount = soldSheep.length
 
-  const completedCount = useMemo(() => {
-    return initialSheep.filter(
-      (s) => s.status === 'Terjual' || s.status === 'Selesai/Terkirim' || s.status === 'Selesai'
-    ).length
-  }, [initialSheep])
+  // Filter active sheep based on search query
+  const filteredActiveSheep = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase()
+    if (!q) return initialSheep
 
-  // Base list separated by tab
-  const baseSheepList = useMemo(() => {
-    if (activeTab === 'active') {
-      return initialSheep.filter((s) => s.status === 'Penitipan')
-    } else {
-      return initialSheep.filter(
-        (s) => s.status === 'Terjual' || s.status === 'Selesai/Terkirim' || s.status === 'Selesai'
-      )
-    }
-  }, [initialSheep, activeTab])
-
-  // Filter sheep list based on search query (tracking_code / customer_name / breed / phone) and status
-  const filteredSheep = useMemo(() => {
-    return baseSheepList.filter((item) => {
-      const q = searchQuery.trim().toLowerCase()
-      const matchSearch =
-        !q ||
+    return initialSheep.filter((item) => {
+      return (
         item.tracking_code.toLowerCase().includes(q) ||
         item.customer_name.toLowerCase().includes(q) ||
         item.breed.toLowerCase().includes(q) ||
         (item.customer_phone && item.customer_phone.includes(q))
-
-      const matchStatus = statusFilter === 'ALL' || item.status === statusFilter
-
-      return matchSearch && matchStatus
+      )
     })
-  }, [baseSheepList, searchQuery, statusFilter])
+  }, [initialSheep, searchQuery])
+
+  // Filter sold sheep based on search query
+  const filteredSoldSheep = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase()
+    if (!q) return soldSheep
+
+    return soldSheep.filter((item) => {
+      return (
+        item.tracking_code.toLowerCase().includes(q) ||
+        item.customer_name.toLowerCase().includes(q) ||
+        item.breed.toLowerCase().includes(q) ||
+        (item.customer_phone && item.customer_phone.includes(q))
+      )
+    })
+  }, [soldSheep, searchQuery])
+
+  const currentListLength =
+    activeTab === 'active' ? filteredActiveSheep.length : filteredSoldSheep.length
+  const baseListLength =
+    activeTab === 'active' ? initialSheep.length : soldSheep.length
 
   return (
     <div className="rounded-3xl bg-white border border-[#B1C5AA]/40 shadow-xs overflow-hidden">
@@ -94,7 +93,6 @@ export function SheepTable({ initialSheep }: SheepTableProps) {
           id="tabMasterTitipan"
           onClick={() => {
             setActiveTab('active')
-            setStatusFilter('ALL')
           }}
           className={`flex items-center gap-2 py-3 px-4 border-b-2 font-semibold text-xs sm:text-sm transition-all cursor-pointer ${
             activeTab === 'active'
@@ -119,7 +117,6 @@ export function SheepTable({ initialSheep }: SheepTableProps) {
           id="tabDombaTerjual"
           onClick={() => {
             setActiveTab('completed')
-            setStatusFilter('ALL')
           }}
           className={`flex items-center gap-2 py-3 px-4 border-b-2 font-semibold text-xs sm:text-sm transition-all cursor-pointer ${
             activeTab === 'completed'
@@ -156,13 +153,13 @@ export function SheepTable({ initialSheep }: SheepTableProps) {
                   : 'bg-amber-50 text-amber-800 border-amber-200'
               }`}
             >
-              {filteredSheep.length} Ekor
+              {currentListLength} Ekor
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
             {activeTab === 'active'
               ? 'Daftar ternak mitra dalam masa penggemukan dan perawatan aktif.'
-              : 'Daftar domba yang telah selesai masa penitipan atau telah lunas terjual.'}
+              : 'Daftar riwayat domba yang telah selesai masa penitipan atau telah lunas terjual.'}
           </p>
         </div>
 
@@ -190,29 +187,6 @@ export function SheepTable({ initialSheep }: SheepTableProps) {
             )}
           </div>
 
-          {/* Status Filter Dropdown (Optional for Tab 2) */}
-          {activeTab === 'completed' && (
-            <div className="relative">
-              <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-stone-300 bg-white text-xs text-slate-700 shadow-xs">
-                <Filter className="w-3.5 h-3.5 text-slate-500" />
-                <select
-                  id="statusFilterSelect"
-                  value={statusFilter}
-                  onChange={(e) =>
-                    setStatusFilter(
-                      e.target.value as 'ALL' | 'Penitipan' | 'Selesai/Terkirim' | 'Terjual'
-                    )
-                  }
-                  className="bg-transparent focus:outline-none text-xs font-semibold text-slate-700 cursor-pointer pr-1"
-                >
-                  <option value="ALL">Semua Status Selesai</option>
-                  <option value="Terjual">Terjual</option>
-                  <option value="Selesai/Terkirim">Selesai/Terkirim</option>
-                </select>
-              </div>
-            </div>
-          )}
-
           {/* Add New Sheep Button (Active in Tab 1) */}
           {activeTab === 'active' && (
             <Link
@@ -228,7 +202,7 @@ export function SheepTable({ initialSheep }: SheepTableProps) {
       </div>
 
       {/* Table Data or Empty State */}
-      {baseSheepList.length === 0 ? (
+      {baseListLength === 0 ? (
         /* Empty Database State for Active Tab */
         <div className="p-12 text-center space-y-4">
           <div className="w-16 h-16 rounded-3xl bg-[#D9E5D6] text-[#5C6F57] text-3xl flex items-center justify-center mx-auto border border-[#B1C5AA]/40">
@@ -243,7 +217,7 @@ export function SheepTable({ initialSheep }: SheepTableProps) {
             <p className="text-xs text-slate-500">
               {activeTab === 'active'
                 ? 'Database domba penitipan aktif masih kosong. Daftarkan domba titipan baru untuk mulai memantau perkembangan bobot.'
-                : 'Domba yang telah menyelesaikan masa penitipan atau telah terjual akan otomatis terarsip dan tampil di sini.'}
+                : 'Domba yang telah menyelesaikan masa penitipan atau telah terjual akan otomatis terarsip di tabel sheep_sold dan tampil di sini.'}
             </p>
           </div>
           {activeTab === 'active' && (
@@ -256,7 +230,7 @@ export function SheepTable({ initialSheep }: SheepTableProps) {
             </Link>
           )}
         </div>
-      ) : filteredSheep.length === 0 ? (
+      ) : currentListLength === 0 ? (
         /* Empty Search Results State */
         <div className="p-12 text-center space-y-3">
           <div className="w-12 h-12 rounded-2xl bg-stone-100 text-slate-500 flex items-center justify-center mx-auto">
@@ -272,17 +246,14 @@ export function SheepTable({ initialSheep }: SheepTableProps) {
           </div>
           <button
             type="button"
-            onClick={() => {
-              setSearchQuery('')
-              setStatusFilter('ALL')
-            }}
+            onClick={() => setSearchQuery('')}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-semibold text-slate-700 hover:bg-stone-50 cursor-pointer"
           >
             Reset Pencarian
           </button>
         </div>
-      ) : (
-        /* Table View */
+      ) : activeTab === 'active' ? (
+        /* Table View Tab 1: Active Sheep */
         <div className="overflow-x-auto overscroll-x-contain w-full">
           <table className="w-full text-left text-sm min-w-[760px]">
             <thead className="bg-[#EBF2E8]/60 text-[11px] font-bold text-slate-600 uppercase tracking-wider border-b border-[#B1C5AA]/40">
@@ -291,17 +262,14 @@ export function SheepTable({ initialSheep }: SheepTableProps) {
                 <th className="py-3.5 px-4 sm:px-6">Nama Customer</th>
                 <th className="py-3.5 px-4 sm:px-6">Ras & Gender</th>
                 <th className="py-3.5 px-4 sm:px-6 text-right">BB Awal</th>
-                <th className="py-3.5 px-4 sm:px-6 text-right">
-                  {activeTab === 'active' ? 'BB Saat Ini' : 'BB Akhir'}
-                </th>
+                <th className="py-3.5 px-4 sm:px-6 text-right">BB Saat Ini</th>
                 <th className="py-3.5 px-4 sm:px-6 text-right">Target BB</th>
                 <th className="py-3.5 px-4 sm:px-6 text-center">Status</th>
                 <th className="py-3.5 px-4 sm:px-6 text-center">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
-              {filteredSheep.map((sheep) => {
-                // Calculate current weight
+              {filteredActiveSheep.map((sheep) => {
                 const currentWeight = sheep.current_weight ?? sheep.initial_weight
                 const weightGain = currentWeight - sheep.initial_weight
 
@@ -383,7 +351,7 @@ export function SheepTable({ initialSheep }: SheepTableProps) {
                       {formatWeight(sheep.initial_weight)}
                     </td>
 
-                    {/* BB Saat Ini / BB Akhir */}
+                    {/* BB Saat Ini */}
                     <td className="py-4 px-4 sm:px-6 text-right">
                       <div className="font-mono font-bold text-xs sm:text-sm text-[#5C6F57]">
                         {formatWeight(currentWeight)}
@@ -409,15 +377,7 @@ export function SheepTable({ initialSheep }: SheepTableProps) {
 
                     {/* Status */}
                     <td className="py-4 px-4 sm:px-6 text-center">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${
-                          sheep.status === 'Penitipan'
-                            ? 'bg-[#D9E5D6] text-[#5C6F57] border-[#B1C5AA]/60'
-                            : sheep.status === 'Selesai/Terkirim'
-                            ? 'bg-blue-50 text-blue-800 border-blue-200'
-                            : 'bg-amber-100 text-amber-800 border-amber-300'
-                        }`}
-                      >
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[#D9E5D6] text-[#5C6F57] border border-[#B1C5AA]/60">
                         {sheep.status}
                       </span>
                     </td>
@@ -425,42 +385,174 @@ export function SheepTable({ initialSheep }: SheepTableProps) {
                     {/* Aksi */}
                     <td className="py-4 px-4 sm:px-6 text-center">
                       <div className="flex items-center justify-center gap-1.5">
-                        {activeTab === 'active' ? (
-                          <>
-                            {/* + Log Progress Button */}
-                            <Link
-                              href={`/admin/sheep/${sheep.id}/progress`}
-                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#EBF2E8] hover:bg-[#D9E5D6] text-[#5C6F57] text-xs font-semibold border border-[#B1C5AA]/50 transition-colors"
-                              title="Input log progress berkala"
-                            >
-                              <ClipboardList className="w-3.5 h-3.5" />
-                              <span className="hidden sm:inline">+ Log Progress</span>
-                              <span className="sm:hidden">+ Log</span>
-                            </Link>
+                        <Link
+                          href={`/admin/sheep/${sheep.id}/progress`}
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#EBF2E8] hover:bg-[#D9E5D6] text-[#5C6F57] text-xs font-semibold border border-[#B1C5AA]/50 transition-colors"
+                          title="Input log progress berkala"
+                        >
+                          <ClipboardList className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">+ Log Progress</span>
+                          <span className="sm:hidden">+ Log</span>
+                        </Link>
 
-                            {/* Detail / Public Link Button */}
-                            <Link
-                              href={`/track/${sheep.tracking_code}`}
-                              target="_blank"
-                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-stone-200 bg-white hover:bg-stone-50 text-slate-600 text-xs font-medium transition-colors"
-                              title="Buka tampilan lacak publik customer"
-                            >
-                              <ExternalLink className="w-3.5 h-3.5" />
-                              <span className="hidden md:inline">Detail</span>
-                            </Link>
-                          </>
-                        ) : (
-                          /* Tab 2: Domba Terjual -> Tombol Detail Riwayat Historis */
-                          <Link
-                            href={`/track/${sheep.tracking_code}`}
-                            target="_blank"
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-semibold border border-amber-200 transition-colors shadow-2xs"
-                            title="Buka riwayat log perkembangan domba yang telah selesai/terjual"
-                          >
-                            <ExternalLink className="w-3.5 h-3.5 text-amber-700" />
-                            <span>Detail Riwayat</span>
-                          </Link>
-                        )}
+                        <Link
+                          href={`/track/${sheep.tracking_code}`}
+                          target="_blank"
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-stone-200 bg-white hover:bg-stone-50 text-slate-600 text-xs font-medium transition-colors"
+                          title="Buka tampilan lacak publik customer"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          <span className="hidden md:inline">Detail</span>
+                        </Link>
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        /* Table View Tab 2: Sold Sheep (from sheep_sold table) */
+        <div className="overflow-x-auto overscroll-x-contain w-full">
+          <table className="w-full text-left text-sm min-w-[760px]">
+            <thead className="bg-[#EBF2E8]/60 text-[11px] font-bold text-slate-600 uppercase tracking-wider border-b border-[#B1C5AA]/40">
+              <tr>
+                <th className="py-3.5 px-4 sm:px-6">Tracking Code</th>
+                <th className="py-3.5 px-4 sm:px-6">Nama Customer</th>
+                <th className="py-3.5 px-4 sm:px-6">Ras & Gender</th>
+                <th className="py-3.5 px-4 sm:px-6 text-right">BB Awal</th>
+                <th className="py-3.5 px-4 sm:px-6 text-right">BB Akhir</th>
+                <th className="py-3.5 px-4 sm:px-6 text-center">Tanggal Terjual</th>
+                <th className="py-3.5 px-4 sm:px-6 text-center">Status</th>
+                <th className="py-3.5 px-4 sm:px-6 text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-stone-100">
+              {filteredSoldSheep.map((sheep) => {
+                const weightGain = sheep.final_weight - sheep.initial_weight
+
+                return (
+                  <tr
+                    key={sheep.id}
+                    className="hover:bg-amber-50/40 transition-colors group"
+                  >
+                    {/* Tracking Code */}
+                    <td className="py-4 px-4 sm:px-6">
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/track/${sheep.tracking_code}`}
+                          className="font-mono font-bold text-amber-900 hover:underline hover:text-amber-800 text-xs sm:text-sm tracking-wide"
+                          title="Lihat portal lacak publik"
+                        >
+                          {sheep.tracking_code}
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => handleCopyCode(sheep.tracking_code)}
+                          className="text-slate-400 hover:text-slate-700 p-1 rounded-md hover:bg-stone-100 transition-colors cursor-pointer"
+                          title="Salin kode tracking"
+                        >
+                          {copiedCode === sheep.tracking_code ? (
+                            <Check className="w-3.5 h-3.5 text-amber-700" />
+                          ) : (
+                            <Copy className="w-3.5 h-3.5" />
+                          )}
+                        </button>
+                      </div>
+                      <span className="text-[10px] text-slate-400 block mt-0.5">
+                        Masuk: {formatDate(sheep.entry_date)}
+                      </span>
+                    </td>
+
+                    {/* Nama Customer & Phone */}
+                    <td className="py-4 px-4 sm:px-6">
+                      <div className="font-semibold text-slate-900 text-xs sm:text-sm">
+                        {sheep.customer_name}
+                      </div>
+                      {sheep.customer_phone ? (
+                        <a
+                          href={`https://wa.me/${sheep.customer_phone.replace(/[^0-9]/g, '')}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-[11px] text-slate-500 hover:text-amber-800 mt-0.5"
+                          title="Hubungi via WhatsApp"
+                        >
+                          <Phone className="w-3 h-3 text-amber-700" />
+                          <span>{sheep.customer_phone}</span>
+                        </a>
+                      ) : (
+                        <span className="text-[10px] text-slate-400">-</span>
+                      )}
+                    </td>
+
+                    {/* Ras & Gender */}
+                    <td className="py-4 px-4 sm:px-6">
+                      <div className="text-xs sm:text-sm text-slate-800 font-medium">
+                        {sheep.breed}
+                      </div>
+                      <div className="mt-0.5">
+                        <span
+                          className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                            sheep.gender === 'Jantan'
+                              ? 'bg-blue-50 text-blue-700 border border-blue-100'
+                              : 'bg-rose-50 text-rose-700 border border-rose-100'
+                          }`}
+                        >
+                          <span>{sheep.gender === 'Jantan' ? '♂' : '♀'}</span>
+                          <span>{sheep.gender}</span>
+                        </span>
+                      </div>
+                    </td>
+
+                    {/* BB Awal */}
+                    <td className="py-4 px-4 sm:px-6 text-right font-mono text-xs sm:text-sm text-slate-600">
+                      {formatWeight(sheep.initial_weight)}
+                    </td>
+
+                    {/* BB Akhir */}
+                    <td className="py-4 px-4 sm:px-6 text-right">
+                      <div className="font-mono font-bold text-xs sm:text-sm text-amber-900">
+                        {formatWeight(sheep.final_weight)}
+                      </div>
+                      {weightGain > 0 ? (
+                        <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-[#5C6F57]">
+                          <TrendingUp className="w-2.5 h-2.5" />
+                          <span>+{weightGain.toFixed(1)} kg</span>
+                        </span>
+                      ) : weightGain < 0 ? (
+                        <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-rose-600">
+                          <span>{weightGain.toFixed(1)} kg</span>
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-slate-400">stabil</span>
+                      )}
+                    </td>
+
+                    {/* Tanggal Terjual */}
+                    <td className="py-4 px-4 sm:px-6 text-center font-mono text-xs text-slate-600">
+                      {formatDate(sheep.sold_date)}
+                    </td>
+
+                    {/* Status */}
+                    <td className="py-4 px-4 sm:px-6 text-center">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300">
+                        Terjual
+                      </span>
+                    </td>
+
+                    {/* Aksi */}
+                    <td className="py-4 px-4 sm:px-6 text-center">
+                      <div className="flex items-center justify-center">
+                        <Link
+                          href={`/track/${sheep.tracking_code}`}
+                          target="_blank"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-semibold border border-amber-200 transition-colors shadow-2xs"
+                          title="Buka riwayat log perkembangan domba yang telah selesai/terjual"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5 text-amber-700" />
+                          <span>Detail Riwayat</span>
+                        </Link>
                       </div>
                     </td>
                   </tr>
@@ -474,13 +566,23 @@ export function SheepTable({ initialSheep }: SheepTableProps) {
       {/* Table Footer Summary */}
       <div className="p-4 bg-[#EBF2E8]/40 border-t border-[#B1C5AA]/40 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
         <div>
-          Menampilkan <span className="font-semibold text-slate-700">{filteredSheep.length}</span> domba pada tab ini (dari total{' '}
-          <span className="font-semibold text-slate-700">{initialSheep.length}</span> domba terdaftar).
+          {activeTab === 'active' ? (
+            <>
+              Menampilkan <span className="font-semibold text-slate-700">{filteredActiveSheep.length}</span> domba aktif pada tab ini (dari total{' '}
+              <span className="font-semibold text-slate-700">{initialSheep.length}</span> domba penitipan).
+            </>
+          ) : (
+            <>
+              Menampilkan <span className="font-semibold text-slate-700">{filteredSoldSheep.length}</span> riwayat domba pada tab ini (dari total{' '}
+              <span className="font-semibold text-slate-700">{soldSheep.length}</span> domba terjual).
+            </>
+          )}
         </div>
         <div className="flex items-center gap-2 text-[11px] text-slate-400">
-          <span>* Klik kode tracking atau tombol &lsquo;Detail&rsquo; untuk melihat riwayat perkembangan lengkap</span>
+          <span>* Klik kode tracking atau tombol &lsquo;Detail Riwayat&rsquo; untuk melihat histori perkembangan lengkap</span>
         </div>
       </div>
     </div>
   )
 }
+

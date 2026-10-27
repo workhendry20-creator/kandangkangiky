@@ -5,7 +5,7 @@ import { Suspense } from "react";
 import Image from 'next/image'
 import { createAdminClient } from '@/lib/supabase/server'
 import { SheepTable } from '@/components/admin/SheepTable'
-import type { Sheep } from '@/types/sheep'
+import type { Sheep, SheepSold } from '@/types/sheep'
 import {
   TrendingUp,
   Activity,
@@ -16,10 +16,11 @@ import {
 } from 'lucide-react'
 
 async function DashboardContent() {
-  // Fetch sheep and related progress logs using admin client to prevent cookie expiry issues
+  const db = createAdminClient()
+
+  // 1. Fetch active sheep (Tab 1)
   let sheepList: Sheep[] = []
   try {
-    const db = createAdminClient()
     const { data, error } = await db
       .from('sheep')
       .select(`
@@ -35,17 +36,13 @@ async function DashboardContent() {
       .order('created_at', { referencedTable: 'progress_logs', ascending: false })
 
     if (error) {
-      console.error('[Dashboard] Error fetching sheep and progress_logs from Supabase:', error)
-
-      // Fallback query if relation query encounters an issue
+      console.error('[Dashboard] Error fetching sheep from Supabase:', error)
       const fallback = await db
         .from('sheep')
         .select('*')
         .order('created_at', { ascending: false })
 
-      if (fallback.error) {
-        console.error('[Dashboard] Error fetching fallback sheep data:', fallback.error)
-      } else if (fallback.data) {
+      if (fallback.data) {
         sheepList = (fallback.data as unknown as Sheep[]).map((item) => ({
           ...item,
           current_weight: item.current_weight ?? item.initial_weight,
@@ -60,7 +57,6 @@ async function DashboardContent() {
             : initialWeight
 
         if (item.progress_logs && Array.isArray(item.progress_logs) && item.progress_logs.length > 0) {
-          // Sort progress_logs: record_date DESC, created_at DESC
           const sortedLogs = [...item.progress_logs].sort((a, b) => {
             const dateDiff = new Date(b.record_date).getTime() - new Date(a.record_date).getTime()
             if (dateDiff !== 0) return dateDiff
@@ -69,7 +65,6 @@ async function DashboardContent() {
             return bCreated - aCreated
           })
 
-          // BB Saat Ini membaca log terbaru yang sudah dijumlahkan
           const latestLogWeight = Number(sortedLogs[0].current_weight)
           if (!isNaN(latestLogWeight) && latestLogWeight > 0) {
             calculatedWeight = latestLogWeight
@@ -86,32 +81,41 @@ async function DashboardContent() {
     console.error('[Dashboard] Unexpected error fetching master data domba:', err)
   }
 
+  // 2. Fetch sold sheep (Tab 2: sheep_sold)
+  let soldList: SheepSold[] = []
+  try {
+    const { data: soldData, error: soldError } = await db
+      .from('sheep_sold')
+      .select('*')
+      .order('sold_date', { ascending: false })
+      .order('created_at', { ascending: false })
+
+    if (soldError) {
+      console.warn('[Dashboard] Note fetching sheep_sold:', soldError.message)
+    } else if (soldData) {
+      soldList = soldData as unknown as SheepSold[]
+    }
+  } catch (err) {
+    console.warn('[Dashboard] Unexpected error fetching sheep_sold:', err)
+  }
+
   // Calculate Dashboard Metrics
-  const totalSheep = sheepList.length
-  const uniqueCustomers = new Set(
-    sheepList.map((s) => s.customer_name.trim().toLowerCase())
-  ).size
-  const penitipanCount = sheepList.filter((s) => s.status === 'Penitipan').length
-  const completedCount = sheepList.filter(
-    (s) => s.status === 'Terjual' || s.status === 'Selesai/Terkirim' || s.status === 'Selesai'
-  ).length
+  const activeCount = sheepList.length
+  const soldCount = soldList.length
+
+  const allCustomerNames = [
+    ...sheepList.map((s) => s.customer_name.trim().toLowerCase()),
+    ...soldList.map((s) => s.customer_name.trim().toLowerCase()),
+  ]
+  const uniqueCustomers = new Set(allCustomerNames.filter(Boolean)).size
 
   const avgWeight =
-    penitipanCount > 0
-      ? (
-          sheepList
-            .filter((s) => s.status === 'Penitipan')
-            .reduce(
-              (acc, s) => acc + (s.current_weight ?? s.initial_weight),
-              0
-            ) / penitipanCount
-        ).toFixed(1)
-      : totalSheep > 0
+    activeCount > 0
       ? (
           sheepList.reduce(
             (acc, s) => acc + (s.current_weight ?? s.initial_weight),
             0
-          ) / totalSheep
+          ) / activeCount
         ).toFixed(1)
       : '0.0'
 
@@ -152,7 +156,7 @@ async function DashboardContent() {
             </div>
             <div>
               <div className="flex items-baseline gap-1.5">
-                <span className="text-3xl font-bold text-slate-900">{penitipanCount}</span>
+                <span className="text-3xl font-bold text-slate-900">{activeCount}</span>
                 <span className="text-sm text-slate-500">ekor</span>
               </div>
               <div className="mt-2 flex items-center gap-1.5 text-xs text-[#5C6F57] font-semibold">
@@ -161,9 +165,9 @@ async function DashboardContent() {
               </div>
             </div>
             <div className="mt-4 pt-3 border-t border-stone-100 flex justify-between text-[11px] text-slate-500">
-              <span className="font-semibold text-[#5C6F57]">{penitipanCount} Aktif</span>
+              <span className="font-semibold text-[#5C6F57]">{activeCount} Aktif</span>
               <span>•</span>
-              <span className="font-semibold text-amber-700">{completedCount} Selesai / Terjual</span>
+              <span className="font-semibold text-amber-700">{soldCount} Selesai / Terjual</span>
             </div>
           </div>
 
@@ -205,7 +209,7 @@ async function DashboardContent() {
             </div>
             <div>
               <div className="flex items-baseline gap-1.5">
-                <span className="text-3xl font-bold text-amber-800">{completedCount}</span>
+                <span className="text-3xl font-bold text-amber-800">{soldCount}</span>
                 <span className="text-sm text-slate-500">ekor</span>
               </div>
               <div className="mt-2 flex items-center gap-1.5 text-xs text-amber-700 font-semibold">
@@ -215,7 +219,7 @@ async function DashboardContent() {
             </div>
             <div className="mt-4 pt-3 border-t border-stone-100 flex justify-between text-[11px] text-slate-500">
               <span>Masa Penitipan Selesai</span>
-              <span className="text-[#5C6F57] font-medium">Siap Kirim / Diserahkan</span>
+              <span className="text-[#5C6F57] font-medium">Tersimpan di sheep_sold</span>
             </div>
           </div>
 
@@ -247,7 +251,7 @@ async function DashboardContent() {
         </div>
 
         {/* Master Data Sheep Table with Search Filter */}
-        <SheepTable initialSheep={sheepList} />
+        <SheepTable initialSheep={sheepList} soldSheep={soldList} />
       </main>
 
       {/* Footer */}

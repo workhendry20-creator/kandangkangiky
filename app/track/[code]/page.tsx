@@ -9,8 +9,8 @@ import { WeightChart } from '@/components/tracker/WeightChart'
 import { ProgressFeed } from '@/components/tracker/ProgressFeed'
 import { TrackerActions } from '@/components/tracker/TrackerActions'
 import { CountdownCard } from '@/components/tracker/CountdownCard'
-import { formatWeight, calculateRealtimeAge } from '@/lib/utils'
-import type { Sheep, ProgressLog } from '@/types/sheep'
+import { formatWeight, calculateRealtimeAge, formatDate } from '@/lib/utils'
+import type { Sheep, SheepSold, ProgressLog } from '@/types/sheep'
 import {
   ArrowLeft,
   Scale,
@@ -33,7 +33,7 @@ async function TrackerContent({ params }: PageProps) {
 
   const supabase = createAdminClient()
 
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from('sheep')
     .select(`
       *,
@@ -52,13 +52,52 @@ async function TrackerContent({ params }: PageProps) {
     .eq('tracking_code', trackingCode)
     .order('record_date', { referencedTable: 'progress_logs', ascending: false })
     .order('created_at', { referencedTable: 'progress_logs', ascending: false })
-    .single()
+    .maybeSingle()
 
-  if (error) {
-    console.error(`[Tracking] Error fetching sheep for code "${trackingCode}":`, error)
+  let sheep: Sheep | null = data as Sheep | null
+  let rawLogs: ProgressLog[] = ((data?.progress_logs || []) as ProgressLog[])
+  let isSold = false
+  let soldDate: string | null = null
+
+  // Fallback to sheep_sold table if not found in active sheep
+  if (!sheep) {
+    const { data: soldData } = await supabase
+      .from('sheep_sold')
+      .select('*')
+      .eq('tracking_code', trackingCode)
+      .maybeSingle()
+
+    if (soldData) {
+      isSold = true
+      soldDate = soldData.sold_date
+
+      // Fetch historical progress logs
+      const { data: fetchedLogs } = await supabase
+        .from('progress_logs')
+        .select('*')
+        .eq('sheep_id', soldData.original_sheep_id)
+        .order('record_date', { ascending: false })
+        .order('created_at', { ascending: false })
+
+      sheep = {
+        id: soldData.original_sheep_id,
+        tracking_code: soldData.tracking_code,
+        customer_name: soldData.customer_name,
+        customer_phone: soldData.customer_phone,
+        breed: soldData.breed,
+        gender: soldData.gender,
+        initial_weight: Number(soldData.initial_weight),
+        target_weight: Number(soldData.final_weight),
+        current_weight: Number(soldData.final_weight),
+        entry_date: soldData.entry_date,
+        status: 'Terjual',
+        created_at: soldData.created_at,
+      }
+      rawLogs = (fetchedLogs || []) as ProgressLog[]
+    }
   }
 
-  if (error || !data) {
+  if (!sheep) {
     return (
       <div className="min-h-screen bg-white flex flex-col text-slate-800">
         {/* Top Navbar */}
@@ -121,8 +160,7 @@ async function TrackerContent({ params }: PageProps) {
     )
   }
 
-  const sheep = data as Sheep
-  const rawLogs = ((data.progress_logs || []) as ProgressLog[]).sort((a, b) => {
+  rawLogs = [...rawLogs].sort((a, b) => {
     const dateDiff =
       new Date(b.record_date).getTime() - new Date(a.record_date).getTime()
     if (dateDiff !== 0) return dateDiff
@@ -155,7 +193,7 @@ async function TrackerContent({ params }: PageProps) {
   // Calculate realtime age based on arrival_date / entry_date
   const arrivalDateSource =
     sheep.arrival_date ||
-    (data as Record<string, unknown>).arrival_date ||
+    (data as Record<string, unknown> | null)?.arrival_date ||
     sheep.entry_date ||
     sheep.created_at
   const realtimeAge = calculateRealtimeAge(arrivalDateSource as string)
@@ -200,10 +238,23 @@ async function TrackerContent({ params }: PageProps) {
                 <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#EBF2E8] text-[#5C6F57] border border-[#B1C5AA]">
                   {sheep.tracking_code}
                 </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#D9E5D6] text-[#5C6F57]">
+                <span
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${
+                    isSold || sheep.status === 'Terjual' || sheep.status === 'Selesai'
+                      ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                      : 'bg-[#D9E5D6] text-[#5C6F57]'
+                  }`}
+                >
                   <Sparkles className="w-3.5 h-3.5" />
-                  <span>Status: {sheep.status}</span>
+                  <span>
+                    Status: {isSold || sheep.status === 'Terjual' ? 'Terjual / Selesai' : sheep.status}
+                  </span>
                 </span>
+                {soldDate && (
+                  <span className="text-xs text-amber-800 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200 font-medium">
+                    Tgl Selesai: {formatDate(soldDate)}
+                  </span>
+                )}
               </div>
 
               <div>

@@ -27,3 +27,18 @@ export interface Sheep {
   progress_logs?: Array<Pick<ProgressLog, 'current_weight' | 'record_date' | 'created_at'>>
   current_weight?: number
 }
+
+export interface SheepSold {
+  id: string
+  original_sheep_id: string
+  tracking_code: string
+  customer_name: string
+  customer_phone?: string | null
+  breed: string
+  gender: 'Jantan' | 'Betina'
+  initial_weight: number
+  final_weight: number
+  entry_date: string
+  sold_date: string
+  created_at: string
+}
