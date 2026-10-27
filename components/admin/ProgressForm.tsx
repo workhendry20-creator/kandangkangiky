@@ -569,48 +569,46 @@ export function ProgressForm({ sheep, lastWeight }: ProgressFormProps) {
               )}
             </div>
 
-            {/* 6. Action Submit Buttons */}
-            <div className="pt-4 border-t border-[#B1C5AA]/40 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-              <div>
-                {/* Red safety button: Selesaikan Masa Penitipan / Terjual */}
-                <button
-                  type="button"
-                  id="btnMarkSoldModal"
-                  disabled={isPending || isCompressing}
-                  onClick={() => setShowSoldModal(true)}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-rose-600 hover:bg-rose-700 active:scale-[0.99] text-white text-sm font-semibold shadow-xs transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Selesaikan Masa Penitipan / Terjual</span>
-                </button>
-              </div>
+            {/* 6. Tombol Mandiri Full-Width: Selesaikan Masa Penitipan / Terjual */}
+            <div className="pt-3">
+              <button
+                type="button"
+                id="btnMarkSoldModal"
+                disabled={isPending || isCompressing}
+                onClick={() => setShowSoldModal(true)}
+                className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-rose-900 hover:bg-rose-950 active:scale-[0.99] text-white text-sm font-semibold shadow-xs transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                <CheckCircle2 className="w-4 h-4 text-rose-200" />
+                <span>Selesaikan Masa Penitipan / Terjual</span>
+              </button>
+            </div>
 
-              <div className="flex flex-col sm:flex-row items-center gap-3">
-                <Link
-                  href="/admin/dashboard"
-                  className="w-full sm:w-auto px-5 py-3 rounded-xl border border-stone-300 bg-white hover:bg-stone-50 text-slate-700 text-sm font-semibold transition-colors text-center"
-                >
-                  Batal
-                </Link>
-                <button
-                  type="submit"
-                  id="btnSubmitProgressLog"
-                  disabled={isPending || isCompressing}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#5C6F57] hover:bg-[#485844] active:scale-[0.99] text-white text-sm font-semibold shadow-xs transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {isPending && !isMarkingSold ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Menyimpan...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4" />
-                      <span>Simpan Perkembangan</span>
-                    </>
-                  )}
-                </button>
-              </div>
+            {/* 7. Action Submit Footer Buttons (Side-by-Side) */}
+            <div className="pt-4 border-t border-[#B1C5AA]/40 grid grid-cols-2 gap-3">
+              <Link
+                href="/admin/dashboard"
+                className="w-full px-5 py-3.5 rounded-xl border border-stone-300 bg-white hover:bg-stone-50 text-slate-700 text-sm font-semibold transition-colors text-center inline-flex items-center justify-center"
+              >
+                Batal
+              </Link>
+              <button
+                type="submit"
+                id="btnSubmitProgressLog"
+                disabled={isPending || isCompressing}
+                className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-[#5C6F57] hover:bg-[#485844] active:scale-[0.99] text-white text-sm font-semibold shadow-xs transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {isPending && !isMarkingSold ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Menyimpan...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4" />
+                    <span>Simpan Perkembangan</span>
+                  </>
+                )}
+              </button>
             </div>
           </form>
         </div>
@@ -657,7 +655,7 @@ export function ProgressForm({ sheep, lastWeight }: ProgressFormProps) {
                 type="button"
                 onClick={handleConfirmMarkSold}
                 disabled={isPending || isCompressing}
-                className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm transition-colors cursor-pointer disabled:opacity-60"
+                className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-rose-900 hover:bg-rose-950 text-white font-semibold text-sm transition-colors cursor-pointer disabled:opacity-60"
               >
                 {isPending && isMarkingSold ? (
                   <>
