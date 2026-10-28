@@ -92,6 +92,7 @@ export function AdminNavbar() {
             <nav className="hidden md:flex items-center gap-1.5 pl-4 border-l border-[#B1C5AA]/40">
               <Link
                 href="/admin/dashboard"
+                prefetch={true}
                 id="navLinkTitipanQurban"
                 className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${isTitipanActive
                   ? 'bg-[#5C6F57] text-white shadow-xs'
@@ -104,6 +105,7 @@ export function AdminNavbar() {
 
               <Link
                 href="/admin/farm-sheep"
+                prefetch={true}
                 id="navLinkFarmSheep"
                 className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${isFarmSheepActive
                   ? 'bg-[#5C6F57] text-white shadow-xs'
@@ -177,6 +179,7 @@ export function AdminNavbar() {
             <div className="flex flex-col gap-1.5">
               <Link
                 href="/admin/dashboard"
+                prefetch={true}
                 className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold transition-all ${isTitipanActive
                   ? 'bg-[#5C6F57] text-white shadow-xs'
                   : 'text-slate-700 hover:bg-[#EBF2E8]/60'
@@ -191,6 +194,7 @@ export function AdminNavbar() {
 
               <Link
                 href="/admin/farm-sheep"
+                prefetch={true}
                 className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold transition-all ${isFarmSheepActive
                   ? 'bg-[#5C6F57] text-white shadow-xs'
                   : 'text-slate-700 hover:bg-[#EBF2E8]/60'

@@ -53,13 +53,59 @@ export async function createProgressLog(
     }
 
     // 2. Fetch sheep record to obtain tracking_code, customer_name, and other details
-    const { data: sheep, error: sheepError } = await supabase
+    let sheep: any = null
+    const { data: sheepData } = await supabase
       .from('sheep')
       .select('*')
       .eq('id', sheepId)
-      .single()
+      .maybeSingle()
 
-    if (sheepError || !sheep) {
+    if (sheepData) {
+      sheep = sheepData as Record<string, unknown>
+    } else {
+      // Universal Progress: check farm_sheep table
+      const { data: farmData } = await supabase
+        .from('farm_sheep')
+        .select('*')
+        .eq('id', sheepId)
+        .maybeSingle()
+
+      if (farmData) {
+        const tagCode = String(farmData.tag_id || farmData.tag_code || farmData.id)
+        const initialWeight = Number(farmData.initial_weight) || 0
+        const currentWeight = Number(farmData.current_weight || farmData.initial_weight) || initialWeight
+
+        // Check if there is an existing record in sheep table for this tagCode
+        const { data: matchSheep } = await supabase
+          .from('sheep')
+          .select('*')
+          .eq('tracking_code', tagCode)
+          .maybeSingle()
+
+        if (matchSheep) {
+          sheep = matchSheep as Record<string, unknown>
+        } else {
+          // Insert sync record to sheep table so progress_logs foreign key succeeds
+          const newSheepPayload: Record<string, unknown> = {
+            id: farmData.id,
+            tracking_code: tagCode,
+            customer_name: farmData.customer_name || 'Stok Kandang',
+            customer_phone: farmData.customer_phone || null,
+            breed: farmData.breed || 'Garut',
+            gender: farmData.gender || 'Jantan',
+            initial_weight: initialWeight,
+            current_weight: currentWeight,
+            target_weight: initialWeight + 15,
+            entry_date: farmData.arrival_date || farmData.entry_date || new Date().toISOString().split('T')[0],
+            status: 'Penitipan',
+          }
+          await supabase.from('sheep').insert(newSheepPayload)
+          sheep = newSheepPayload
+        }
+      }
+    }
+
+    if (!sheep) {
       return { success: false, error: 'Data domba tidak ditemukan di sistem.' }
     }
 
@@ -276,14 +322,19 @@ export async function createProgressLog(
       // 4. JANGAN kirim update ke Google Sheets untuk proses penjualan ini.
       // (Google Sheets sengaja dilewati untuk menjaga integritas data sheet)
     } else {
-      // Regular progress log flow: update kolom current_weight pada tabel sheep
-      const { error: updateSheepError } = await supabase
+      // Regular progress log flow: update kolom current_weight pada tabel sheep dan farm_sheep
+      await supabase
         .from('sheep')
         .update({ current_weight: weightToSave })
         .eq('id', sheepId)
 
-      if (updateSheepError) {
-        console.warn('Gagal memperbarui current_weight pada tabel sheep:', updateSheepError.message)
+      try {
+        await supabase
+          .from('farm_sheep')
+          .update({ current_weight: weightToSave })
+          .or(`id.eq.${sheepId},tag_id.eq.${sheep.tracking_code}`)
+      } catch (fUpdateErr) {
+        console.warn('Note updating current_weight on farm_sheep:', fUpdateErr)
       }
 
       // 5. POST ke Google Sheets Web App API (Sheet: Log_Titipan) secara asynchronous untuk update reguler
@@ -333,8 +384,8 @@ export async function createProgressLog(
       if (!sheetsSynced) {
         try {
           const sheetRes = await appendProgressRowToSheet({
-            trackingCode: sheep.tracking_code,
-            customerName: sheep.customer_name,
+            trackingCode: String(sheep.tracking_code || ''),
+            customerName: String(sheep.customer_name || 'Stok Kandang'),
             recordDate: recordDate,
             updateType: updateType,
             currentWeight: weightToSave,
@@ -352,6 +403,7 @@ export async function createProgressLog(
     // 6. Revalidate relevant paths
     revalidatePath('/admin/dashboard')
     revalidatePath('/admin/dashboard', 'page')
+    revalidatePath('/admin/farm-sheep')
     revalidatePath('/', 'layout')
     revalidatePath(`/admin/sheep/${sheepId}/progress`)
     revalidatePath(`/track/${sheep.tracking_code}`)

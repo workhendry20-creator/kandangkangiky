@@ -257,10 +257,14 @@ export function ProgressForm({ sheep, lastWeight }: ProgressFormProps) {
             <div className="flex items-start justify-between gap-3">
               <div>
                 <span className="px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-[#D9E5D6] text-[#5C6F57] border border-[#B1C5AA]/40 inline-block">
-                  {sheep.tracking_code}
+                  {sheep.customer_name && sheep.customer_name !== 'Stok Kandang'
+                    ? `[${sheep.tracking_code}] • Customer: ${sheep.customer_name}`
+                    : `[${sheep.tracking_code}] • Stok Kandang (Milik Peternakan)`}
                 </span>
                 <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 mt-1.5">
-                  {sheep.customer_name}
+                  {sheep.customer_name && sheep.customer_name !== 'Stok Kandang'
+                    ? sheep.customer_name
+                    : `Domba ${sheep.tracking_code} (${sheep.breed})`}
                 </h1>
                 <p className="text-xs text-slate-500">
                   {sheep.breed} • {sheep.gender} • Masuk {formatDate(sheep.entry_date)}
@@ -643,7 +647,10 @@ export function ProgressForm({ sheep, lastWeight }: ProgressFormProps) {
                   <span className="font-semibold text-slate-700">Kode Tracking:</span> {sheep.tracking_code}
                 </div>
                 <div>
-                  <span className="font-semibold text-slate-700">Pemilik:</span> {sheep.customer_name}
+                  <span className="font-semibold text-slate-700">Pemilik / Status:</span>{' '}
+                  {sheep.customer_name && sheep.customer_name !== 'Stok Kandang'
+                    ? `Customer: ${sheep.customer_name}`
+                    : 'Stok Kandang (Milik Peternakan)'}
                 </div>
                 <div>
                   <span className="font-semibold text-slate-700">Bobot Akhir:</span> {calculatedNewWeight} kg

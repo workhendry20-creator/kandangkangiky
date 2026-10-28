@@ -2,15 +2,37 @@
 
 import { useState } from "react";
 import { useRouter } from 'next/navigation'
+import dynamic from 'next/dynamic'
 import type { FarmSheep, FarmEvent } from '@/types/farm-sheep'
 import { FarmSheepTable } from './FarmSheepTable'
 import { BirthEventsTable } from './BirthEventsTable'
 import { TreatmentEventsTable } from './TreatmentEventsTable'
-import { NewFarmSheepModal } from './NewFarmSheepModal'
-import { EditFarmSheepModal } from './EditFarmSheepModal'
-import { ImportCsvModal } from './ImportCsvModal'
-import { NewBirthModal } from './NewBirthModal'
-import { NewTreatmentModal } from './NewTreatmentModal'
+
+// Dynamic imports for heavy modals to optimize performance and bundle size
+const NewFarmSheepModal = dynamic(
+  () => import('./NewFarmSheepModal').then((m) => m.NewFarmSheepModal),
+  { ssr: false }
+)
+const EditFarmSheepModal = dynamic(
+  () => import('./EditFarmSheepModal').then((m) => m.EditFarmSheepModal),
+  { ssr: false }
+)
+const ImportCsvModal = dynamic(
+  () => import('./ImportCsvModal').then((m) => m.ImportCsvModal),
+  { ssr: false }
+)
+const NewBirthModal = dynamic(
+  () => import('./NewBirthModal').then((m) => m.NewBirthModal),
+  { ssr: false }
+)
+const NewTreatmentModal = dynamic(
+  () => import('./NewTreatmentModal').then((m) => m.NewTreatmentModal),
+  { ssr: false }
+)
+const AssignCustomerModal = dynamic(
+  () => import('./AssignCustomerModal').then((m) => m.AssignCustomerModal),
+  { ssr: false }
+)
 import {
   Warehouse,
   Baby,
@@ -41,6 +63,8 @@ export function FarmSheepManagement({
   const [selectedSheepForEdit, setSelectedSheepForEdit] = useState<FarmSheep | null>(null)
   const [isNewBirthModalOpen, setIsNewBirthModalOpen] = useState(false)
   const [isNewTreatmentModalOpen, setIsNewTreatmentModalOpen] = useState(false)
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false)
+  const [selectedSheepForAssign, setSelectedSheepForAssign] = useState<FarmSheep | null>(null)
 
   const handleRefresh = () => {
     router.refresh()
@@ -49,6 +73,11 @@ export function FarmSheepManagement({
   const handleOpenEdit = (sheep: FarmSheep) => {
     setSelectedSheepForEdit(sheep)
     setIsEditModalOpen(true)
+  }
+
+  const handleOpenAssign = (sheep: FarmSheep) => {
+    setSelectedSheepForAssign(sheep)
+    setIsAssignModalOpen(true)
   }
 
   // Calculate Metrics
@@ -248,6 +277,7 @@ export function FarmSheepManagement({
           onOpenNewModal={() => setIsNewSheepModalOpen(true)}
           onOpenImportModal={() => setIsImportModalOpen(true)}
           onOpenEditModal={handleOpenEdit}
+          onOpenAssignCustomer={handleOpenAssign}
           onRefresh={handleRefresh}
         />
       )}
@@ -302,6 +332,16 @@ export function FarmSheepManagement({
         sheepList={initialSheep}
         isOpen={isNewTreatmentModalOpen}
         onClose={() => setIsNewTreatmentModalOpen(false)}
+        onSuccess={handleRefresh}
+      />
+
+      <AssignCustomerModal
+        sheep={selectedSheepForAssign}
+        isOpen={isAssignModalOpen}
+        onClose={() => {
+          setIsAssignModalOpen(false)
+          setSelectedSheepForAssign(null)
+        }}
         onSuccess={handleRefresh}
       />
     </div>

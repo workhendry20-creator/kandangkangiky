@@ -15,31 +15,81 @@ async function ProgressContent({ params }: PageProps) {
   const { id } = await params
   const supabase = await createClient()
 
-  const { data: sheepData, error } = await supabase
+  let sheepRecord: Sheep | null = null
+  let logs: Array<{ current_weight: number | string; record_date: string; created_at?: string }> = []
+
+  const { data: sheepData } = await supabase
     .from('sheep')
     .select(`
       *,
       progress_logs (
         current_weight,
-        record_date
+        record_date,
+        created_at
       )
     `)
     .eq('id', id)
-    .single()
+    .maybeSingle()
 
-  if (error || !sheepData) {
-    notFound()
+  if (sheepData) {
+    sheepRecord = sheepData as Sheep
+    logs = (sheepData.progress_logs || []) as typeof logs
+  } else {
+    // Universal Progress fallback: check farm_sheep table
+    const { data: farmData } = await supabase
+      .from('farm_sheep')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle()
+
+    if (!farmData) {
+      notFound()
+    }
+
+    const tagCode = String(farmData.tag_id || farmData.tag_code || farmData.id)
+
+    // Check if progress logs exist for this sheep_id
+    const { data: farmLogs } = await supabase
+      .from('progress_logs')
+      .select('current_weight, record_date, created_at')
+      .eq('sheep_id', farmData.id)
+
+    logs = (farmLogs || []) as typeof logs
+
+    // Check if there is an existing customer in sheep table for this tagCode or id
+    const { data: matchSheep } = await supabase
+      .from('sheep')
+      .select('customer_name, customer_phone, target_weight')
+      .or(`id.eq.${farmData.id},tracking_code.eq.${tagCode}`)
+      .maybeSingle()
+
+    const initialWeight = Number(farmData.initial_weight) || 0
+    const currentWeight = Number(farmData.current_weight || farmData.initial_weight) || initialWeight
+
+    sheepRecord = {
+      id: farmData.id,
+      tracking_code: tagCode,
+      customer_name: matchSheep?.customer_name || farmData.customer_name || '',
+      customer_phone: matchSheep?.customer_phone || farmData.customer_phone || undefined,
+      breed: farmData.breed || 'Garut',
+      gender: farmData.gender || 'Jantan',
+      initial_weight: initialWeight,
+      current_weight: currentWeight,
+      target_weight: Number(matchSheep?.target_weight) || initialWeight + 15,
+      entry_date: farmData.arrival_date || farmData.entry_date || new Date().toISOString().split('T')[0],
+      status: 'Penitipan',
+      created_at: farmData.created_at || new Date().toISOString(),
+    }
   }
 
-  const sheep = sheepData as Sheep
-  const initialWeight = Number(sheep.initial_weight) || 0
+  const initialWeight = Number(sheepRecord.initial_weight) || 0
   let currentAccumulatedWeight =
-    sheep.current_weight !== undefined && sheep.current_weight !== null
-      ? Number(sheep.current_weight)
+    sheepRecord.current_weight !== undefined && sheepRecord.current_weight !== null
+      ? Number(sheepRecord.current_weight)
       : initialWeight
 
-  if (sheep.progress_logs && sheep.progress_logs.length > 0) {
-    const sortedLogs = [...sheep.progress_logs].sort((a, b) => {
+  if (logs && logs.length > 0) {
+    const sortedLogs = [...logs].sort((a, b) => {
       const dateDiff = new Date(b.record_date).getTime() - new Date(a.record_date).getTime()
       if (dateDiff !== 0) return dateDiff
       const aCreated = a.created_at ? new Date(a.created_at).getTime() : 0
@@ -54,7 +104,7 @@ async function ProgressContent({ params }: PageProps) {
 
   return (
     <ProgressForm
-      sheep={{ ...sheep, current_weight: currentAccumulatedWeight }}
+      sheep={{ ...sheepRecord, current_weight: currentAccumulatedWeight }}
       lastWeight={currentAccumulatedWeight}
     />
   )

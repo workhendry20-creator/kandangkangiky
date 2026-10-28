@@ -137,7 +137,28 @@ export async function getFarmData(): Promise<{
       console.warn('[FarmSheep] Note fetching farm_sheep:', sheepError.message)
     }
 
-    // Map sheep to uniform shape
+    // 1b. Fetch all sheep from 'sheep' table to detect ownership (Titipan Customer vs Stok Kandang)
+    const sheepCustomerMap = new Map<string, { id: string; customer_name: string; customer_phone?: string | null }>()
+    try {
+      const { data: allSheep } = await db
+        .from('sheep')
+        .select('id, tracking_code, customer_name, customer_phone')
+
+      if (allSheep) {
+        for (const s of allSheep) {
+          if (s.tracking_code) {
+            sheepCustomerMap.set(String(s.tracking_code).trim().toUpperCase(), s)
+          }
+          if (s.id) {
+            sheepCustomerMap.set(String(s.id), s)
+          }
+        }
+      }
+    } catch (scErr) {
+      console.warn('[FarmSheep] Note matching sheep customer ownership:', scErr)
+    }
+
+    // Map sheep to uniform shape with ownership
     const farmSheep: FarmSheep[] = (rawSheepData || []).map((s: Record<string, unknown>) => {
       const initialWeight = Number(s.initial_weight) || 0
       const currentWeight =
@@ -145,9 +166,21 @@ export async function getFarmData(): Promise<{
           ? Number(s.current_weight)
           : initialWeight
 
+      const tagCode = String(s.tag_id || s.tag_code || s.code || s.id)
+      const matchingSheep =
+        sheepCustomerMap.get(tagCode.trim().toUpperCase()) ||
+        sheepCustomerMap.get(String(s.id))
+
+      const rawCustName = (matchingSheep?.customer_name || s.customer_name) as string | undefined
+      const cleanCustName =
+        rawCustName && rawCustName.trim() && rawCustName.trim() !== 'Stok Kandang'
+          ? rawCustName.trim()
+          : null
+      const rawPhone = (matchingSheep?.customer_phone || s.customer_phone) as string | undefined
+
       return {
         id: String(s.id),
-        tag_code: String(s.tag_id || s.tag_code || s.code || s.id),
+        tag_code: tagCode,
         name: String(s.name || ''),
         gender: (s.gender as FarmSheepGender) || 'Betina',
         breed: String(s.breed || 'Garut'),
@@ -157,6 +190,8 @@ export async function getFarmData(): Promise<{
         current_weight: currentWeight,
         status: (s.status as FarmSheepStatus) || 'Kosongan',
         sheep_type: ((s.type || s.sheep_type || 'Indukan') as FarmSheepType),
+        customer_name: cleanCustName,
+        customer_phone: rawPhone ? String(rawPhone).trim() : null,
         notes: (s.notes || s.description || null) as string | null,
         created_at: String(s.created_at || new Date().toISOString()),
       }
@@ -1369,6 +1404,135 @@ export async function fullSyncToSheets(): Promise<{
       message: errorMsg,
       error: errorMsg,
     }
+  }
+}
+
+export interface AssignCustomerInput {
+  farmSheepId: string
+  customerName: string
+  customerPhone?: string
+  targetWeight?: number
+  entryDate?: string
+}
+
+/**
+ * Assign a customer to a farm sheep, transitioning it from 'Stok Kandang' to 'Titipan Customer'.
+ * Creates/updates record in 'sheep' table so it appears in Halaman Titipan & Qurban (Tab 1)
+ * and syncs to Google Sheets webhook.
+ */
+export async function assignCustomerToSheep(
+  input: AssignCustomerInput
+): Promise<FarmActionResult> {
+  try {
+    const adminSession = await requireAdminSession()
+    if (!adminSession) {
+      return { success: false, error: 'Sesi admin berakhir atau belum login.' }
+    }
+
+    const customerName = input.customerName?.trim()
+    if (!customerName) {
+      return { success: false, error: 'Nama customer wajib diisi.' }
+    }
+
+    const supabase = createAdminClient()
+
+    // 1. Fetch farm sheep details
+    const { data: farmSheep, error: fError } = await supabase
+      .from('farm_sheep')
+      .select('*')
+      .eq('id', input.farmSheepId)
+      .single()
+
+    if (fError || !farmSheep) {
+      return { success: false, error: 'Data domba tidak ditemukan di Master Kandang.' }
+    }
+
+    const tagCode = String(farmSheep.tag_id || farmSheep.tag_code || farmSheep.id)
+    const initialWeight = Number(farmSheep.initial_weight) || 20
+    const currentWeight = Number(farmSheep.current_weight || farmSheep.initial_weight) || initialWeight
+    const targetWeight = Number(input.targetWeight) || Math.round(currentWeight + 15)
+    const entryDate =
+      input.entryDate?.trim() ||
+      farmSheep.arrival_date ||
+      farmSheep.entry_date ||
+      new Date().toISOString().split('T')[0]
+
+    // 2. Check if a record already exists in sheep
+    const { data: existingSheep } = await supabase
+      .from('sheep')
+      .select('id')
+      .or(`id.eq.${farmSheep.id},tracking_code.eq.${tagCode}`)
+      .maybeSingle()
+
+    if (existingSheep) {
+      await supabase
+        .from('sheep')
+        .update({
+          customer_name: customerName,
+          customer_phone: input.customerPhone?.trim() || null,
+          target_weight: targetWeight,
+          status: 'Penitipan',
+        })
+        .eq('id', existingSheep.id)
+    } else {
+      await supabase
+        .from('sheep')
+        .insert({
+          id: farmSheep.id,
+          tracking_code: tagCode,
+          customer_name: customerName,
+          customer_phone: input.customerPhone?.trim() || null,
+          breed: farmSheep.breed || 'Garut',
+          gender: farmSheep.gender || 'Jantan',
+          initial_weight: initialWeight,
+          current_weight: currentWeight,
+          target_weight: targetWeight,
+          entry_date: entryDate,
+          status: 'Penitipan',
+        })
+    }
+
+    // 3. Sync to Google Sheets Master_Titipan webhook
+    try {
+      const webhookUrl = getGoogleSheetsWebhookUrl()
+      if (webhookUrl) {
+        fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sheet_name: 'Master_Titipan',
+            sheet: 'Master_Titipan',
+            type: 'titipan_sheep',
+            action: 'create',
+            tracking_code: tagCode,
+            code: tagCode,
+            customer_name: customerName,
+            customer_phone: input.customerPhone?.trim() || '-',
+            breed: farmSheep.breed,
+            gender: farmSheep.gender,
+            initial_weight: initialWeight,
+            current_weight: currentWeight,
+            target_weight: targetWeight,
+            entry_date: entryDate,
+            status: 'Penitipan',
+          }),
+          redirect: 'follow',
+        }).catch((err) => console.warn('[AssignCustomer Webhook Warning]:', err))
+      }
+    } catch (sheetErr) {
+      console.warn('[AssignCustomer] Sheet sync warning:', sheetErr)
+    }
+
+    revalidatePath('/admin/farm-sheep')
+    revalidatePath('/admin/dashboard')
+
+    return {
+      success: true,
+      message: `Domba "${tagCode}" berhasil dialihkan menjadi Titipan Customer (${customerName}) dan otomatis muncul di Halaman Titipan!`,
+    }
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : 'Gagal assign customer ke domba.'
+    return { success: false, error: errorMsg }
   }
 }
 

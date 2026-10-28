@@ -24,6 +24,8 @@ export interface FarmSheep {
   current_weight?: number | null
   status: FarmSheepStatus
   sheep_type: FarmSheepType
+  customer_name?: string | null
+  customer_phone?: string | null
   notes?: string | null
   created_at: string
 }
