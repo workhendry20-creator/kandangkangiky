@@ -85,12 +85,18 @@ export async function createProgressLog(
         if (matchSheep) {
           sheep = matchSheep as Record<string, unknown>
         } else {
+          // Bersihkan customer_name: jika kosong atau 'Stok Kandang', set strictly NULL
+          const rawCustName = farmData.customer_name ? String(farmData.customer_name).trim() : ''
+          const cleanCustomerName =
+            rawCustName !== '' && rawCustName !== 'Stok Kandang' ? rawCustName : null
+
           // Insert sync record to sheep table so progress_logs foreign key succeeds
+          // DILARANG KERAS mengisi customer_name dengan 'Stok Kandang' (harus null)
           const newSheepPayload: Record<string, unknown> = {
             id: farmData.id,
             tracking_code: tagCode,
-            customer_name: farmData.customer_name || 'Stok Kandang',
-            customer_phone: farmData.customer_phone || null,
+            customer_name: cleanCustomerName,
+            customer_phone: cleanCustomerName ? (farmData.customer_phone || null) : null,
             breed: farmData.breed || 'Garut',
             gender: farmData.gender || 'Jantan',
             initial_weight: initialWeight,
@@ -322,25 +328,36 @@ export async function createProgressLog(
       // 4. JANGAN kirim update ke Google Sheets untuk proses penjualan ini.
       // (Google Sheets sengaja dilewati untuk menjaga integritas data sheet)
     } else {
-      // Regular progress log flow: update kolom current_weight pada tabel sheep dan farm_sheep
+      // Regular progress log flow: HANYA update current_weight dan updated_at pada tabel sheep dan farm_sheep.
+      // DILARANG KERAS mengikutsertakan atau mengubah kolom customer_name dan customer_phone.
       await supabase
         .from('sheep')
-        .update({ current_weight: weightToSave })
+        .update({
+          current_weight: weightToSave,
+          updated_at: new Date().toISOString(),
+        })
         .eq('id', sheepId)
 
       try {
         await supabase
           .from('farm_sheep')
-          .update({ current_weight: weightToSave })
+          .update({
+            current_weight: weightToSave,
+            updated_at: new Date().toISOString(),
+          })
           .or(`id.eq.${sheepId},tag_id.eq.${sheep.tracking_code}`)
       } catch (fUpdateErr) {
         console.warn('Note updating current_weight on farm_sheep:', fUpdateErr)
       }
 
-      // 5. POST ke Google Sheets Web App API (Sheet: Log_Titipan) secara asynchronous untuk update reguler
+      // 5. POST ke Google Sheets Web App API (Sheet: Log_Titipan) HANYA untuk domba titipan (bukan stok kandang / customer null)
       const sheetUrl = process.env.GOOGLE_SHEETS_WEB_APP_URL || process.env.GOOGLE_APPS_SCRIPT_URL
+      const isTitipanCustomer =
+        Boolean(sheep.customer_name) &&
+        String(sheep.customer_name).trim() !== '' &&
+        String(sheep.customer_name).trim() !== 'Stok Kandang'
 
-      if (sheetUrl) {
+      if (sheetUrl && isTitipanCustomer) {
         try {
           const cleanWebhookUrl = sheetUrl.replace(/^hhttps:\/\//, 'https://').trim()
           await fetch(cleanWebhookUrl, {
@@ -380,12 +397,12 @@ export async function createProgressLog(
         }
       }
 
-      // Direct Google Sheets API v4 fallback (non-blocking)
-      if (!sheetsSynced) {
+      // Direct Google Sheets API v4 fallback (non-blocking) - hanya untuk domba titipan
+      if (!sheetsSynced && isTitipanCustomer) {
         try {
           const sheetRes = await appendProgressRowToSheet({
             trackingCode: String(sheep.tracking_code || ''),
-            customerName: String(sheep.customer_name || 'Stok Kandang'),
+            customerName: String(sheep.customer_name),
             recordDate: recordDate,
             updateType: updateType,
             currentWeight: weightToSave,

@@ -54,14 +54,17 @@ export function SheepTable({ initialSheep, soldSheep = [] }: SheepTableProps) {
     return new Set(soldSheep.map((s) => s.original_sheep_id))
   }, [soldSheep])
 
-  // Active sheep list with sold exclusion
+  // Active sheep list with sold exclusion and strict customer_name validation
   const activeSheepList = useMemo(() => {
     return initialSheep.filter(
       (s) =>
         !soldCodesSet.has(s.tracking_code) &&
         !soldIdsSet.has(s.id) &&
         s.status !== 'Terjual' &&
-        s.status !== 'Selesai'
+        s.status !== 'Selesai' &&
+        Boolean(s.customer_name) &&
+        s.customer_name.trim() !== '' &&
+        s.customer_name.trim() !== 'Stok Kandang'
     )
   }, [initialSheep, soldCodesSet, soldIdsSet])
 
@@ -77,7 +80,7 @@ export function SheepTable({ initialSheep, soldSheep = [] }: SheepTableProps) {
     return activeSheepList.filter((item) => {
       return (
         item.tracking_code.toLowerCase().includes(q) ||
-        item.customer_name.toLowerCase().includes(q) ||
+        (item.customer_name && item.customer_name.toLowerCase().includes(q)) ||
         item.breed.toLowerCase().includes(q) ||
         (item.customer_phone && item.customer_phone.includes(q))
       )

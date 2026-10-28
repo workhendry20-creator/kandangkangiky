@@ -43,6 +43,7 @@ async function DashboardContent() {
 
   // 2. Fetch data aktif Tab 1 ("Master Domba Titipan") dari tabel sheep
   // Filter kueri Tab 1 agar membuang domba yang ID/tracking_code nya ada di dalam list sheep_sold
+  // dan secara KETAT hanya menampilkan domba titipan customer (bukan stok kandang / null / kosong)
   let sheepList: Sheep[] = []
   try {
     let sheepQuery = db
@@ -55,6 +56,9 @@ async function DashboardContent() {
           created_at
         )
       `)
+      .not('customer_name', 'is', null)
+      .neq('customer_name', '')
+      .neq('customer_name', 'Stok Kandang')
       .order('created_at', { ascending: false })
       .order('record_date', { referencedTable: 'progress_logs', ascending: false })
       .order('created_at', { referencedTable: 'progress_logs', ascending: false })
@@ -70,6 +74,9 @@ async function DashboardContent() {
       let fallbackQuery = db
         .from('sheep')
         .select('*')
+        .not('customer_name', 'is', null)
+        .neq('customer_name', '')
+        .neq('customer_name', 'Stok Kandang')
         .order('created_at', { ascending: false })
 
       if (soldTrackingCodes.length > 0) {
@@ -85,7 +92,10 @@ async function DashboardContent() {
               !soldCodesSet.has(item.tracking_code) &&
               !soldOriginalSheepIds.has(item.id) &&
               item.status !== 'Terjual' &&
-              item.status !== 'Selesai'
+              item.status !== 'Selesai' &&
+              Boolean(item.customer_name) &&
+              item.customer_name.trim() !== '' &&
+              item.customer_name.trim() !== 'Stok Kandang'
           )
           .map((item) => ({
             ...item,
@@ -94,13 +104,16 @@ async function DashboardContent() {
       }
     } else if (data) {
       sheepList = (data as unknown as Sheep[])
-        // Filter ganda memastikan domba terjual 100% tidak muncul di Tab 1
+        // Filter ganda memastikan domba terjual dan domba tanpa customer tidak muncul di Tab 1
         .filter(
           (item) =>
             !soldCodesSet.has(item.tracking_code) &&
             !soldOriginalSheepIds.has(item.id) &&
             item.status !== 'Terjual' &&
-            item.status !== 'Selesai'
+            item.status !== 'Selesai' &&
+            Boolean(item.customer_name) &&
+            item.customer_name.trim() !== '' &&
+            item.customer_name.trim() !== 'Stok Kandang'
         )
         .map((item) => {
           const initialWeight = Number(item.initial_weight) || 0
