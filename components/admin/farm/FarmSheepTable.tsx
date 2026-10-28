@@ -16,6 +16,7 @@ import {
   X,
   UserPlus,
   TrendingUp,
+  ExternalLink,
 } from 'lucide-react'
 import { SyncSheetsButton } from './SyncSheetsButton'
 
@@ -25,6 +26,7 @@ interface FarmSheepTableProps {
   onOpenImportModal: () => void
   onOpenEditModal: (sheep: FarmSheep) => void
   onOpenAssignCustomer: (sheep: FarmSheep) => void
+  onOpenDetail: (sheep: FarmSheep) => void
   onRefresh: () => void
 }
 
@@ -34,6 +36,7 @@ export function FarmSheepTable({
   onOpenImportModal,
   onOpenEditModal,
   onOpenAssignCustomer,
+  onOpenDetail,
   onRefresh,
 }: FarmSheepTableProps) {
   const [searchQuery, setSearchQuery] = useState('')
@@ -208,24 +211,21 @@ export function FarmSheepTable({
       {/* Main Table Card */}
       <div className="bg-white rounded-3xl border border-[#B1C5AA]/40 shadow-xs overflow-hidden">
         <div className="overflow-x-auto overscroll-x-contain w-full">
-          <table className="w-full text-left border-collapse min-w-[900px]">
+          <table className="w-full text-left border-collapse min-w-[640px]">
             <thead>
               <tr className="border-b border-[#B1C5AA]/40 bg-[#EBF2E8]/60 text-[11px] font-bold uppercase tracking-wider text-slate-600">
                 <th className="py-3.5 px-4 sm:px-6">ID & Nama</th>
                 <th className="py-3.5 px-4">Gender & Tipe</th>
-                <th className="py-3.5 px-4">Kepemilikan</th>
                 <th className="py-3.5 px-4">Jenis / Ras</th>
                 <th className="py-3.5 px-4">Asal</th>
-                <th className="py-3.5 px-4">Tgl Masuk</th>
                 <th className="py-3.5 px-4">BB Awal / Saat Ini</th>
-                <th className="py-3.5 px-4">Status</th>
                 <th className="py-3.5 px-4 text-right pr-6">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100 text-xs sm:text-sm">
               {filteredSheep.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="py-12 text-center text-slate-400">
+                  <td colSpan={6} className="py-12 text-center text-slate-400">
                     <div className="max-w-xs mx-auto space-y-3">
                       <div className="w-12 h-12 rounded-2xl bg-[#D9E5D6] text-[#5C6F57] flex items-center justify-center mx-auto text-xl border border-[#B1C5AA]/40">
                         🐑
@@ -301,32 +301,6 @@ export function FarmSheepTable({
                       </div>
                     </td>
 
-                    {/* Kepemilikan (Ownership Badge) */}
-                    <td className="py-3.5 px-4">
-                      {sheep.customer_name ? (
-                        <div>
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#D9E5D6] text-[#5C6F57] border border-[#B1C5AA]/50">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#5C6F57]" />
-                            Titipan Customer
-                          </span>
-                          <p
-                            className="text-xs font-semibold text-slate-800 mt-1 truncate max-w-[140px]"
-                            title={sheep.customer_name}
-                          >
-                            {sheep.customer_name}
-                          </p>
-                        </div>
-                      ) : (
-                        <div>
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-stone-100 text-slate-600 border border-stone-200">
-                            <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-                            Stok Kandang
-                          </span>
-                          <p className="text-[11px] text-slate-400 mt-1">Milik Peternakan</p>
-                        </div>
-                      )}
-                    </td>
-
                     {/* Jenis / Ras */}
                     <td className="py-3.5 px-4 font-medium text-slate-800">
                       {sheep.breed}
@@ -345,11 +319,6 @@ export function FarmSheepTable({
                       </span>
                     </td>
 
-                    {/* Tgl Masuk */}
-                    <td className="py-3.5 px-4 text-xs text-slate-600">
-                      {sheep.entry_date}
-                    </td>
-
                     {/* BB Awal / Terkini */}
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-1.5">
@@ -364,80 +333,69 @@ export function FarmSheepTable({
                       </div>
                     </td>
 
-                    {/* Status */}
-                    <td className="py-3.5 px-4">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${getStatusBadge(
-                          sheep.status
-                        )}`}
-                      >
-                        {sheep.status}
-                      </span>
-                    </td>
-
                     {/* Aksi */}
                     <td className="py-3.5 px-4 text-right pr-6">
-                      <div className="inline-flex items-center gap-1.5">
-                        {!sheep.customer_name ? (
-                          <>
-                            <button
-                              type="button"
-                              onClick={() => onOpenAssignCustomer(sheep)}
-                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-[#B1C5AA] bg-white hover:bg-[#EBF2E8] text-[#5C6F57] text-xs font-bold transition-all shadow-2xs whitespace-nowrap cursor-pointer active:scale-95"
-                              title="Jadikan Domba Titipan Customer"
-                            >
-                              <UserPlus className="w-3.5 h-3.5" />
-                              <span>Assign Customer</span>
-                            </button>
+                      <div className="inline-flex items-center gap-1.5 flex-wrap justify-end">
+                        {/* 1. Tombol + Log Progress (Primary Green) */}
+                        <Link
+                          href={`/admin/sheep/${sheep.id}/progress`}
+                          prefetch={true}
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#5C6F57] hover:bg-[#485844] text-white text-xs font-bold transition-all shadow-2xs whitespace-nowrap cursor-pointer active:scale-95"
+                          title="Input Log Perkembangan Bobot & Medis"
+                        >
+                          <TrendingUp className="w-3.5 h-3.5" />
+                          <span>+ Log Progress</span>
+                        </Link>
 
-                            <Link
-                              href={`/admin/sheep/${sheep.id}/progress`}
-                              prefetch={true}
-                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#5C6F57] hover:bg-[#485844] text-white text-xs font-bold transition-all shadow-2xs whitespace-nowrap cursor-pointer active:scale-95"
-                              title="Input Log Perkembangan Bobot & Medis"
-                            >
-                              <TrendingUp className="w-3.5 h-3.5" />
-                              <span>+ Log Progress</span>
-                            </Link>
-                          </>
-                        ) : (
-                          <>
-                            <Link
-                              href={`/admin/sheep/${sheep.id}/progress`}
-                              prefetch={true}
-                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#5C6F57] hover:bg-[#485844] text-white text-xs font-bold transition-all shadow-2xs whitespace-nowrap cursor-pointer active:scale-95"
-                              title="Input Log Perkembangan Bobot & Medis"
-                            >
-                              <TrendingUp className="w-3.5 h-3.5" />
-                              <span>+ Log Progress</span>
-                            </Link>
-
-                            <button
-                              type="button"
-                              aria-label={`Edit ${sheep.name || sheep.tag_code}`}
-                              disabled={isDeletingId !== null}
-                              onClick={() => onOpenEditModal(sheep)}
-                              className="p-1.5 rounded-lg text-slate-500 hover:text-[#5C6F57] hover:bg-[#EBF2E8]/60 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-                              title="Edit domba"
-                            >
-                              <Edit2 className="w-4 h-4" />
-                            </button>
-                            <button
-                              type="button"
-                              aria-label={`Hapus ${sheep.name || sheep.tag_code}`}
-                              disabled={isDeletingId !== null}
-                              onClick={() => handleDelete(sheep.id, sheep.name)}
-                              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-700 hover:bg-rose-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-                              title="Hapus domba"
-                            >
-                              {isDeletingId === sheep.id ? (
-                                <Loader2 className="w-4 h-4 animate-spin text-rose-600" />
-                              ) : (
-                                <Trash2 className="w-4 h-4" />
-                              )}
-                            </button>
-                          </>
+                        {/* 2. Tombol Assign Customer (Tampil jika customer_name kosong) */}
+                        {!sheep.customer_name && (
+                          <button
+                            type="button"
+                            onClick={() => onOpenAssignCustomer(sheep)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-[#B1C5AA] bg-white hover:bg-[#EBF2E8] text-[#5C6F57] text-xs font-bold transition-all shadow-2xs whitespace-nowrap cursor-pointer active:scale-95"
+                            title="Jadikan Domba Titipan Customer"
+                          >
+                            <UserPlus className="w-3.5 h-3.5" />
+                            <span>Assign Customer</span>
+                          </button>
                         )}
+
+                        {/* 3. Tombol Detail (Outline style, membuka modal riwayat perkembangan & detail domba) */}
+                        <button
+                          type="button"
+                          onClick={() => onOpenDetail(sheep)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-slate-700 text-xs font-semibold transition-all shadow-2xs whitespace-nowrap cursor-pointer active:scale-95"
+                          title="Lihat riwayat perkembangan & detail data domba"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
+                          <span>Detail</span>
+                        </button>
+
+                        {/* Aksi Tambahan: Edit & Hapus */}
+                        <button
+                          type="button"
+                          aria-label={`Edit ${sheep.name || sheep.tag_code}`}
+                          disabled={isDeletingId !== null}
+                          onClick={() => onOpenEditModal(sheep)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-[#5C6F57] hover:bg-[#EBF2E8]/60 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                          title="Edit data domba"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          aria-label={`Hapus ${sheep.name || sheep.tag_code}`}
+                          disabled={isDeletingId !== null}
+                          onClick={() => handleDelete(sheep.id, sheep.name)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-700 hover:bg-rose-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                          title="Hapus domba"
+                        >
+                          {isDeletingId === sheep.id ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin text-rose-600" />
+                          ) : (
+                            <Trash2 className="w-3.5 h-3.5" />
+                          )}
+                        </button>
                       </div>
                     </td>
                   </tr>

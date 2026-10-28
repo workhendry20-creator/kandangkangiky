@@ -591,3 +591,63 @@ export async function syncAllProgressLogsToSheets(): Promise<{
     return { success: false, message: errorMsg, error: errorMsg }
   }
 }
+
+/**
+ * Server Action to fetch historical progress logs for a specific sheep
+ */
+export async function getSheepProgressLogs(sheepId: string, trackingCode?: string): Promise<{
+  success: boolean
+  logs: ProgressLog[]
+  error?: string
+}> {
+  try {
+    const supabase = createAdminClient()
+
+    // 1. Query by direct sheep_id
+    let { data: logs, error } = await supabase
+      .from('progress_logs')
+      .select('*')
+      .eq('sheep_id', sheepId)
+      .order('record_date', { ascending: false })
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.warn('[getSheepProgressLogs] Error fetching by sheep_id:', error.message)
+    }
+
+    // 2. Fallback by trackingCode if logs are empty
+    if ((!logs || logs.length === 0) && trackingCode) {
+      const { data: matchSheep } = await supabase
+        .from('sheep')
+        .select('id')
+        .eq('tracking_code', trackingCode)
+        .maybeSingle()
+
+      if (matchSheep && matchSheep.id !== sheepId) {
+        const { data: matchLogs } = await supabase
+          .from('progress_logs')
+          .select('*')
+          .eq('sheep_id', matchSheep.id)
+          .order('record_date', { ascending: false })
+          .order('created_at', { ascending: false })
+
+        if (matchLogs && matchLogs.length > 0) {
+          logs = matchLogs
+        }
+      }
+    }
+
+    return {
+      success: true,
+      logs: (logs || []) as ProgressLog[],
+    }
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : 'Gagal mengambil riwayat perkembangan.'
+    return {
+      success: false,
+      logs: [],
+      error: errorMsg,
+    }
+  }
+}
+
