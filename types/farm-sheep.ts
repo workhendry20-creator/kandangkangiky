@@ -22,6 +22,7 @@ export interface FarmSheep {
   entry_date: string
   initial_weight: number
   current_weight?: number | null
+  target_weight?: number | null
   status: FarmSheepStatus
   sheep_type: FarmSheepType
   customer_name?: string | null
@@ -53,6 +54,7 @@ export interface CreateFarmSheepInput {
   entry_date: string
   initial_weight: number
   current_weight?: number | null
+  target_weight?: number | null
   status: FarmSheepStatus
   sheep_type: FarmSheepType
   notes?: string | null
@@ -67,6 +69,7 @@ export interface UpdateFarmSheepInput {
   entry_date?: string
   initial_weight?: number
   current_weight?: number | null
+  target_weight?: number | null
   status?: FarmSheepStatus
   sheep_type?: FarmSheepType
   notes?: string | null

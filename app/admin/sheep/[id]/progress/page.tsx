@@ -75,7 +75,7 @@ async function ProgressContent({ params }: PageProps) {
       gender: farmData.gender || 'Jantan',
       initial_weight: initialWeight,
       current_weight: currentWeight,
-      target_weight: Number(matchSheep?.target_weight) || initialWeight + 15,
+      target_weight: Number(farmData.target_weight ?? matchSheep?.target_weight) || initialWeight + 15,
       entry_date: farmData.arrival_date || farmData.entry_date || new Date().toISOString().split('T')[0],
       status: 'Penitipan',
       created_at: farmData.created_at || new Date().toISOString(),

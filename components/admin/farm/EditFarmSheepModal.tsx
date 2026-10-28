@@ -53,6 +53,9 @@ function EditFarmSheepFormContent({
       ? String(sheep.current_weight)
       : String(sheep.initial_weight)
   )
+  const [targetWeight, setTargetWeight] = useState(
+    sheep.target_weight ? String(sheep.target_weight) : ''
+  )
   const [notes, setNotes] = useState(sheep.notes || '')
 
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
@@ -78,6 +81,7 @@ function EditFarmSheepFormContent({
     }
 
     const finalBreed = breed === 'Lainnya' ? customBreed.trim() : breed
+    const targetNum = targetWeight && !isNaN(parseFloat(targetWeight)) ? parseFloat(targetWeight) : null
 
     startTransition(async () => {
       const res = await updateFarmSheep(sheep.id, {
@@ -86,6 +90,7 @@ function EditFarmSheepFormContent({
         status,
         sheep_type: sheepType,
         current_weight: weightNum,
+        target_weight: targetNum,
         notes: notes.trim() || undefined,
       })
 
@@ -232,6 +237,20 @@ function EditFarmSheepFormContent({
                 required
                 value={currentWeight}
                 onChange={(e) => setCurrentWeight(e.target.value)}
+                className="w-full px-3 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                Target Bobot (kg)
+              </label>
+              <input
+                type="number"
+                step="0.1"
+                value={targetWeight}
+                onChange={(e) => setTargetWeight(e.target.value)}
+                placeholder="Contoh: 50.0 (Opsional)"
                 className="w-full px-3 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57]"
               />
             </div>

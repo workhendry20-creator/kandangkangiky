@@ -18,6 +18,7 @@ import {
   CheckCircle2,
   Loader2,
   RefreshCw,
+  Target,
 } from 'lucide-react'
 
 const BREED_OPTIONS = [
@@ -52,6 +53,7 @@ export function NewFarmSheepModal({
   const [origin, setOrigin] = useState<FarmSheepOrigin>('Beli')
   const [entryDate, setEntryDate] = useState(new Date().toISOString().split('T')[0])
   const [initialWeight, setInitialWeight] = useState('')
+  const [targetWeight, setTargetWeight] = useState('')
   const [status, setStatus] = useState<FarmSheepStatus>('Kosongan')
   const [notes, setNotes] = useState('')
 
@@ -97,6 +99,7 @@ export function NewFarmSheepModal({
     }
 
     const finalBreed = breed === 'Lainnya' ? customBreed.trim() : breed
+    const targetNum = targetWeight && !isNaN(parseFloat(targetWeight)) ? parseFloat(targetWeight) : undefined
 
     startTransition(async () => {
       const res = await createFarmSheep({
@@ -108,6 +111,7 @@ export function NewFarmSheepModal({
         entry_date: entryDate,
         initial_weight: weightNum,
         current_weight: weightNum,
+        target_weight: targetNum,
         status,
         sheep_type: sheepType,
         notes: notes.trim() || undefined,
@@ -333,7 +337,7 @@ export function NewFarmSheepModal({
             </div>
           </div>
 
-          {/* Row 4: Tgl Kedatangan & BB Awal */}
+          {/* Row 4: Tgl Kedatangan & Status Reproduksi */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
@@ -353,6 +357,40 @@ export function NewFarmSheepModal({
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                Status Ternak <span className="text-rose-500">*</span>
+              </label>
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value as FarmSheepStatus)}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57] shadow-xs"
+              >
+                {gender === 'Betina' ? (
+                  <>
+                    <option value="Kosongan">Kosongan (Siap Kawin)</option>
+                    <option value="Hamil">Hamil (Bunting)</option>
+                    <option value="Menyusui">Menyusui</option>
+                    <option value="Kosongan/Menyusui">Kosongan / Pasca Melahirkan</option>
+                    <option value="Sehat">Sehat</option>
+                    <option value="Afkir">Afkir</option>
+                    <option value="Terjual">Terjual</option>
+                  </>
+                ) : (
+                  <>
+                    <option value="Pemacek">Pemacek (Pejantan Unggul)</option>
+                    <option value="Siap Kawin">Siap Kawin</option>
+                    <option value="Sehat">Sehat Normal</option>
+                    <option value="Afkir">Afkir</option>
+                    <option value="Terjual">Terjual</option>
+                  </>
+                )}
+              </select>
+            </div>
+          </div>
+
+          {/* Row 5: BB Awal (KG) & Target Bobot (KG) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
                 BB Awal (kg) <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
@@ -368,38 +406,23 @@ export function NewFarmSheepModal({
                 />
               </div>
             </div>
-          </div>
 
-          {/* Row 5: Status Reproduksi / Kondisi */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-              Status Ternak <span className="text-rose-500">*</span>
-            </label>
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value as FarmSheepStatus)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57] shadow-xs"
-            >
-              {gender === 'Betina' ? (
-                <>
-                  <option value="Kosongan">Kosongan (Siap Kawin)</option>
-                  <option value="Hamil">Hamil (Bunting)</option>
-                  <option value="Menyusui">Menyusui</option>
-                  <option value="Kosongan/Menyusui">Kosongan / Pasca Melahirkan</option>
-                  <option value="Sehat">Sehat</option>
-                  <option value="Afkir">Afkir</option>
-                  <option value="Terjual">Terjual</option>
-                </>
-              ) : (
-                <>
-                  <option value="Pemacek">Pemacek (Pejantan Unggul)</option>
-                  <option value="Siap Kawin">Siap Kawin</option>
-                  <option value="Sehat">Sehat Normal</option>
-                  <option value="Afkir">Afkir</option>
-                  <option value="Terjual">Terjual</option>
-                </>
-              )}
-            </select>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                Target Bobot (kg)
+              </label>
+              <div className="relative">
+                <Target className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="number"
+                  step="0.1"
+                  value={targetWeight}
+                  onChange={(e) => setTargetWeight(e.target.value)}
+                  placeholder="Contoh: 50.0 (Opsional)"
+                  className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57] shadow-xs"
+                />
+              </div>
+            </div>
           </div>
 
           {/* Row 6: Catatan / Keterangan */}

@@ -69,8 +69,27 @@ export function SheepDetailModal({
   if (!isOpen || !sheep) return null
 
   const initialWeight = Number(sheep.initial_weight) || 0
-  const currentWeight = Number(sheep.current_weight ?? sheep.initial_weight) || initialWeight
+
+  // Perhitungan Bobot Terkini:
+  // - Jika domba sudah memiliki data di progress_logs, ambil current_weight dari log paling akhir.
+  // - Jika belum ada data di progress_logs, isi nilai Bobot Terkini langsung dari initial_weight.
+  let currentWeight = initialWeight
+  if (logs && logs.length > 0) {
+    const latestLog = logs[0]
+    if (latestLog.current_weight !== null && latestLog.current_weight !== undefined && !isNaN(Number(latestLog.current_weight))) {
+      currentWeight = Number(latestLog.current_weight)
+    } else if (latestLog.weight_gain !== null && latestLog.weight_gain !== undefined && !isNaN(Number(latestLog.weight_gain))) {
+      currentWeight = initialWeight + Number(latestLog.weight_gain)
+    }
+  } else if (sheep.current_weight !== null && sheep.current_weight !== undefined && !isNaN(Number(sheep.current_weight))) {
+    currentWeight = Number(sheep.current_weight)
+  }
+
   const weightGain = currentWeight - initialWeight
+  const targetWeight =
+    sheep.target_weight !== null && sheep.target_weight !== undefined && !isNaN(Number(sheep.target_weight))
+      ? Number(sheep.target_weight)
+      : null
 
   // Status badge style helper
   const getStatusBadgeStyle = (status: string) => {
@@ -228,7 +247,7 @@ export function SheepDetailModal({
             </div>
           </div>
 
-          {/* Section 2: Bobot & Pertumbuhan */}
+          {/* Section 2: Bobot Terkini */}
           <div className="p-4 rounded-2xl bg-[#EBF2E8]/40 border border-[#B1C5AA]/40 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-white border border-[#B1C5AA]/50 flex items-center justify-center text-[#5C6F57] shadow-2xs">
@@ -236,14 +255,14 @@ export function SheepDetailModal({
               </div>
               <div>
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 block">
-                  Perkembangan Bobot
+                  Bobot Terkini
                 </span>
                 <div className="flex items-baseline gap-2 mt-0.5">
                   <span className="text-xl font-bold font-mono text-slate-900">
                     {formatWeight(currentWeight)}
                   </span>
                   <span className="text-xs text-slate-500">
-                    (Awal: {formatWeight(initialWeight)})
+                    (Awal: {formatWeight(initialWeight)} | Target: {targetWeight ? formatWeight(targetWeight) : '-'})
                   </span>
                 </div>
               </div>

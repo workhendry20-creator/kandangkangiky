@@ -54,6 +54,9 @@ async function resilientInsert(
       if (missingCol === 'current_weight') {
         delete payload.current_weight
         continue
+      } else if (missingCol === 'target_weight') {
+        delete payload.target_weight
+        continue
       } else if (missingCol === 'tag_id') {
         payload.tag_code = payload.tag_id
         delete payload.tag_id
@@ -138,11 +141,14 @@ export async function getFarmData(): Promise<{
     }
 
     // 1b. Fetch all sheep from 'sheep' table to detect ownership (Titipan Customer vs Stok Kandang)
-    const sheepCustomerMap = new Map<string, { id: string; customer_name: string; customer_phone?: string | null }>()
+    const sheepCustomerMap = new Map<
+      string,
+      { id: string; customer_name: string; customer_phone?: string | null; target_weight?: number | null }
+    >()
     try {
       const { data: allSheep } = await db
         .from('sheep')
-        .select('id, tracking_code, customer_name, customer_phone')
+        .select('id, tracking_code, customer_name, customer_phone, target_weight')
 
       if (allSheep) {
         for (const s of allSheep) {
@@ -188,6 +194,12 @@ export async function getFarmData(): Promise<{
         entry_date: String(s.arrival_date || s.entry_date || s.created_at || '').split('T')[0],
         initial_weight: initialWeight,
         current_weight: currentWeight,
+        target_weight:
+          s.target_weight !== undefined && s.target_weight !== null
+            ? Number(s.target_weight)
+            : matchingSheep?.target_weight
+            ? Number(matchingSheep.target_weight)
+            : null,
         status: (s.status as FarmSheepStatus) || 'Kosongan',
         sheep_type: ((s.type || s.sheep_type || 'Indukan') as FarmSheepType),
         customer_name: cleanCustName,
@@ -309,6 +321,10 @@ export async function createFarmSheep(
     const status = input.status || (input.gender === 'Betina' ? 'Kosongan' : 'Pemacek')
     const sheepType = input.sheep_type || (input.gender === 'Betina' ? 'Indukan' : 'Pejantan')
     const notes = input.notes?.trim() || null
+    const targetWeight =
+      input.target_weight !== undefined && input.target_weight !== null && !isNaN(Number(input.target_weight))
+        ? Number(input.target_weight)
+        : null
 
     // Build payload using initial_weight and set current_weight = initial_weight if available
     const payload: Record<string, unknown> = {
@@ -320,6 +336,7 @@ export async function createFarmSheep(
       arrival_date: entryDate,
       initial_weight: initialWeight,
       current_weight: initialWeight,
+      target_weight: targetWeight,
       status,
       type: sheepType,
       notes: notes,
@@ -349,6 +366,10 @@ export async function createFarmSheep(
         data.current_weight !== undefined && data.current_weight !== null
           ? Number(data.current_weight)
           : initialWeight,
+      target_weight:
+        data.target_weight !== undefined && data.target_weight !== null
+          ? Number(data.target_weight)
+          : targetWeight,
       status: (data.status as FarmSheepStatus) || status,
       sheep_type: ((data.type || data.sheep_type || sheepType) as FarmSheepType),
       notes: (data.notes || data.description || notes) as string | null,
@@ -455,6 +476,10 @@ export async function updateFarmSheep(
     }
     if (input.current_weight !== undefined) {
       updatePayload.current_weight = Number(input.current_weight)
+    }
+    if (input.target_weight !== undefined) {
+      updatePayload.target_weight =
+        input.target_weight !== null ? Number(input.target_weight) : null
     }
     if (input.status !== undefined) updatePayload.status = input.status
     if (input.sheep_type !== undefined) {

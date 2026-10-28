@@ -97,6 +97,44 @@ async function TrackerContent({ params }: PageProps) {
     }
   }
 
+  // Fallback to farm_sheep table if not in sheep or sheep_sold
+  if (!sheep) {
+    const { data: farmData } = await supabase
+      .from('farm_sheep')
+      .select('*')
+      .or(`tag_id.ilike.${trackingCode},tag_code.ilike.${trackingCode}`)
+      .maybeSingle()
+
+    if (farmData) {
+      const { data: farmLogs } = await supabase
+        .from('progress_logs')
+        .select('*')
+        .eq('sheep_id', farmData.id)
+        .order('record_date', { ascending: false })
+        .order('created_at', { ascending: false })
+
+      const initialWeight = Number(farmData.initial_weight) || 0
+      const currentWeight = Number(farmData.current_weight || farmData.initial_weight) || initialWeight
+      const targetWeight = farmData.target_weight ? Number(farmData.target_weight) : initialWeight + 15
+
+      sheep = {
+        id: farmData.id,
+        tracking_code: String(farmData.tag_id || farmData.tag_code || trackingCode),
+        customer_name: farmData.customer_name || 'Stok Kandang',
+        customer_phone: farmData.customer_phone || undefined,
+        breed: farmData.breed || 'Garut',
+        gender: farmData.gender || 'Jantan',
+        initial_weight: initialWeight,
+        target_weight: targetWeight,
+        current_weight: currentWeight,
+        entry_date: String(farmData.arrival_date || farmData.entry_date || new Date().toISOString().split('T')[0]),
+        status: farmData.status || 'Penitipan',
+        created_at: String(farmData.created_at || new Date().toISOString()),
+      }
+      rawLogs = (farmLogs || []) as ProgressLog[]
+    }
+  }
+
   if (!sheep) {
     return (
       <div className="min-h-screen bg-white flex flex-col text-slate-800">
