@@ -6,16 +6,32 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Generate a unique tracking code with format KKY-XXXXX
- * Uses unambiguous characters (excluding 0, O, 1, I)
+ * Extract numeric sequence from a tracking code with format KKY-XXXX (e.g. KKY-0012 -> 12)
  */
-export function generateTrackingCode(): string {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-  let code = ''
-  for (let i = 0; i < 5; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length))
+export function extractTrackingNumber(code: string | null | undefined): number | null {
+  if (!code) return null
+  const clean = String(code).trim().toUpperCase().replace(/^#/, '')
+  const match = clean.match(/^KKY-(\d+)$/)
+  if (match) {
+    const num = parseInt(match[1], 10)
+    return isNaN(num) ? null : num
   }
-  return `KKY-${code}`
+  return null
+}
+
+/**
+ * Format a number to standard 4-digit zero-padded KKY-XXXX (e.g. 1 -> KKY-0001, 13 -> KKY-0013)
+ */
+export function formatTrackingCode(num: number): string {
+  const safeNum = Math.max(1, Math.floor(num || 1))
+  return `KKY-${String(safeNum).padStart(4, '0')}`
+}
+
+/**
+ * Generate a sequential tracking code format KKY-XXXX (default KKY-0001)
+ */
+export function generateTrackingCode(counter = 1): string {
+  return formatTrackingCode(counter)
 }
 
 /**

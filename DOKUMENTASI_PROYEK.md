@@ -90,7 +90,7 @@ Platform ini mengintegrasikan:
 
 ### D. Form Pendaftaran & Pencatatan Perkembangan
 1. **Registrasi Domba Baru (`components/admin/NewSheepForm.tsx`)**:
-   - Generator otomatis kode tracking unik standar `KKY-XXXXX` dengan tombol acak ulang.
+   - Generator otomatis kode tracking unik sequential standar `KKY-0001` dengan deteksi nilai tertinggi di database dan tombol refresh kode.
    - Perekaman data lengkap: Nama Customer, Nomor WhatsApp, Ras, Gender, BB Awal Masuk, Target BB, Tanggal Masuk.
    - Validasi ketat (target bobot harus lebih besar dari bobot awal, format input numerik aman).
 2. **Input Perkembangan Bobot & Medis Mobile (`components/admin/ProgressForm.tsx`)**:

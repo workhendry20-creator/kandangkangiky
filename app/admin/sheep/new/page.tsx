@@ -1,12 +1,12 @@
 import { Suspense } from "react";
 import Image from 'next/image'
 import { connection } from 'next/server'
-import { generateTrackingCode } from '@/lib/utils'
+import { getNextTrackingCode } from '@/lib/actions/sheep'
 import { NewSheepForm } from '@/components/admin/NewSheepForm'
 
 async function NewSheepContent() {
   await connection()
-  const initialTrackingCode = generateTrackingCode()
+  const initialTrackingCode = await getNextTrackingCode()
   const initialEntryDate = new Date().toISOString().split('T')[0]
 
   return (
@@ -31,7 +31,7 @@ function NewSheepFallback() {
           />
         </div>
         <p className="text-sm font-semibold text-slate-800">Memuat Form Domba Baru...</p>
-        <p className="text-xs text-slate-500">Menyiapkan kode unik tracking</p>
+        <p className="text-xs text-slate-500">Menyiapkan kode tracking berurutan...</p>
       </div>
     </div>
   )

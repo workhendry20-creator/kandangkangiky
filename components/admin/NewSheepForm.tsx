@@ -4,8 +4,7 @@ import { useState, useTransition, type FormEvent } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { createSheep } from '@/lib/actions/sheep'
-import { generateTrackingCode } from '@/lib/utils'
+import { createSheep, getNextTrackingCode } from '@/lib/actions/sheep'
 import {
   ArrowLeft,
   Sparkles,
@@ -56,9 +55,18 @@ export function NewSheepForm({
   // Feedback states
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
+  const [isRefreshingCode, setIsRefreshingCode] = useState(false)
 
-  const handleRegenerateCode = () => {
-    setTrackingCode(generateTrackingCode())
+  const handleRegenerateCode = async () => {
+    setIsRefreshingCode(true)
+    try {
+      const nextCode = await getNextTrackingCode()
+      setTrackingCode(nextCode)
+    } catch (err) {
+      console.warn('[NewSheepForm] Error fetching next tracking code:', err)
+    } finally {
+      setIsRefreshingCode(false)
+    }
   }
 
   const handleSubmit = (e: FormEvent) => {
@@ -208,11 +216,12 @@ export function NewSheepForm({
                 <button
                   type="button"
                   onClick={handleRegenerateCode}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-stone-300 bg-white hover:bg-stone-50 text-slate-700 text-xs font-medium shadow-xs transition-colors cursor-pointer self-start sm:self-auto"
-                  title="Generate kode unik baru"
+                  disabled={isRefreshingCode}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-stone-300 bg-white hover:bg-stone-50 text-slate-700 text-xs font-medium shadow-xs transition-colors cursor-pointer self-start sm:self-auto disabled:opacity-60"
+                  title="Generate kode urutan berikutnya"
                 >
-                  <RefreshCw className="w-3.5 h-3.5 text-[#5C6F57]" />
-                  <span>Acak Kode Baru</span>
+                  <RefreshCw className={`w-3.5 h-3.5 text-[#5C6F57] ${isRefreshingCode ? 'animate-spin' : ''}`} />
+                  <span>{isRefreshingCode ? 'Memuat...' : 'Perbarui Kode'}</span>
                 </button>
               </div>
 
@@ -222,11 +231,11 @@ export function NewSheepForm({
                   value={trackingCode}
                   onChange={(e) => setTrackingCode(e.target.value.toUpperCase())}
                   required
-                  placeholder="KKY-XXXXX"
+                  placeholder="KKY-0001"
                   className="w-full sm:w-64 px-4 py-2.5 rounded-xl border border-stone-300 bg-white font-mono font-bold text-lg text-[#5C6F57] tracking-wider focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#89A482] uppercase"
                 />
                 <span className="hidden sm:inline text-xs text-[#5C6F57] font-medium bg-[#D9E5D6] px-3 py-2 rounded-xl border border-[#B1C5AA]/40">
-                  ✓ Format KKY-XXXXX Sesuai Standar
+                  ✓ Format KKY-0001 Sesuai Standar
                 </span>
               </div>
             </div>

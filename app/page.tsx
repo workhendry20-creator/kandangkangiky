@@ -94,7 +94,7 @@ export default function HomePage() {
                   type="text"
                   value={trackingCode}
                   onChange={(e) => setTrackingCode(e.target.value.toUpperCase())}
-                  placeholder="Masukkan Kode Tracking Domba (Contoh: KKY-8F3A2)"
+                  placeholder="Masukkan Kode Tracking Domba (Contoh: KKY-0001)"
                   required
                   className="w-full pl-11 pr-4 py-3 rounded-xl bg-transparent text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none uppercase font-mono"
                 />
@@ -109,7 +109,7 @@ export default function HomePage() {
               </button>
             </form>
             <p className="text-xs text-slate-500 mt-2.5 text-center">
-              Masukkan kode tracking 8-9 karakter pada kwitansi penitipan Anda.
+              Masukkan kode tracking domba (misal: KKY-0001) pada kwitansi atau pesan WhatsApp Anda.
             </p>
           </div>
 
