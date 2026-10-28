@@ -1,10 +1,14 @@
 'use client'
 
-import { useState, useTransition, type FormEvent } from 'react'
+import { useState, useEffect, useTransition, type FormEvent } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { createSheep, getNextTrackingCode } from '@/lib/actions/sheep'
+import {
+  createSheep,
+  getNextTrackingCode,
+  checkTrackingCodeAvailability,
+} from '@/lib/actions/sheep'
 import {
   ArrowLeft,
   Sparkles,
@@ -41,6 +45,7 @@ export function NewSheepForm({
   const [isPending, startTransition] = useTransition()
 
   // Form states
+  const [recommendedCode, setRecommendedCode] = useState(initialTrackingCode)
   const [trackingCode, setTrackingCode] = useState(initialTrackingCode)
   const [customerName, setCustomerName] = useState('')
   const [customerPhone, setCustomerPhone] = useState('')
@@ -52,16 +57,75 @@ export function NewSheepForm({
   const [entryDate, setEntryDate] = useState(initialEntryDate)
   const [status, setStatus] = useState<'Penitipan' | 'Selesai/Terkirim' | 'Terjual'>('Penitipan')
 
+  // Code validation & availability states
+  const [isRefreshingCode, setIsRefreshingCode] = useState(false)
+  const [isCheckingCode, setIsCheckingCode] = useState(false)
+  const [isDuplicate, setIsDuplicate] = useState(false)
+  const [duplicateMessage, setDuplicateMessage] = useState<string | null>(null)
+
   // Feedback states
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
-  const [isRefreshingCode, setIsRefreshingCode] = useState(false)
+
+  // Real-time debounce check for manual tracking code input
+  useEffect(() => {
+    const cleanCode = trackingCode.trim().toUpperCase()
+    if (!cleanCode) {
+      setIsDuplicate(false)
+      setDuplicateMessage(null)
+      setIsCheckingCode(false)
+      return
+    }
+
+    setIsCheckingCode(true)
+    const timer = setTimeout(async () => {
+      try {
+        const res = await checkTrackingCodeAvailability(cleanCode)
+        if (!res.available) {
+          setIsDuplicate(true)
+          setDuplicateMessage(res.message || 'Kode ID ini sudah terdaftar!')
+        } else {
+          setIsDuplicate(false)
+          setDuplicateMessage(null)
+        }
+      } catch (err) {
+        console.warn('[NewSheepForm] Error validating tracking code:', err)
+      } finally {
+        setIsCheckingCode(false)
+      }
+    }, 350)
+
+    return () => clearTimeout(timer)
+  }, [trackingCode])
+
+  const handleBlurCode = async () => {
+    const cleanCode = trackingCode.trim().toUpperCase()
+    if (!cleanCode) return
+    setIsCheckingCode(true)
+    try {
+      const res = await checkTrackingCodeAvailability(cleanCode)
+      if (!res.available) {
+        setIsDuplicate(true)
+        setDuplicateMessage(res.message || 'Kode ID ini sudah terdaftar!')
+      } else {
+        setIsDuplicate(false)
+        setDuplicateMessage(null)
+      }
+    } catch (err) {
+      console.warn('[NewSheepForm] Error on blur validate:', err)
+    } finally {
+      setIsCheckingCode(false)
+    }
+  }
 
   const handleRegenerateCode = async () => {
     setIsRefreshingCode(true)
     try {
       const nextCode = await getNextTrackingCode()
+      setRecommendedCode(nextCode)
       setTrackingCode(nextCode)
+      setIsDuplicate(false)
+      setDuplicateMessage(null)
     } catch (err) {
       console.warn('[NewSheepForm] Error fetching next tracking code:', err)
     } finally {
@@ -73,6 +137,16 @@ export function NewSheepForm({
     e.preventDefault()
     setErrorMsg(null)
     setSuccessMsg(null)
+
+    if (isDuplicate) {
+      setErrorMsg('Kode ID domba ini sudah terdaftar! Silakan gunakan kode lain atau ikuti rekomendasi.')
+      return
+    }
+
+    if (!trackingCode.trim()) {
+      setErrorMsg('Kode tracking domba wajib diisi.')
+      return
+    }
 
     if (breed === 'Lainnya') {
       const trimmedCustom = customBreed.trim()
@@ -225,18 +299,46 @@ export function NewSheepForm({
                 </button>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <input
                   type="text"
                   value={trackingCode}
                   onChange={(e) => setTrackingCode(e.target.value.toUpperCase())}
+                  onBlur={handleBlurCode}
                   required
-                  placeholder="KKY-0001"
-                  className="w-full sm:w-64 px-4 py-2.5 rounded-xl border border-stone-300 bg-white font-mono font-bold text-lg text-[#5C6F57] tracking-wider focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#89A482] uppercase"
+                  placeholder={recommendedCode || "KKY-0001"}
+                  className={`w-full sm:w-64 px-4 py-2.5 rounded-xl border font-mono font-bold text-lg tracking-wider focus:outline-none uppercase transition-all shadow-xs ${
+                    isDuplicate
+                      ? 'border-red-500 bg-red-50 text-red-700 focus:ring-2 focus:ring-red-200 focus:border-red-500'
+                      : 'border-stone-300 bg-white text-[#5C6F57] focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#89A482]'
+                  }`}
                 />
-                <span className="hidden sm:inline text-xs text-[#5C6F57] font-medium bg-[#D9E5D6] px-3 py-2 rounded-xl border border-[#B1C5AA]/40">
-                  ✓ Format KKY-0001 Sesuai Standar
-                </span>
+
+                {isCheckingCode ? (
+                  <span className="inline-flex items-center gap-1.5 text-xs text-slate-600 font-medium bg-stone-100 px-3 py-2 rounded-xl border border-stone-200">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-[#5C6F57]" />
+                    <span>Memeriksa ID...</span>
+                  </span>
+                ) : isDuplicate ? (
+                  <span className="inline-flex items-center gap-1.5 text-xs text-red-700 font-semibold bg-red-100 px-3 py-2 rounded-xl border border-red-300 animate-pulse">
+                    <AlertCircle className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                    <span>⚠️ Kode ID ini sudah terdaftar!</span>
+                  </span>
+                ) : trackingCode.trim().toUpperCase() === recommendedCode.trim().toUpperCase() ? (
+                  <span className="inline-flex items-center gap-1.5 text-xs text-[#5C6F57] font-semibold bg-[#D9E5D6] px-3 py-2 rounded-xl border border-[#B1C5AA]/40">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#5C6F57] shrink-0" />
+                    <span>✓ Rekomendasi ID selanjutnya: {recommendedCode}</span>
+                  </span>
+                ) : trackingCode.trim() ? (
+                  <span className="inline-flex items-center gap-1.5 text-xs text-[#5C6F57] font-semibold bg-[#D9E5D6] px-3 py-2 rounded-xl border border-[#B1C5AA]/40">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#5C6F57] shrink-0" />
+                    <span>✓ Kode ID tersedia</span>
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 text-xs text-amber-700 font-medium bg-amber-50 px-3 py-2 rounded-xl border border-amber-200">
+                    <span>⚠️ Kode ID wajib diisi</span>
+                  </span>
+                )}
               </div>
             </div>
 
@@ -483,7 +585,8 @@ export function NewSheepForm({
               <button
                 type="submit"
                 id="btnSubmitNewSheep"
-                disabled={isPending}
+                disabled={isPending || isDuplicate || isCheckingCode || !trackingCode.trim()}
+                title={isDuplicate ? 'Kode ID ini sudah terdaftar!' : undefined}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#5C6F57] hover:bg-[#485844] active:scale-[0.99] text-white text-sm font-semibold shadow-xs transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {isPending ? (

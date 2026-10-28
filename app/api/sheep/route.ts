@@ -1,12 +1,25 @@
 import { NextResponse } from 'next/server'
-import { getNextTrackingCode, createSheep } from '@/lib/actions/sheep'
+import {
+  getNextTrackingCode,
+  checkTrackingCodeAvailability,
+  createSheep,
+} from '@/lib/actions/sheep'
 
 /**
  * GET /api/sheep
- * Returns the next sequential tracking code formatted as KKY-XXXX (e.g. KKY-0001)
+ * - Jika ada query ?check=KKY-XXXX: memeriksa ketersediaan kode ID
+ * - Default: Mengembalikan kode tracking sekuensial berikutnya (KKY-XXXX)
  */
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url)
+    const checkCode = searchParams.get('check') || searchParams.get('code')
+
+    if (checkCode) {
+      const checkResult = await checkTrackingCodeAvailability(checkCode)
+      return NextResponse.json(checkResult)
+    }
+
     const nextTrackingCode = await getNextTrackingCode()
     return NextResponse.json({
       success: true,
@@ -14,7 +27,7 @@ export async function GET() {
     })
   } catch (err: unknown) {
     const errorMsg =
-      err instanceof Error ? err.message : 'Gagal menghasilkan tracking code'
+      err instanceof Error ? err.message : 'Gagal memproses request'
     return NextResponse.json(
       { success: false, error: errorMsg },
       { status: 500 }

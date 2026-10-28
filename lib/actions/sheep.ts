@@ -112,6 +112,71 @@ export async function getNextTrackingCode(): Promise<string> {
 export const generateNextTrackingCode = getNextTrackingCode
 
 /**
+ * Memeriksa apakah tracking code sudah dipakai di tabel sheep, sheep_sold, atau farm_sheep.
+ * Mengembalikan { available: true } jika kode masih unik dan tersedia.
+ */
+export async function checkTrackingCodeAvailability(
+  code: string
+): Promise<{ available: boolean; message?: string }> {
+  try {
+    const cleanCode = code?.trim().toUpperCase().replace(/^#/, '')
+    if (!cleanCode) {
+      return { available: false, message: 'Kode ID tidak boleh kosong.' }
+    }
+
+    const supabase = createAdminClient()
+
+    // 1. Cek tabel sheep
+    const { data: existingSheep, error: sheepErr } = await supabase
+      .from('sheep')
+      .select('id, tracking_code')
+      .ilike('tracking_code', cleanCode)
+      .limit(1)
+
+    if (!sheepErr && existingSheep && existingSheep.length > 0) {
+      return { available: false, message: 'Kode ID ini sudah terdaftar!' }
+    }
+
+    // 2. Cek tabel sheep_sold
+    const { data: existingSold, error: soldErr } = await supabase
+      .from('sheep_sold')
+      .select('id, tracking_code')
+      .ilike('tracking_code', cleanCode)
+      .limit(1)
+
+    if (!soldErr && existingSold && existingSold.length > 0) {
+      return { available: false, message: 'Kode ID ini sudah terdaftar!' }
+    }
+
+    // 3. Cek tabel farm_sheep
+    try {
+      const { data: farmData } = await supabase.from('farm_sheep').select('*')
+      if (farmData) {
+        const isUsed = farmData.some((row: Record<string, unknown>) => {
+          const val = String(
+            row.tracking_code || row.tag_id || row.tag_code || row.code || ''
+          )
+            .trim()
+            .toUpperCase()
+            .replace(/^#/, '')
+          return val === cleanCode
+        })
+        if (isUsed) {
+          return { available: false, message: 'Kode ID ini sudah terdaftar!' }
+        }
+      }
+    } catch (farmErr) {
+      console.warn('[TrackingCode] Note checking farm_sheep:', farmErr)
+    }
+
+    return { available: true }
+  } catch (err: unknown) {
+    console.warn('[TrackingCode] Error checking code availability:', err)
+    return { available: true }
+  }
+}
+
+/**
  * Server Action to insert new sheep data into Supabase
  */
 export async function createSheep(
@@ -159,8 +224,19 @@ export async function createSheep(
       return { success: false, error: 'Tanggal masuk kandang wajib diisi.' }
     }
 
-    // 2. Tracking code preparation
-    const trackingCode = input.tracking_code?.trim() || (await getNextTrackingCode())
+    // 2. Tracking code preparation & availability check
+    let trackingCode = input.tracking_code?.trim()
+    if (trackingCode) {
+      const checkRes = await checkTrackingCodeAvailability(trackingCode)
+      if (!checkRes.available) {
+        return {
+          success: false,
+          error: `Kode ID "${trackingCode}" sudah terdaftar! Silakan gunakan kode lain atau ikuti rekomendasi.`,
+        }
+      }
+    } else {
+      trackingCode = await getNextTrackingCode()
+    }
 
     const payload = {
       tracking_code: trackingCode,
