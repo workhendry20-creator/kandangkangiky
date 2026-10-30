@@ -1,8 +1,6 @@
-📘 Dokumen Arsitektur & Operasional Sistem — Kandang Kang Iky
+📘 Dokumen Revisi Arsitektur & Operasional Sistem — Kandang Kang Iky
 
-Dokumen ini berisi analisis lengkap, akar masalah teknis, solusi arsitektur database, desain antarmuka pengguna (UI/UX), serta panduan eksekusi untuk pengisian log progress universal, manajemen kepemilikan domba, dan alur penjualan/penitipan domba.
-
-📋 1. Ringkasan Eksekutif & Latar Belakang
+📋 1. Ringkasan Revisi
 
 Aplikasi Kandang Kang Iky mengelola dua area utama operasional peternakan:
 

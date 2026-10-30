@@ -33,8 +33,8 @@ const BREED_OPTIONS = [
 ]
 
 interface NewSheepFormProps {
-  initialTrackingCode: string
-  initialEntryDate: string
+  initialTrackingCode?: string
+  initialEntryDate?: string
 }
 
 export function NewSheepForm({
@@ -45,8 +45,8 @@ export function NewSheepForm({
   const [isPending, startTransition] = useTransition()
 
   // Form states
-  const [recommendedCode, setRecommendedCode] = useState(initialTrackingCode)
-  const [trackingCode, setTrackingCode] = useState(initialTrackingCode)
+  const [recommendedCode, setRecommendedCode] = useState(initialTrackingCode || 'KKY-0001')
+  const [trackingCode, setTrackingCode] = useState(initialTrackingCode || 'KKY-0001')
   const [customerName, setCustomerName] = useState('')
   const [customerPhone, setCustomerPhone] = useState('')
   const [breed, setBreed] = useState(BREED_OPTIONS[0])
@@ -54,7 +54,9 @@ export function NewSheepForm({
   const [gender, setGender] = useState<'Jantan' | 'Betina'>('Jantan')
   const [initialWeight, setInitialWeight] = useState('')
   const [targetWeight, setTargetWeight] = useState('')
-  const [entryDate, setEntryDate] = useState(initialEntryDate)
+  const [entryDate, setEntryDate] = useState(
+    initialEntryDate || new Date().toISOString().split('T')[0]
+  )
   const [status, setStatus] = useState<'Penitipan' | 'Selesai/Terkirim' | 'Terjual'>('Penitipan')
 
   // Code validation & availability states
@@ -62,6 +64,25 @@ export function NewSheepForm({
   const [isCheckingCode, setIsCheckingCode] = useState(false)
   const [isDuplicate, setIsDuplicate] = useState(false)
   const [duplicateMessage, setDuplicateMessage] = useState<string | null>(null)
+
+  // Fetch initial tracking code if not passed via props
+  useEffect(() => {
+    if (!initialTrackingCode) {
+      let isMounted = true
+      getNextTrackingCode()
+        .then((nextCode) => {
+          if (isMounted && nextCode) {
+            setRecommendedCode(nextCode)
+            setTrackingCode(nextCode)
+          }
+        })
+        .catch(console.warn)
+      return () => {
+        isMounted = false
+      }
+    }
+  }, [initialTrackingCode])
+
 
   // Feedback states
   const [errorMsg, setErrorMsg] = useState<string | null>(null)

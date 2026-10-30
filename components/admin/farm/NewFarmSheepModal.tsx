@@ -1,8 +1,12 @@
 'use client'
 
-import { useState, useTransition, type FormEvent } from 'react'
+import { useState, useEffect, useTransition, type FormEvent } from 'react'
 import Image from 'next/image'
 import { createFarmSheep } from '@/lib/actions/farm-sheep'
+import {
+  getNextTrackingCode,
+  checkTrackingCodeAvailability,
+} from '@/lib/actions/sheep'
 import type {
   FarmSheepGender,
   FarmSheepOrigin,
@@ -34,17 +38,20 @@ interface NewFarmSheepModalProps {
   isOpen: boolean
   onClose: () => void
   onSuccess?: () => void
+  initialTrackingCode?: string
 }
 
 export function NewFarmSheepModal({
   isOpen,
   onClose,
   onSuccess,
+  initialTrackingCode,
 }: NewFarmSheepModalProps) {
   const [isPending, startTransition] = useTransition()
 
-  // Form states
-  const [tagCode, setTagCode] = useState(() => `DK-${Math.floor(100 + Math.random() * 900)}`)
+  // Form states with universal KKY-XXXX ID
+  const [recommendedCode, setRecommendedCode] = useState(initialTrackingCode || 'KKY-0001')
+  const [tagCode, setTagCode] = useState(initialTrackingCode || 'KKY-0001')
   const [name, setName] = useState('')
   const [gender, setGender] = useState<FarmSheepGender>('Betina')
   const [sheepType, setSheepType] = useState<FarmSheepType>('Indukan')
@@ -57,11 +64,93 @@ export function NewFarmSheepModal({
   const [status, setStatus] = useState<FarmSheepStatus>('Kosongan')
   const [notes, setNotes] = useState('')
 
+  // Validation & Availability states
+  const [isLoadingCode, setIsLoadingCode] = useState(false)
+  const [isRefreshingCode, setIsRefreshingCode] = useState(false)
+  const [isCheckingCode, setIsCheckingCode] = useState(false)
+  const [isDuplicate, setIsDuplicate] = useState(false)
+  const [duplicateMessage, setDuplicateMessage] = useState<string | null>(null)
+
   // Feedback states
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
 
-  if (!isOpen) return null
+  // Fetch highest sequential KKY-XXXX code when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      let isMounted = true
+      setIsLoadingCode(true)
+      getNextTrackingCode()
+        .then((nextCode) => {
+          if (isMounted && nextCode) {
+            setRecommendedCode(nextCode)
+            setTagCode(nextCode)
+            setIsDuplicate(false)
+            setDuplicateMessage(null)
+          }
+        })
+        .catch((err) => {
+          console.warn('[NewFarmSheepModal] Error fetching initial tracking code:', err)
+        })
+        .finally(() => {
+          if (isMounted) setIsLoadingCode(false)
+        })
+      return () => {
+        isMounted = false
+      }
+    }
+  }, [isOpen])
+
+  // Real-time debounce check for manual tagCode input
+  useEffect(() => {
+    const cleanCode = tagCode.trim().toUpperCase()
+    if (!cleanCode) {
+      setIsDuplicate(false)
+      setDuplicateMessage(null)
+      setIsCheckingCode(false)
+      return
+    }
+
+    setIsCheckingCode(true)
+    const timer = setTimeout(async () => {
+      try {
+        const res = await checkTrackingCodeAvailability(cleanCode)
+        if (!res.available) {
+          setIsDuplicate(true)
+          setDuplicateMessage(res.message || 'Kode ID ini sudah terdaftar!')
+        } else {
+          setIsDuplicate(false)
+          setDuplicateMessage(null)
+        }
+      } catch (err) {
+        console.warn('[NewFarmSheepModal] Error validating tracking code:', err)
+      } finally {
+        setIsCheckingCode(false)
+      }
+    }, 350)
+
+    return () => clearTimeout(timer)
+  }, [tagCode])
+
+  const handleBlurCode = async () => {
+    const cleanCode = tagCode.trim().toUpperCase()
+    if (!cleanCode) return
+    setIsCheckingCode(true)
+    try {
+      const res = await checkTrackingCodeAvailability(cleanCode)
+      if (!res.available) {
+        setIsDuplicate(true)
+        setDuplicateMessage(res.message || 'Kode ID ini sudah terdaftar!')
+      } else {
+        setIsDuplicate(false)
+        setDuplicateMessage(null)
+      }
+    } catch (err) {
+      console.warn('[NewFarmSheepModal] Error on blur validate:', err)
+    } finally {
+      setIsCheckingCode(false)
+    }
+  }
 
   const handleGenderChange = (newGender: FarmSheepGender) => {
     setGender(newGender)
@@ -74,15 +163,35 @@ export function NewFarmSheepModal({
     }
   }
 
-  const handleRegenerateTag = () => {
-    const prefix = gender === 'Jantan' ? 'PJN' : 'IND'
-    setTagCode(`${prefix}-${Math.floor(100 + Math.random() * 900)}`)
+  const handleRegenerateTag = async () => {
+    setIsRefreshingCode(true)
+    try {
+      const nextCode = await getNextTrackingCode()
+      setRecommendedCode(nextCode)
+      setTagCode(nextCode)
+      setIsDuplicate(false)
+      setDuplicateMessage(null)
+    } catch (err) {
+      console.warn('[NewFarmSheepModal] Error fetching next tracking code:', err)
+    } finally {
+      setIsRefreshingCode(false)
+    }
   }
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
     setErrorMsg(null)
     setSuccessMsg(null)
+
+    if (isDuplicate) {
+      setErrorMsg('Kode ID domba ini sudah terdaftar! Silakan gunakan kode lain atau ikuti rekomendasi.')
+      return
+    }
+
+    if (!tagCode.trim()) {
+      setErrorMsg('ID / Tag domba wajib diisi.')
+      return
+    }
 
     const weightNum = parseFloat(initialWeight)
     if (isNaN(weightNum) || weightNum <= 0) {
@@ -103,7 +212,7 @@ export function NewFarmSheepModal({
 
     startTransition(async () => {
       const res = await createFarmSheep({
-        tag_code: tagCode.trim(),
+        tag_code: tagCode.trim().toUpperCase(),
         name: name.trim(),
         gender,
         breed: finalBreed,
@@ -189,19 +298,54 @@ export function NewFarmSheepModal({
                   type="text"
                   required
                   value={tagCode}
-                  onChange={(e) => setTagCode(e.target.value)}
-                  placeholder="Contoh: DK-101"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-sm font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57] shadow-xs"
+                  onChange={(e) => setTagCode(e.target.value.toUpperCase())}
+                  onBlur={handleBlurCode}
+                  placeholder={recommendedCode || "KKY-0001"}
+                  className={`w-full px-3.5 py-2.5 rounded-xl border text-sm font-mono font-bold tracking-wider focus:outline-none uppercase transition-all shadow-xs ${
+                    isDuplicate
+                      ? 'border-red-500 bg-red-50 text-red-700 focus:ring-2 focus:ring-red-200 focus:border-red-500'
+                      : 'border-stone-300 bg-white text-slate-900 focus:ring-2 focus:ring-[#89A482]/20 focus:border-[#5C6F57]'
+                  }`}
                 />
                 <button
                   type="button"
                   onClick={handleRegenerateTag}
+                  disabled={isRefreshingCode || isLoadingCode}
                   aria-label="Generate ID Baru"
-                  title="Generate ID Baru"
-                  className="p-2.5 rounded-xl border border-stone-300 hover:bg-[#EBF2E8] text-slate-600 cursor-pointer transition-colors"
+                  title="Generate ID Baru (Rekomendasi berikutnya)"
+                  className="p-2.5 rounded-xl border border-stone-300 hover:bg-[#EBF2E8] text-slate-600 cursor-pointer transition-colors disabled:opacity-60"
                 >
-                  <RefreshCw className="w-4 h-4" />
+                  <RefreshCw className={`w-4 h-4 ${isRefreshingCode || isLoadingCode ? 'animate-spin text-[#5C6F57]' : ''}`} />
                 </button>
+              </div>
+
+              {/* UI Badge & Validation */}
+              <div className="mt-2 min-h-6 flex items-center">
+                {isCheckingCode || isLoadingCode ? (
+                  <span className="inline-flex items-center gap-1.5 text-xs text-slate-600 font-medium bg-stone-100 px-2.5 py-1 rounded-lg border border-stone-200">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-[#5C6F57]" />
+                    <span>Memeriksa ID...</span>
+                  </span>
+                ) : isDuplicate ? (
+                  <span className="inline-flex items-center gap-1.5 text-xs text-red-700 font-semibold bg-red-100 px-2.5 py-1 rounded-lg border border-red-300 animate-pulse">
+                    <AlertCircle className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                    <span>⚠️ Kode ID ini sudah terdaftar!</span>
+                  </span>
+                ) : tagCode.trim().toUpperCase() === recommendedCode.trim().toUpperCase() ? (
+                  <span className="inline-flex items-center gap-1.5 text-xs text-[#5C6F57] font-semibold bg-[#D9E5D6] px-2.5 py-1 rounded-lg border border-[#B1C5AA]/40">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#5C6F57] shrink-0" />
+                    <span>✓ Rekomendasi ID selanjutnya: {recommendedCode}</span>
+                  </span>
+                ) : tagCode.trim() ? (
+                  <span className="inline-flex items-center gap-1.5 text-xs text-[#5C6F57] font-semibold bg-[#D9E5D6] px-2.5 py-1 rounded-lg border border-[#B1C5AA]/40">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#5C6F57] shrink-0" />
+                    <span>✓ Kode ID tersedia</span>
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 text-xs text-amber-700 font-medium bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
+                    <span>⚠️ Kode ID wajib diisi</span>
+                  </span>
+                )}
               </div>
             </div>
 
@@ -451,8 +595,9 @@ export function NewFarmSheepModal({
             </button>
             <button
               type="submit"
-              disabled={isPending}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#5C6F57] hover:bg-[#4d5e49] text-white text-xs font-semibold shadow-xs transition-all cursor-pointer disabled:opacity-60"
+              disabled={isPending || isDuplicate || isCheckingCode || !tagCode.trim()}
+              title={isDuplicate ? 'Kode ID ini sudah terdaftar!' : undefined}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#5C6F57] hover:bg-[#4d5e49] text-white text-xs font-semibold shadow-xs transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {isPending ? (
                 <>

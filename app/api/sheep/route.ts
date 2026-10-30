@@ -24,6 +24,7 @@ export async function GET(request: Request) {
     return NextResponse.json({
       success: true,
       next_tracking_code: nextTrackingCode,
+      recommended_id: nextTrackingCode,
     })
   } catch (err: unknown) {
     const errorMsg =

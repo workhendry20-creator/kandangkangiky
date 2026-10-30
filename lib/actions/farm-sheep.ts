@@ -8,6 +8,7 @@ import {
   getGoogleSheetsWebhookUrl,
 } from '@/lib/google-sheets'
 import { syncAllProgressLogsToSheets } from '@/lib/actions/progress'
+import { checkTrackingCodeAvailability } from '@/lib/actions/sheep'
 import { revalidatePath } from 'next/cache'
 import { buildBirthDescription } from '@/lib/utils'
 import type {
@@ -296,6 +297,14 @@ export async function createFarmSheep(
     const tagCode = input.tag_code?.trim()
     if (!tagCode) {
       return { success: false, error: 'ID/Tag Domba wajib diisi.' }
+    }
+
+    const availCheck = await checkTrackingCodeAvailability(tagCode)
+    if (!availCheck.available) {
+      return {
+        success: false,
+        error: `Kode ID "${tagCode}" sudah terdaftar! Silakan gunakan kode lain atau ikuti rekomendasi.`,
+      }
     }
 
     const name = input.name?.trim()

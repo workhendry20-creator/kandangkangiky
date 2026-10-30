@@ -5,34 +5,12 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-/**
- * Extract numeric sequence from a tracking code with format KKY-XXXX (e.g. KKY-0012 -> 12)
- */
-export function extractTrackingNumber(code: string | null | undefined): number | null {
-  if (!code) return null
-  const clean = String(code).trim().toUpperCase().replace(/^#/, '')
-  const match = clean.match(/^KKY-(\d+)$/)
-  if (match) {
-    const num = parseInt(match[1], 10)
-    return isNaN(num) ? null : num
-  }
-  return null
-}
-
-/**
- * Format a number to standard 4-digit zero-padded KKY-XXXX (e.g. 1 -> KKY-0001, 13 -> KKY-0013)
- */
-export function formatTrackingCode(num: number): string {
-  const safeNum = Math.max(1, Math.floor(num || 1))
-  return `KKY-${String(safeNum).padStart(4, '0')}`
-}
-
-/**
- * Generate a sequential tracking code format KKY-XXXX (default KKY-0001)
- */
-export function generateTrackingCode(counter = 1): string {
-  return formatTrackingCode(counter)
-}
+export {
+  extractTrackingNumber,
+  formatTrackingCode,
+  generateTrackingCode,
+  isValidTrackingCode,
+} from './utils/generate-id'
 
 /**
  * Format weight in kilograms

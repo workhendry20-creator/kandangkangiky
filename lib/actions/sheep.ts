@@ -31,13 +31,13 @@ export interface ActionResult<T = unknown> {
 }
 
 /**
- * Mencari angka tertinggi dari tracking_code yang ada di tabel:
+ * Mencari angka tertinggi dari tracking_code / tag_id yang ada di tabel:
  * 1. sheep (tracking_code)
  * 2. sheep_sold (tracking_code)
  * 3. farm_sheep (tag_id / tag_code / tracking_code / code)
  *
- * Mengambil angka dari format KKY-XXXX (misal: KKY-0012 -> 12),
- * menambahkan +1 (13), dan memformat ulang menjadi 4 digit leading zero (KKY-0013).
+ * Mengambil angka dari format KKY-XXXX (misal: KKY-0008 -> 8),
+ * menambahkan +1 (9), dan memformat ulang menjadi 4 digit leading zero (KKY-0009).
  * Jika belum ada data sama sekali atau tidak ada angka, mulai dari KKY-0001.
  */
 export async function getNextTrackingCode(): Promise<string> {
@@ -50,7 +50,6 @@ export async function getNextTrackingCode(): Promise<string> {
       const { data: sheepData, error: sheepErr } = await supabase
         .from('sheep')
         .select('tracking_code')
-        .ilike('tracking_code', 'KKY-%')
 
       if (!sheepErr && sheepData) {
         for (const row of sheepData) {
@@ -69,7 +68,6 @@ export async function getNextTrackingCode(): Promise<string> {
       const { data: soldData, error: soldErr } = await supabase
         .from('sheep_sold')
         .select('tracking_code')
-        .ilike('tracking_code', 'KKY-%')
 
       if (!soldErr && soldData) {
         for (const row of soldData) {
@@ -91,10 +89,19 @@ export async function getNextTrackingCode(): Promise<string> {
 
       if (!farmErr && farmData) {
         for (const row of farmData) {
-          const rawCode = (row.tracking_code || row.tag_id || row.tag_code || row.code) as string | undefined
-          const num = extractTrackingNumber(rawCode)
-          if (num !== null && num > maxNumber) {
-            maxNumber = num
+          const candidateCodes = [
+            row.tag_id,
+            row.tag_code,
+            row.tracking_code,
+            row.code,
+          ]
+          for (const cand of candidateCodes) {
+            if (cand) {
+              const num = extractTrackingNumber(String(cand))
+              if (num !== null && num > maxNumber) {
+                maxNumber = num
+              }
+            }
           }
         }
       }
@@ -124,49 +131,92 @@ export async function checkTrackingCodeAvailability(
       return { available: false, message: 'Kode ID tidak boleh kosong.' }
     }
 
+    const inputNum = extractTrackingNumber(cleanCode)
+    const canonicalCode = inputNum !== null ? formatTrackingCode(inputNum) : cleanCode
+
     const supabase = createAdminClient()
 
     // 1. Cek tabel sheep
-    const { data: existingSheep, error: sheepErr } = await supabase
-      .from('sheep')
-      .select('id, tracking_code')
-      .ilike('tracking_code', cleanCode)
-      .limit(1)
+    try {
+      const { data: existingSheep, error: sheepErr } = await supabase
+        .from('sheep')
+        .select('id, tracking_code')
 
-    if (!sheepErr && existingSheep && existingSheep.length > 0) {
-      return { available: false, message: 'Kode ID ini sudah terdaftar!' }
+      if (!sheepErr && existingSheep && existingSheep.length > 0) {
+        const isMatch = existingSheep.some((r) => {
+          if (!r.tracking_code) return false
+          const c = String(r.tracking_code).trim().toUpperCase().replace(/^#/, '')
+          if (c === cleanCode || c === canonicalCode) return true
+          if (inputNum !== null) {
+            const rNum = extractTrackingNumber(c)
+            if (rNum !== null && rNum === inputNum) return true
+          }
+          return false
+        })
+        if (isMatch) {
+          return { available: false, message: 'Kode ID ini sudah terdaftar!' }
+        }
+      }
+    } catch (sErr) {
+      console.warn('[TrackingCode] Note checking sheep availability:', sErr)
     }
 
     // 2. Cek tabel sheep_sold
-    const { data: existingSold, error: soldErr } = await supabase
-      .from('sheep_sold')
-      .select('id, tracking_code')
-      .ilike('tracking_code', cleanCode)
-      .limit(1)
+    try {
+      const { data: existingSold, error: soldErr } = await supabase
+        .from('sheep_sold')
+        .select('id, tracking_code')
 
-    if (!soldErr && existingSold && existingSold.length > 0) {
-      return { available: false, message: 'Kode ID ini sudah terdaftar!' }
+      if (!soldErr && existingSold && existingSold.length > 0) {
+        const isMatch = existingSold.some((r) => {
+          if (!r.tracking_code) return false
+          const c = String(r.tracking_code).trim().toUpperCase().replace(/^#/, '')
+          if (c === cleanCode || c === canonicalCode) return true
+          if (inputNum !== null) {
+            const rNum = extractTrackingNumber(c)
+            if (rNum !== null && rNum === inputNum) return true
+          }
+          return false
+        })
+        if (isMatch) {
+          return { available: false, message: 'Kode ID ini sudah terdaftar!' }
+        }
+      }
+    } catch (soldErr) {
+      console.warn('[TrackingCode] Note checking sheep_sold availability:', soldErr)
     }
 
     // 3. Cek tabel farm_sheep
     try {
-      const { data: farmData } = await supabase.from('farm_sheep').select('*')
-      if (farmData) {
-        const isUsed = farmData.some((row: Record<string, unknown>) => {
-          const val = String(
-            row.tracking_code || row.tag_id || row.tag_code || row.code || ''
-          )
-            .trim()
-            .toUpperCase()
-            .replace(/^#/, '')
-          return val === cleanCode
+      const { data: farmData, error: farmErr } = await supabase
+        .from('farm_sheep')
+        .select('*')
+
+      if (!farmErr && farmData && farmData.length > 0) {
+        const isMatch = farmData.some((row: Record<string, unknown>) => {
+          const candidates = [
+            row.tag_id,
+            row.tag_code,
+            row.tracking_code,
+            row.code,
+          ]
+          return candidates.some((cand) => {
+            if (!cand) return false
+            const c = String(cand).trim().toUpperCase().replace(/^#/, '')
+            if (c === cleanCode || c === canonicalCode) return true
+            if (inputNum !== null) {
+              const rNum = extractTrackingNumber(c)
+              if (rNum !== null && rNum === inputNum) return true
+            }
+            return false
+          })
         })
-        if (isUsed) {
+        if (isMatch) {
           return { available: false, message: 'Kode ID ini sudah terdaftar!' }
         }
       }
     } catch (farmErr) {
-      console.warn('[TrackingCode] Note checking farm_sheep:', farmErr)
+      console.warn('[TrackingCode] Note checking farm_sheep availability:', farmErr)
     }
 
     return { available: true }
